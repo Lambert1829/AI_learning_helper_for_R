@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"><title>R语言学习助手 · 本地模拟版</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script></head>
+<body>
+<!-- Visual system: 22/18/16px, green #23694f, white conversation, pale sidebar; 30/70 desktop split. -->
+<header class="app-header">
+<h1>R / 学习助手</h1><span id="current-topic" title="尚未选择知识点">自由提问</span><span class="mock-tag">模拟版</span>
+<div class="more-wrap"><button id="more-toggle" aria-expanded="false" aria-controls="more-panel">更多 <span aria-hidden="true">···</span></button>
+<div id="more-panel" class="popover" hidden><a href="/docs" target="_blank" rel="noopener">接口文档 ↗</a><button id="export">导出记录</button><button id="clear">清空记录</button><button id="version-open">当前版本说明</button></div></div>
+</header>
+<main id="layout">
+<button id="drawer-backdrop" hidden aria-label="关闭课程目录遮罩" tabindex="-1"></button>
+<aside id="sidebar" aria-label="课程目录">
+<div class="sidebar-heading"><h2>课程目录</h2><button id="sidebar-close" aria-label="收起课程目录">收起 <span aria-hidden="true">‹</span></button></div>
+<label for="search" class="sr-only">查找知识点</label><input id="search" type="search" placeholder="查找知识点或函数">
+<nav id="catalog" aria-label="课程知识目录"></nav><p id="catalog-empty" class="muted" hidden>没有找到相符的知识点。</p>
+</aside>
+<section id="workspace" aria-label="学习对话">
+<div class="conversation-toolbar"><button id="catalog-toggle" aria-controls="sidebar" aria-expanded="true">☰ <span>课程目录</span></button></div>
+<div id="conversation-scroll" tabindex="0" aria-label="对话记录">
+<div id="welcome"><h2>今天想弄懂什么？</h2><div id="examples" class="examples">
+<button data-example="向量和列表有什么区别？">向量和列表有什么区别？ <span aria-hidden="true">↗</span></button>
+<button data-example="mean中的na.rm怎么用？">mean中的na.rm怎么用？ <span aria-hidden="true">↗</span></button>
+<button id="debug-example">为什么 x == NA 筛选不对？ <span aria-hidden="true">↗</span></button>
+</div></div><div id="messages" aria-live="polite" aria-relevant="additions"></div>
+</div>
+<div class="composer-dock"><form id="ask-form">
+<label for="question" class="sr-only">你的问题</label><textarea id="question" rows="2" maxlength="2000" placeholder="提出问题，或接着追问…"></textarea>
+<div id="code-panel" hidden><label for="code">R代码</label><textarea id="code" rows="3" maxlength="10000" spellcheck="false" placeholder="粘贴需要检查的代码"></textarea><label for="error-message">完整报错（可选）</label><textarea id="error-message" rows="2" maxlength="2000" placeholder="粘贴控制台报错"></textarea></div>
+<div class="composer-actions"><button id="code-toggle" type="button" aria-expanded="false" aria-controls="code-panel">＋ 添加代码</button><button id="send" type="submit" class="primary">发送 <span aria-hidden="true">↑</span></button></div>
+</form><p id="status" role="status" hidden></p></div>
+</section></main>
+<dialog id="version-dialog" aria-labelledby="version-title"><div class="dialog-heading"><h2 id="version-title">当前版本说明</h2><button id="version-close" aria-label="关闭版本说明">关闭</button></div><p id="version-number">本地模拟版</p><ul><li>回答来自课程资料和规则。</li><li>尚未接入大模型。</li><li>不执行用户提交的R代码。</li><li>本地地址不是公网链接。</li></ul><p class="muted">学习记录仅保存在当前浏览器，可通过“更多”导出或清空。</p></dialog>
+</body></html>

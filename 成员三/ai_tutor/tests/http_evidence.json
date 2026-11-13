@@ -1,0 +1,1228 @@
+{
+  "health": [
+    200,
+    {
+      "status": "ok",
+      "mode": "mock",
+      "version": "1.0.0",
+      "knowledge_version": "916ec03645ae",
+      "counts": {
+        "knowledge": 43,
+        "questions": 24,
+        "errors": 14,
+        "relations": 95
+      }
+    }
+  ],
+  "catalog": [
+    200,
+    {
+      "items": [
+        {
+          "id": "K01",
+          "title": "R、RStudio与脚本执行",
+          "chapter": "环境与自助学习",
+          "prerequisites": []
+        },
+        {
+          "id": "K02",
+          "title": "安装、加载与命名空间",
+          "chapter": "环境与自助学习",
+          "prerequisites": [
+            "K01"
+          ]
+        },
+        {
+          "id": "K03",
+          "title": "帮助与可复现记录",
+          "chapter": "环境与自助学习",
+          "prerequisites": [
+            "K01",
+            "K02"
+          ]
+        },
+        {
+          "id": "K04",
+          "title": "类型、类与类型转换",
+          "chapter": "类型与缺失",
+          "prerequisites": [
+            "K01"
+          ]
+        },
+        {
+          "id": "K05",
+          "title": "逻辑运算与条件筛选",
+          "chapter": "类型与缺失",
+          "prerequisites": [
+            "K04"
+          ]
+        },
+        {
+          "id": "K06",
+          "title": "缺失、NaN与无穷值",
+          "chapter": "类型与缺失",
+          "prerequisites": [
+            "K04",
+            "K05"
+          ]
+        },
+        {
+          "id": "K07",
+          "title": "普通因子与有序因子",
+          "chapter": "类型与缺失",
+          "prerequisites": [
+            "K04"
+          ]
+        },
+        {
+          "id": "K08",
+          "title": "日期、时间与格式",
+          "chapter": "类型与缺失",
+          "prerequisites": [
+            "K04"
+          ]
+        },
+        {
+          "id": "K09",
+          "title": "创建向量与随机抽样",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K04"
+          ]
+        },
+        {
+          "id": "K10",
+          "title": "向量索引与定位",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K05",
+            "K09"
+          ]
+        },
+        {
+          "id": "K11",
+          "title": "向量运算与循环补齐",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K09"
+          ]
+        },
+        {
+          "id": "K12",
+          "title": "集合、匹配与成员判断",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K09",
+            "K10"
+          ]
+        },
+        {
+          "id": "K13",
+          "title": "数值汇总",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K06",
+            "K09"
+          ]
+        },
+        {
+          "id": "K14",
+          "title": "sort、order与rank",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K10"
+          ]
+        },
+        {
+          "id": "K15",
+          "title": "cut分组与区间边界",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K07",
+            "K09"
+          ]
+        },
+        {
+          "id": "K16",
+          "title": "字符长度与截取",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K04",
+            "K09"
+          ]
+        },
+        {
+          "id": "K17",
+          "title": "paste与paste0",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K09",
+            "K16"
+          ]
+        },
+        {
+          "id": "K18",
+          "title": "查找、替换与正则",
+          "chapter": "向量与字符串",
+          "prerequisites": [
+            "K16"
+          ]
+        },
+        {
+          "id": "K19",
+          "title": "创建矩阵与保留维度",
+          "chapter": "矩阵与数组",
+          "prerequisites": [
+            "K09",
+            "K10"
+          ]
+        },
+        {
+          "id": "K20",
+          "title": "矩阵绑定、命名与转置",
+          "chapter": "矩阵与数组",
+          "prerequisites": [
+            "K19"
+          ]
+        },
+        {
+          "id": "K21",
+          "title": "矩阵乘法与线性方程",
+          "chapter": "矩阵与数组",
+          "prerequisites": [
+            "K19",
+            "K20"
+          ]
+        },
+        {
+          "id": "K22",
+          "title": "特征分解与SVD",
+          "chapter": "矩阵与数组",
+          "prerequisites": [
+            "K21"
+          ]
+        },
+        {
+          "id": "K23",
+          "title": "稀疏矩阵",
+          "chapter": "矩阵与数组",
+          "prerequisites": [
+            "K19",
+            "K21"
+          ]
+        },
+        {
+          "id": "K24",
+          "title": "数组与apply",
+          "chapter": "矩阵与数组",
+          "prerequisites": [
+            "K19"
+          ]
+        },
+        {
+          "id": "K25",
+          "title": "数据框创建与检查",
+          "chapter": "数据框",
+          "prerequisites": [
+            "K04",
+            "K09",
+            "K19"
+          ]
+        },
+        {
+          "id": "K26",
+          "title": "数据框取列、筛选与增列",
+          "chapter": "数据框",
+          "prerequisites": [
+            "K05",
+            "K06",
+            "K10",
+            "K25"
+          ]
+        },
+        {
+          "id": "K27",
+          "title": "数据框排序与合并",
+          "chapter": "数据框",
+          "prerequisites": [
+            "K14",
+            "K25",
+            "K26"
+          ]
+        },
+        {
+          "id": "K28",
+          "title": "缺失处理与异常值策略",
+          "chapter": "数据框",
+          "prerequisites": [
+            "K06",
+            "K25",
+            "K26"
+          ]
+        },
+        {
+          "id": "K29",
+          "title": "长宽表转换：基础R",
+          "chapter": "数据框",
+          "prerequisites": [
+            "K25",
+            "K27"
+          ]
+        },
+        {
+          "id": "K30",
+          "title": "分组汇总：基础R",
+          "chapter": "数据框",
+          "prerequisites": [
+            "K13",
+            "K25",
+            "K28"
+          ]
+        },
+        {
+          "id": "K31",
+          "title": "列表创建、索引与嵌套",
+          "chapter": "列表与批量处理",
+          "prerequisites": [
+            "K10",
+            "K25"
+          ]
+        },
+        {
+          "id": "K32",
+          "title": "lapply、sapply与vapply",
+          "chapter": "列表与批量处理",
+          "prerequisites": [
+            "K13",
+            "K31"
+          ]
+        },
+        {
+          "id": "K33",
+          "title": "mapply与逐组配对",
+          "chapter": "列表与批量处理",
+          "prerequisites": [
+            "K11",
+            "K31",
+            "K32"
+          ]
+        },
+        {
+          "id": "K34",
+          "title": "do.call、Reduce与递归处理",
+          "chapter": "列表与批量处理",
+          "prerequisites": [
+            "K27",
+            "K31",
+            "K32"
+          ]
+        },
+        {
+          "id": "K35",
+          "title": "自定义函数与参数检查",
+          "chapter": "函数与控制",
+          "prerequisites": [
+            "K05",
+            "K06",
+            "K13"
+          ]
+        },
+        {
+          "id": "K36",
+          "title": "if、else与向量化分支",
+          "chapter": "函数与控制",
+          "prerequisites": [
+            "K05",
+            "K06",
+            "K35"
+          ]
+        },
+        {
+          "id": "K37",
+          "title": "for、while与安全循环",
+          "chapter": "函数与控制",
+          "prerequisites": [
+            "K09",
+            "K31",
+            "K35",
+            "K36"
+          ]
+        },
+        {
+          "id": "K38",
+          "title": "文件导入、导出与路径",
+          "chapter": "函数与控制",
+          "prerequisites": [
+            "K08",
+            "K25"
+          ]
+        },
+        {
+          "id": "K39",
+          "title": "综合任务：模拟电影数据清洗",
+          "chapter": "综合与包扩展",
+          "prerequisites": [
+            "K08",
+            "K14",
+            "K18",
+            "K26",
+            "K27",
+            "K28",
+            "K30"
+          ]
+        },
+        {
+          "id": "K40",
+          "title": "dplyr分组与管道",
+          "chapter": "综合与包扩展",
+          "prerequisites": [
+            "K25",
+            "K30",
+            "K35"
+          ]
+        },
+        {
+          "id": "K41",
+          "title": "tidyr现行长宽表转换",
+          "chapter": "综合与包扩展",
+          "prerequisites": [
+            "K25",
+            "K29"
+          ]
+        },
+        {
+          "id": "K42",
+          "title": "reshape2与plyr课件原写法",
+          "chapter": "综合与包扩展",
+          "prerequisites": [
+            "K29",
+            "K30"
+          ]
+        },
+        {
+          "id": "K43",
+          "title": "lubridate时间成分",
+          "chapter": "综合与包扩展",
+          "prerequisites": [
+            "K08"
+          ]
+        }
+      ],
+      "relations": [
+        {
+          "from": "K01",
+          "to": "K02",
+          "type": "建议先修",
+          "description": "先掌握R、RStudio与脚本执行，再学习安装、加载与命名空间"
+        },
+        {
+          "from": "K01",
+          "to": "K03",
+          "type": "建议先修",
+          "description": "先掌握R、RStudio与脚本执行，再学习帮助与可复现记录"
+        },
+        {
+          "from": "K02",
+          "to": "K03",
+          "type": "建议先修",
+          "description": "先掌握安装、加载与命名空间，再学习帮助与可复现记录"
+        },
+        {
+          "from": "K01",
+          "to": "K04",
+          "type": "建议先修",
+          "description": "先掌握R、RStudio与脚本执行，再学习类型、类与类型转换"
+        },
+        {
+          "from": "K04",
+          "to": "K05",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习逻辑运算与条件筛选"
+        },
+        {
+          "from": "K04",
+          "to": "K06",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习缺失、NaN与无穷值"
+        },
+        {
+          "from": "K05",
+          "to": "K06",
+          "type": "建议先修",
+          "description": "先掌握逻辑运算与条件筛选，再学习缺失、NaN与无穷值"
+        },
+        {
+          "from": "K04",
+          "to": "K07",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习普通因子与有序因子"
+        },
+        {
+          "from": "K04",
+          "to": "K08",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习日期、时间与格式"
+        },
+        {
+          "from": "K04",
+          "to": "K09",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习创建向量与随机抽样"
+        },
+        {
+          "from": "K05",
+          "to": "K10",
+          "type": "建议先修",
+          "description": "先掌握逻辑运算与条件筛选，再学习向量索引与定位"
+        },
+        {
+          "from": "K09",
+          "to": "K10",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习向量索引与定位"
+        },
+        {
+          "from": "K09",
+          "to": "K11",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习向量运算与循环补齐"
+        },
+        {
+          "from": "K09",
+          "to": "K12",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习集合、匹配与成员判断"
+        },
+        {
+          "from": "K10",
+          "to": "K12",
+          "type": "建议先修",
+          "description": "先掌握向量索引与定位，再学习集合、匹配与成员判断"
+        },
+        {
+          "from": "K06",
+          "to": "K13",
+          "type": "建议先修",
+          "description": "先掌握缺失、NaN与无穷值，再学习数值汇总"
+        },
+        {
+          "from": "K09",
+          "to": "K13",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习数值汇总"
+        },
+        {
+          "from": "K10",
+          "to": "K14",
+          "type": "建议先修",
+          "description": "先掌握向量索引与定位，再学习sort、order与rank"
+        },
+        {
+          "from": "K07",
+          "to": "K15",
+          "type": "建议先修",
+          "description": "先掌握普通因子与有序因子，再学习cut分组与区间边界"
+        },
+        {
+          "from": "K09",
+          "to": "K15",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习cut分组与区间边界"
+        },
+        {
+          "from": "K04",
+          "to": "K16",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习字符长度与截取"
+        },
+        {
+          "from": "K09",
+          "to": "K16",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习字符长度与截取"
+        },
+        {
+          "from": "K09",
+          "to": "K17",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习paste与paste0"
+        },
+        {
+          "from": "K16",
+          "to": "K17",
+          "type": "建议先修",
+          "description": "先掌握字符长度与截取，再学习paste与paste0"
+        },
+        {
+          "from": "K16",
+          "to": "K18",
+          "type": "建议先修",
+          "description": "先掌握字符长度与截取，再学习查找、替换与正则"
+        },
+        {
+          "from": "K09",
+          "to": "K19",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习创建矩阵与保留维度"
+        },
+        {
+          "from": "K10",
+          "to": "K19",
+          "type": "建议先修",
+          "description": "先掌握向量索引与定位，再学习创建矩阵与保留维度"
+        },
+        {
+          "from": "K19",
+          "to": "K20",
+          "type": "建议先修",
+          "description": "先掌握创建矩阵与保留维度，再学习矩阵绑定、命名与转置"
+        },
+        {
+          "from": "K19",
+          "to": "K21",
+          "type": "建议先修",
+          "description": "先掌握创建矩阵与保留维度，再学习矩阵乘法与线性方程"
+        },
+        {
+          "from": "K20",
+          "to": "K21",
+          "type": "建议先修",
+          "description": "先掌握矩阵绑定、命名与转置，再学习矩阵乘法与线性方程"
+        },
+        {
+          "from": "K21",
+          "to": "K22",
+          "type": "建议先修",
+          "description": "先掌握矩阵乘法与线性方程，再学习特征分解与SVD"
+        },
+        {
+          "from": "K19",
+          "to": "K23",
+          "type": "建议先修",
+          "description": "先掌握创建矩阵与保留维度，再学习稀疏矩阵"
+        },
+        {
+          "from": "K21",
+          "to": "K23",
+          "type": "建议先修",
+          "description": "先掌握矩阵乘法与线性方程，再学习稀疏矩阵"
+        },
+        {
+          "from": "K19",
+          "to": "K24",
+          "type": "建议先修",
+          "description": "先掌握创建矩阵与保留维度，再学习数组与apply"
+        },
+        {
+          "from": "K04",
+          "to": "K25",
+          "type": "建议先修",
+          "description": "先掌握类型、类与类型转换，再学习数据框创建与检查"
+        },
+        {
+          "from": "K09",
+          "to": "K25",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习数据框创建与检查"
+        },
+        {
+          "from": "K19",
+          "to": "K25",
+          "type": "建议先修",
+          "description": "先掌握创建矩阵与保留维度，再学习数据框创建与检查"
+        },
+        {
+          "from": "K05",
+          "to": "K26",
+          "type": "建议先修",
+          "description": "先掌握逻辑运算与条件筛选，再学习数据框取列、筛选与增列"
+        },
+        {
+          "from": "K06",
+          "to": "K26",
+          "type": "建议先修",
+          "description": "先掌握缺失、NaN与无穷值，再学习数据框取列、筛选与增列"
+        },
+        {
+          "from": "K10",
+          "to": "K26",
+          "type": "建议先修",
+          "description": "先掌握向量索引与定位，再学习数据框取列、筛选与增列"
+        },
+        {
+          "from": "K25",
+          "to": "K26",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习数据框取列、筛选与增列"
+        },
+        {
+          "from": "K14",
+          "to": "K27",
+          "type": "建议先修",
+          "description": "先掌握sort、order与rank，再学习数据框排序与合并"
+        },
+        {
+          "from": "K25",
+          "to": "K27",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习数据框排序与合并"
+        },
+        {
+          "from": "K26",
+          "to": "K27",
+          "type": "建议先修",
+          "description": "先掌握数据框取列、筛选与增列，再学习数据框排序与合并"
+        },
+        {
+          "from": "K06",
+          "to": "K28",
+          "type": "建议先修",
+          "description": "先掌握缺失、NaN与无穷值，再学习缺失处理与异常值策略"
+        },
+        {
+          "from": "K25",
+          "to": "K28",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习缺失处理与异常值策略"
+        },
+        {
+          "from": "K26",
+          "to": "K28",
+          "type": "建议先修",
+          "description": "先掌握数据框取列、筛选与增列，再学习缺失处理与异常值策略"
+        },
+        {
+          "from": "K25",
+          "to": "K29",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习长宽表转换：基础R"
+        },
+        {
+          "from": "K27",
+          "to": "K29",
+          "type": "建议先修",
+          "description": "先掌握数据框排序与合并，再学习长宽表转换：基础R"
+        },
+        {
+          "from": "K13",
+          "to": "K30",
+          "type": "建议先修",
+          "description": "先掌握数值汇总，再学习分组汇总：基础R"
+        },
+        {
+          "from": "K25",
+          "to": "K30",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习分组汇总：基础R"
+        },
+        {
+          "from": "K28",
+          "to": "K30",
+          "type": "建议先修",
+          "description": "先掌握缺失处理与异常值策略，再学习分组汇总：基础R"
+        },
+        {
+          "from": "K10",
+          "to": "K31",
+          "type": "建议先修",
+          "description": "先掌握向量索引与定位，再学习列表创建、索引与嵌套"
+        },
+        {
+          "from": "K25",
+          "to": "K31",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习列表创建、索引与嵌套"
+        },
+        {
+          "from": "K13",
+          "to": "K32",
+          "type": "建议先修",
+          "description": "先掌握数值汇总，再学习lapply、sapply与vapply"
+        },
+        {
+          "from": "K31",
+          "to": "K32",
+          "type": "建议先修",
+          "description": "先掌握列表创建、索引与嵌套，再学习lapply、sapply与vapply"
+        },
+        {
+          "from": "K11",
+          "to": "K33",
+          "type": "建议先修",
+          "description": "先掌握向量运算与循环补齐，再学习mapply与逐组配对"
+        },
+        {
+          "from": "K31",
+          "to": "K33",
+          "type": "建议先修",
+          "description": "先掌握列表创建、索引与嵌套，再学习mapply与逐组配对"
+        },
+        {
+          "from": "K32",
+          "to": "K33",
+          "type": "建议先修",
+          "description": "先掌握lapply、sapply与vapply，再学习mapply与逐组配对"
+        },
+        {
+          "from": "K27",
+          "to": "K34",
+          "type": "建议先修",
+          "description": "先掌握数据框排序与合并，再学习do.call、Reduce与递归处理"
+        },
+        {
+          "from": "K31",
+          "to": "K34",
+          "type": "建议先修",
+          "description": "先掌握列表创建、索引与嵌套，再学习do.call、Reduce与递归处理"
+        },
+        {
+          "from": "K32",
+          "to": "K34",
+          "type": "建议先修",
+          "description": "先掌握lapply、sapply与vapply，再学习do.call、Reduce与递归处理"
+        },
+        {
+          "from": "K05",
+          "to": "K35",
+          "type": "建议先修",
+          "description": "先掌握逻辑运算与条件筛选，再学习自定义函数与参数检查"
+        },
+        {
+          "from": "K06",
+          "to": "K35",
+          "type": "建议先修",
+          "description": "先掌握缺失、NaN与无穷值，再学习自定义函数与参数检查"
+        },
+        {
+          "from": "K13",
+          "to": "K35",
+          "type": "建议先修",
+          "description": "先掌握数值汇总，再学习自定义函数与参数检查"
+        },
+        {
+          "from": "K05",
+          "to": "K36",
+          "type": "建议先修",
+          "description": "先掌握逻辑运算与条件筛选，再学习if、else与向量化分支"
+        },
+        {
+          "from": "K06",
+          "to": "K36",
+          "type": "建议先修",
+          "description": "先掌握缺失、NaN与无穷值，再学习if、else与向量化分支"
+        },
+        {
+          "from": "K35",
+          "to": "K36",
+          "type": "建议先修",
+          "description": "先掌握自定义函数与参数检查，再学习if、else与向量化分支"
+        },
+        {
+          "from": "K09",
+          "to": "K37",
+          "type": "建议先修",
+          "description": "先掌握创建向量与随机抽样，再学习for、while与安全循环"
+        },
+        {
+          "from": "K31",
+          "to": "K37",
+          "type": "建议先修",
+          "description": "先掌握列表创建、索引与嵌套，再学习for、while与安全循环"
+        },
+        {
+          "from": "K35",
+          "to": "K37",
+          "type": "建议先修",
+          "description": "先掌握自定义函数与参数检查，再学习for、while与安全循环"
+        },
+        {
+          "from": "K36",
+          "to": "K37",
+          "type": "建议先修",
+          "description": "先掌握if、else与向量化分支，再学习for、while与安全循环"
+        },
+        {
+          "from": "K08",
+          "to": "K38",
+          "type": "建议先修",
+          "description": "先掌握日期、时间与格式，再学习文件导入、导出与路径"
+        },
+        {
+          "from": "K25",
+          "to": "K38",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习文件导入、导出与路径"
+        },
+        {
+          "from": "K08",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握日期、时间与格式，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K14",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握sort、order与rank，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K18",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握查找、替换与正则，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K26",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握数据框取列、筛选与增列，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K27",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握数据框排序与合并，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K28",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握缺失处理与异常值策略，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K30",
+          "to": "K39",
+          "type": "建议先修",
+          "description": "先掌握分组汇总：基础R，再学习综合任务：模拟电影数据清洗"
+        },
+        {
+          "from": "K25",
+          "to": "K40",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习dplyr分组与管道"
+        },
+        {
+          "from": "K30",
+          "to": "K40",
+          "type": "建议先修",
+          "description": "先掌握分组汇总：基础R，再学习dplyr分组与管道"
+        },
+        {
+          "from": "K35",
+          "to": "K40",
+          "type": "建议先修",
+          "description": "先掌握自定义函数与参数检查，再学习dplyr分组与管道"
+        },
+        {
+          "from": "K25",
+          "to": "K41",
+          "type": "建议先修",
+          "description": "先掌握数据框创建与检查，再学习tidyr现行长宽表转换"
+        },
+        {
+          "from": "K29",
+          "to": "K41",
+          "type": "建议先修",
+          "description": "先掌握长宽表转换：基础R，再学习tidyr现行长宽表转换"
+        },
+        {
+          "from": "K29",
+          "to": "K42",
+          "type": "建议先修",
+          "description": "先掌握长宽表转换：基础R，再学习reshape2与plyr课件原写法"
+        },
+        {
+          "from": "K30",
+          "to": "K42",
+          "type": "建议先修",
+          "description": "先掌握分组汇总：基础R，再学习reshape2与plyr课件原写法"
+        },
+        {
+          "from": "K08",
+          "to": "K43",
+          "type": "建议先修",
+          "description": "先掌握日期、时间与格式，再学习lubridate时间成分"
+        },
+        {
+          "from": "K19",
+          "to": "K25",
+          "type": "比较或应用",
+          "description": "同为二维组织；矩阵同类型，数据框可异类型列"
+        },
+        {
+          "from": "K10",
+          "to": "K31",
+          "type": "比较或应用",
+          "description": "向量与列表的[和[[返回结构不同"
+        },
+        {
+          "from": "K14",
+          "to": "K27",
+          "type": "比较或应用",
+          "description": "order返回位置，用于整表同步重排"
+        },
+        {
+          "from": "K29",
+          "to": "K42",
+          "type": "比较或应用",
+          "description": "基础reshape与课件reshape2的任务对应"
+        },
+        {
+          "from": "K30",
+          "to": "K40",
+          "type": "比较或应用",
+          "description": "基础R与dplyr分组汇总对应"
+        },
+        {
+          "from": "K29",
+          "to": "K40",
+          "type": "比较或应用",
+          "description": "长表数据常用于分组汇总"
+        }
+      ],
+      "knowledge_version": "916ec03645ae"
+    }
+  ],
+  "detail": [
+    200,
+    {
+      "id": "K06",
+      "title": "缺失、NaN与无穷值",
+      "fields": {
+        "来源": "S3 PDF 11、73；S4 第15章 PDF 233–234。先修：K04、K05。核验：已实测通过。",
+        "解释": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+        "函数语法": "is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+        "参数说明": "na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+        "运行示例": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+        "实际输出": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+        "易错提醒": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。",
+        "练习提示": "对c(NA,NA)求均值，解释为什么不是0。"
+      },
+      "sources": [
+        {
+          "source_id": "S3",
+          "file": "CH2R语言数据操作课件.pdf",
+          "locator": "PDF 11、73",
+          "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+        },
+        {
+          "source_id": "S4",
+          "file": "R数据科学_译本.pdf",
+          "locator": "第15章 PDF 233–234",
+          "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+        }
+      ],
+      "knowledge_ids": [
+        "K06"
+      ],
+      "prerequisites": [
+        "K04",
+        "K05"
+      ],
+      "chapter": "类型与缺失",
+      "keywords": [
+        "FALSE",
+        "NaN",
+        "is.finite",
+        "is.na",
+        "is.nan",
+        "mean",
+        "na.rm",
+        "x"
+      ],
+      "verification": "来源文档的核验记录；本应用未执行R代码",
+      "catalog_row": [
+        "K06",
+        "缺失、NaN与无穷值",
+        "核心",
+        "K04 K05",
+        "S3 PDF 11、73；S4 第15章 PDF 233–234",
+        "已实测通过"
+      ],
+      "level": "核心"
+    }
+  ],
+  "chat": [
+    200,
+    {
+      "request_id": "c4b9b978-84cf-4690-8f76-1a50b9a8a93f",
+      "status": "ok",
+      "mode": "mock",
+      "task_type": "function",
+      "answer": {
+        "summary": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+        "steps": [
+          "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+          "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+          "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+        ],
+        "issues": [],
+        "corrected_code": "",
+        "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+        "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+        "execution_status": "not_executed",
+        "code_kind": "reference_example",
+        "follow_ups": [
+          "举个例子",
+          "有什么易错点",
+          "给我练习"
+        ]
+      },
+      "citations": [
+        {
+          "knowledge_id": "K06",
+          "source_id": "S3",
+          "file": "CH2R语言数据操作课件.pdf",
+          "locator": "PDF 11、73",
+          "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+        },
+        {
+          "knowledge_id": "K06",
+          "source_id": "S4",
+          "file": "R数据科学_译本.pdf",
+          "locator": "第15章 PDF 233–234",
+          "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+        },
+        {
+          "knowledge_id": "K03",
+          "source_id": "S1",
+          "file": "CH11R语言安装.pdf",
+          "locator": "PDF 28–42",
+          "raw": "S1 PDF 28–42"
+        },
+        {
+          "knowledge_id": "K13",
+          "source_id": "S3",
+          "file": "CH2R语言数据操作课件.pdf",
+          "locator": "PDF 34",
+          "raw": "S3 PDF 34；S4 第3章 汇总"
+        },
+        {
+          "knowledge_id": "K13",
+          "source_id": "S4",
+          "file": "R数据科学_译本.pdf",
+          "locator": "第3章 汇总",
+          "raw": "S3 PDF 34；S4 第3章 汇总"
+        },
+        {
+          "knowledge_id": "K35",
+          "source_id": "S4",
+          "file": "R数据科学_译本.pdf",
+          "locator": "第14章 PDF 214–229",
+          "raw": "S4 第14章 PDF 214–229"
+        }
+      ],
+      "related_knowledge": [
+        "K06",
+        "K03",
+        "K13",
+        "K35"
+      ],
+      "matched_case_id": null,
+      "prompt_version": "mock-rules-v1",
+      "knowledge_version": "916ec03645ae"
+    }
+  ],
+  "review": [
+    200,
+    {
+      "request_id": "3ac7b35c-56a8-4a22-aeb1-05167cc088da",
+      "status": "ok",
+      "mode": "mock",
+      "task_type": "debug",
+      "answer": {
+        "summary": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。",
+        "steps": [
+          "与NA比较得到NA，而不是可靠的TRUE/FALSE；这是结果错误，不一定报错。",
+          "参考案例的变量和数据可能与你不同，请按任务含义调整。"
+        ],
+        "issues": [
+          {
+            "kind": "logic",
+            "line": 2,
+            "reason": "与NA比较得到NA，而不是可靠的TRUE/FALSE；这是结果错误，不一定报错。"
+          }
+        ],
+        "corrected_code": "x <- c(1,NA,3)\nprint(x[!is.na(x)])",
+        "example_code": "",
+        "expected_output": "[1] 1 3",
+        "execution_status": "not_executed",
+        "code_kind": "reference_example",
+        "follow_ups": [
+          "举个例子",
+          "有什么易错点",
+          "给我练习"
+        ]
+      },
+      "citations": [
+        {
+          "knowledge_id": "K06",
+          "source_id": "S3",
+          "file": "CH2R语言数据操作课件.pdf",
+          "locator": "PDF 11、73",
+          "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+        },
+        {
+          "knowledge_id": "K06",
+          "source_id": "S4",
+          "file": "R数据科学_译本.pdf",
+          "locator": "第15章 PDF 233–234",
+          "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+        }
+      ],
+      "related_knowledge": [
+        "K06"
+      ],
+      "matched_case_id": "E04",
+      "prompt_version": "mock-rules-v1",
+      "knowledge_version": "916ec03645ae"
+    }
+  ],
+  "no_match": [
+    200,
+    {
+      "request_id": "e8a6871d-18e8-42ef-9731-eb8973ce1100",
+      "status": "no_match",
+      "mode": "mock",
+      "task_type": "concept",
+      "answer": {
+        "summary": "当前课程资料未找到可靠匹配。请使用具体R函数名、知识点名称或左侧课程导航。",
+        "steps": [],
+        "issues": [],
+        "corrected_code": "",
+        "example_code": "",
+        "expected_output": "",
+        "execution_status": "not_executed",
+        "code_kind": "reference_example",
+        "follow_ups": []
+      },
+      "citations": [],
+      "related_knowledge": [],
+      "matched_case_id": null,
+      "prompt_version": "mock-rules-v1",
+      "knowledge_version": "916ec03645ae"
+    }
+  ],
+  "not_found": [
+    404,
+    {
+      "request_id": "fdb559d0-aad6-44ca-93c5-75209924e02e",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "知识点不存在，请从课程目录选择",
+        "retryable": false
+      }
+    }
+  ],
+  "invalid": [
+    422,
+    {
+      "request_id": "34ea9261-ab80-444d-a1ae-48f3390a10dc",
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "输入不符合要求；body: Value error, 请输入问题、代码或选择知识点",
+        "retryable": false
+      }
+    }
+  ]
+}
