@@ -1,4 +1,6 @@
 async (page) => {
+  await page.evaluate(() => { location.hash = '/chat'; });
+  await page.waitForFunction(() => !document.querySelector('#layout').hidden);
   await page.getByLabel('你的问题').fill('mean怎么用');
   await page.locator('#send').click();
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('无法连接本地服务'));

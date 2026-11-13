@@ -3,7 +3,9 @@ const $ = id => document.getElementById(id);
 const STORE = 'r-tutor-mock-v1';
 const UNITS = ['环境与自助学习','类型与缺失','向量与字符串','矩阵与数组','数据框','列表与批量处理','函数与控制','综合与包扩展'];
 const mobile = matchMedia('(max-width:760px)');
-let records = [], knowledge = [], activeId = null, busy = false;
+let records = [], knowledge = [], relations = [], activeId = null, busy = false;
+let currentView = '', pendingRecord = null;
+const FOLLOW_LABELS = {'举个例子':'例题','有什么易错点':'易错点','给我练习':'练习'};
 let openUnit = null, desktopCollapsed = false, drawerOpen = false, codeOpen = false;
 try {
   const saved = JSON.parse(localStorage.getItem(STORE) || '[]');
@@ -55,14 +57,14 @@ function showError(error) {
 }
 function setBusy(value) {
   busy = value;
-  for (const id of ['send','question','code','error-message','code-toggle','clear']) $(id).disabled = value;
+  for (const id of ['send','question','code','error-message','code-toggle','clear','history-clear']) $(id).disabled = value;
   document.querySelectorAll('[data-request]').forEach(b => { b.disabled = value; });
   $('send').textContent = value ? '发送中…' : '发送 ↑';
 }
 function setCode(value) {
   codeOpen = value;
   $('code-panel').hidden = !value;
-  $('code-toggle').textContent = value ? '− 收起代码' : '＋ 添加代码';
+  $('code-toggle').textContent = value ? '收起代码' : '添加代码';
   $('code-toggle').setAttribute('aria-expanded', String(value));
 }
 function setMore(value, focus = false) {
@@ -97,8 +99,9 @@ function selectTopic(id) {
   const k = knowledge.find(k => k.id === activeId);
   $('current-topic').textContent = k ? k.id + ' · ' + k.title : '自由提问';
   $('current-topic').title = $('current-topic').textContent;
-  openUnit = k?.chapter || null;
+  openUnit = k?.chapter || UNITS[0];
   renderCatalog();
+  renderMap();
 }
 function renderCatalog() {
   const query = $('search').value.trim().toLowerCase();
@@ -147,13 +150,14 @@ function firstSentence(text) {
 function renderRecords() {
   const root = $('messages'); root.replaceChildren();
   $('welcome').hidden = records.length > 0;
-  for (const record of records) {
+  for (const [index, record] of records.entries()) {
     const r = record.response, a = r.answer;
     const card = el('article', undefined, 'message');
+    card.id = 'record-' + index; card.tabIndex = -1;
     const user = el('div', undefined, 'question-group');
     user.append(el('p', record.display_question || record.request.question || '审查提交的R代码', 'question'));
     if (record.request.code || record.request.error_message) {
-      const submitted = details('查看提交的代码与报错', 'user-code');
+      const submitted = details('提交内容', 'user-code');
       codeBlock(submitted, record.request.code, '提交的代码');
       if (record.request.error_message) submitted.append(el('pre', record.request.error_message));
       user.append(submitted);
@@ -172,33 +176,35 @@ function renderRecords() {
       steps.append(el('li', text));
     });
     if (steps.childElementCount) assistant.append(steps);
-    codeBlock(assistant, a.corrected_code || a.example_code, a.corrected_code ? '参考修正' : '代码示例', true);
+    codeBlock(assistant, a.corrected_code || a.example_code, a.corrected_code ? '参考修正' : '代码讲解', true);
     const follow = el('div', undefined, 'followups');
-    (a.follow_ups || []).forEach(t => follow.append(button(t, () => {
+    (a.follow_ups || []).forEach(t => follow.append(button(FOLLOW_LABELS[t] || '继续提问', () => {
       setCode(false);
-      send(t, {knowledgeId: r.related_knowledge?.[0] || null, useComposer: false});
+      if (!FOLLOW_LABELS[t]) { $('question').focus(); return; }
+      send(t, {knowledgeId: r.related_knowledge?.[0] || null, useComposer: false, displayQuestion: FOLLOW_LABELS[t]});
     }, '', true)));
     if (r.task_type === 'exercise' && record.request.teaching_mode !== 'solution' && r.status === 'ok') {
-      follow.append(button('查看参考答案', () => {
+      follow.append(button('参考答案', () => {
         setCode(false);
-        send(record.request.question, {knowledgeId:r.related_knowledge?.[0] || null, useComposer:false, solution:true});
+        send(record.request.question, {knowledgeId:r.related_knowledge?.[0] || null, useComposer:false, solution:true, displayQuestion:'参考答案'});
       }, 'solution', true));
     }
-    if (follow.childElementCount) assistant.append(follow);
+    follow.append(button('继续提问', () => $('question').focus()));
+    assistant.append(follow);
     const extra = issue ? a.summary : a.summary.slice(direct.length).trim();
     if (extra || (a.issues || []).length || (a.steps || []).length > 3) {
-      const explanation = details('补充讲解', 'explanation');
+      const explanation = details('深入讲解', 'explanation');
       if (extra) explanation.append(el('p', extra));
       (a.steps || []).slice(3).forEach(t => explanation.append(el('p',t)));
       (a.issues || []).forEach(i => explanation.append(el('p', i.kind + (i.line == null ? '' : ' · 第' + i.line + '行') + '：' + i.reason)));
       assistant.append(explanation);
     }
     if (a.expected_output) {
-      const output = details('资料中的参考输出', 'reference-output');
+      const output = details('参考输出', 'reference-output');
       output.append(el('pre',a.expected_output)); assistant.append(output);
     }
     if ((r.citations || []).length) {
-      const sources = details('资料来源', 'sources');
+      const sources = details('内容来源', 'sources');
       for (const c of r.citations) {
         const row = el('div', undefined, 'source-row');
         row.append(button(c.knowledge_id, () => explainKnowledge(c.knowledge_id), '', true),
@@ -206,6 +212,14 @@ function renderRecords() {
         sources.append(row);
       }
       assistant.append(sources);
+    }
+    if ((r.related_knowledge || []).length) {
+      const related = details('相关知识', 'related-knowledge');
+      for (const id of r.related_knowledge) {
+        const k = knowledge.find(item => item.id === id);
+        related.append(button(id + (k ? ' · ' + k.title : ''), () => explainKnowledge(id), '', true));
+      }
+      assistant.append(related);
     }
     card.append(assistant); root.append(card);
   }
@@ -238,7 +252,7 @@ async function send(question, options = {}) {
     records.push({time:new Date().toISOString(), request:body, response,
       ...(options.displayQuestion ? {display_question:options.displayQuestion} : {})});
     records = records.slice(-100);
-    renderRecords(); selectTopic(response.related_knowledge?.[0] || null);
+    renderRecords(); renderHistory(); selectTopic(response.related_knowledge?.[0] || null);
     if (useComposer) $('question').value = '';
     if (save()) status();
     scrollToLatest();
@@ -247,10 +261,118 @@ async function send(question, options = {}) {
 }
 function explainKnowledge(id) {
   if (busy) return;
+  navigate('chat');
   setCode(false);
   if (mobile.matches) toggleSidebar(false);
   const k = knowledge.find(k => k.id === id);
   send('讲解这个知识点', {knowledgeId:id,useComposer:false,displayQuestion:'讲解 ' + id + (k ? ' · ' + k.title : '')});
+}
+
+function setNav(value) {
+  $('main-nav').classList.toggle('nav-open', value);
+  $('nav-toggle').setAttribute('aria-expanded', String(value));
+}
+function navigate(view, recordIndex = null) {
+  pendingRecord = recordIndex;
+  if (location.hash === '#/' + view) route();
+  else { location.hash = '/' + view; route(); }
+}
+function route(focus = true) {
+  let view = location.hash.slice(2);
+  if (!['home','knowledge','chat','review','history'].includes(view)) {
+    view = 'home'; history.replaceState(null, '', '#/home');
+  }
+  const changed = view !== currentView;
+  const learning = view === 'chat' || view === 'review';
+  if (drawerOpen) { drawerOpen = false; updateSidebar(); }
+  setNav(false); setMore(false);
+  document.body.classList.toggle('learning', learning);
+  $('home-view').hidden = view !== 'home';
+  $('knowledge-view').hidden = view !== 'knowledge';
+  $('history-view').hidden = view !== 'history';
+  $('layout').hidden = !learning;
+  document.querySelectorAll('#main-nav a').forEach(a => {
+    if (a.hash === '#/' + view) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+  $('workspace-title').textContent = view === 'review' ? '代码纠错' : 'AI问答';
+  if (changed && learning) setCode(view === 'review');
+  currentView = view;
+  if (changed) {
+    window.scrollTo(0,0);
+    if (focus) (learning ? $('workspace-title') : view === 'knowledge' ? $('map-title') : view === 'history' ? $('history-title') : $('main-content')).focus({preventScroll:true});
+  }
+  if (pendingRecord !== null) {
+    const node = $('record-' + pendingRecord);
+    pendingRecord = null;
+    if (node) { node.scrollIntoView({block:'start',behavior:'instant'}); node.focus({preventScroll:true}); }
+  }
+}
+function renderMap() {
+  const query = $('map-search').value.trim().toLowerCase();
+  const root = $('knowledge-map'); root.replaceChildren();
+  for (const unit of UNITS) {
+    const items = knowledge.filter(k => k.chapter === unit && (k.id + ' ' + k.title).toLowerCase().includes(query));
+    if (!items.length) continue;
+    const group = el('details', undefined, 'map-unit');
+    group.open = !!query || unit === openUnit;
+    group.append(el('summary', unit));
+    group.addEventListener('toggle', () => {
+      if (!group.isConnected || query || !group.open) return;
+      root.querySelectorAll('.map-unit').forEach(other => { if (other !== group) other.open = false; });
+    });
+    const grid = el('div', undefined, 'map-grid');
+    for (const k of items) {
+      const item = el('article', undefined, 'knowledge-item');
+      const title = button(undefined, () => explainKnowledge(k.id), 'knowledge-title', true);
+      title.append(el('span', k.id), document.createTextNode(k.title)); item.append(title);
+      const prior = el('div', undefined, 'relation-links'); prior.append(el('span', '前置知识'));
+      if (!k.prerequisites.length) prior.append(el('span', '无'));
+      for (const id of k.prerequisites) prior.append(button(id, () => explainKnowledge(id), '', true));
+      item.append(prior);
+      const ids = [...new Set(relations.filter(r => r.from === k.id || r.to === k.id).map(r => r.from === k.id ? r.to : r.from))].filter(id => id !== k.id && !k.prerequisites.includes(id));
+      if (ids.length) {
+        const related = details('相关知识'); const links = el('div', undefined, 'relation-links');
+        ids.forEach(id => links.append(button(id, () => explainKnowledge(id), '', true)));
+        related.append(links); item.append(related);
+      }
+      grid.append(item);
+    }
+    group.append(grid); root.append(group);
+  }
+  if (!root.childElementCount) root.append(el('p', knowledge.length ? '没有找到相符的知识点。' : '正在读取课程资料…', 'empty-state'));
+}
+function renderHistory() {
+  const root = $('history-list'); root.replaceChildren();
+  if (!records.length) {
+    const empty = el('div', '暂无学习记录', 'empty-state');
+    const link = el('a', 'AI问答'); link.href = '#/chat'; empty.append(link); root.append(empty); return;
+  }
+  for (let i = records.length - 1; i >= 0; i--) {
+    const record = records[i];
+    const row = button(undefined, () => navigate(record.request.task_type === 'debug' ? 'review' : 'chat', i), 'history-row');
+    const text = el('span'); text.append(el('strong', record.display_question || record.request.question || '代码纠错'));
+    text.append(el('small', firstSentence(record.response.answer.summary).slice(0,90)));
+    const date = new Date(record.time);
+    row.append(text, el('time', Number.isNaN(date.getTime()) ? '学习记录' : date.toLocaleString('zh-CN', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})));
+    root.append(row);
+  }
+}
+document.querySelector('.skip-link').onclick = e => { e.preventDefault(); $('main-content').focus(); };
+window.addEventListener('hashchange', () => route());
+$('nav-toggle').onclick = () => { setMore(false); setNav(!$('main-nav').classList.contains('nav-open')); };
+document.addEventListener('click', e => {
+  if (!e.target.closest('#main-nav') && !e.target.closest('#nav-toggle')) setNav(false);
+});
+$('main-nav').addEventListener('click', e => { if (e.target.closest('a')) setNav(false); });
+$('map-search').oninput = renderMap;
+$('history-export').onclick = () => $('export').click();
+$('history-clear').onclick = () => $('clear').click();
+if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('in-view'); observer.unobserve(entry.target); }
+  }), {threshold:.12});
+  document.querySelectorAll('.reveal').forEach(node => observer.observe(node));
 }
 
 $('ask-form').onsubmit = e => { e.preventDefault(); send(); };
@@ -265,6 +387,7 @@ document.addEventListener('click', e => { if (!e.target.closest('.more-wrap')) s
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (mobile.matches && drawerOpen) { toggleSidebar(false); e.preventDefault(); }
+    if ($('main-nav').classList.contains('nav-open')) { setNav(false); $('nav-toggle').focus(); e.preventDefault(); }
     if (!$('more-panel').hidden) { setMore(false,true); e.preventDefault(); }
   }
   if (e.key === 'Tab' && mobile.matches && drawerOpen) {
@@ -274,15 +397,17 @@ document.addEventListener('keydown', e => {
     if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
 });
-mobile.addEventListener('change', () => { drawerOpen = false; updateSidebar(); });
+mobile.addEventListener('change', () => { drawerOpen = false; setNav(false); updateSidebar(); });
 $('version-open').onclick = () => { setMore(false); $('version-dialog').showModal(); };
 $('version-close').onclick = () => $('version-dialog').close();
 $('version-dialog').addEventListener('close', () => $('more-toggle').focus());
 $('clear').onclick = () => {
   if (busy) return;
-  records = []; setMore(false); setCode(false); selectTopic(null); renderRecords();
+  records = []; setMore(false); setCode(false); selectTopic(null); renderRecords(); renderHistory();
   if (save()) status();
-  $('question').focus();
+  if (currentView === 'chat' || currentView === 'review') $('question').focus();
+  else if (currentView === 'history') $('history-title').focus();
+  else $('more-toggle').focus();
 };
 $('export').onclick = () => {
   setMore(false);
@@ -296,13 +421,13 @@ document.querySelectorAll('[data-example]').forEach(b => {
 });
 $('debug-example').dataset.request = 'true';
 $('debug-example').onclick = () => {
-  setCode(true); $('code').value = 'x <- c(1, NA, 3)\nx[x == NA]'; $('error-message').value = '';
+  navigate('review'); setCode(true); $('code').value = 'x <- c(1, NA, 3)\nx[x == NA]'; $('error-message').value = '';
   send('为什么不能用x == NA判断缺失？');
 };
-renderRecords(); updateSidebar();
+renderRecords(); renderHistory(); route(false); updateSidebar();
 Promise.all([api('/api/health'),api('/api/knowledge')]).then(([health,data]) => {
-  knowledge = data.items;
+  knowledge = data.items; relations = data.relations || [];
   $('version-number').textContent = '应用 ' + health.version + ' · 知识版本 ' + health.knowledge_version;
-  selectTopic(activeId);
+  selectTopic(activeId); renderRecords();
 }).catch(() => status('无法连接本地服务，请启动服务后刷新。', true));
 
