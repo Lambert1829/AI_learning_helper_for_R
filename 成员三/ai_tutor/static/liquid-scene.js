@@ -42,6 +42,12 @@ const CONFIG = Object.freeze({
     dispersion: 0.9,
   },
   clusterRing: {centerX:0,centerZ:-15,radiusX:18,radiusZ:12.2,startAngle:-Math.PI/2},
+  revolution: {
+    angularSpeed:0.025,
+    dragSensitivity:0.0045,
+    tiltLimit:0.025,
+    resumeDelayMs:1000,
+  },
   unitColors: ['#8fc9ff','#9fdbca','#c0b7ef','#e4bf9a','#91d6df','#deb3c7','#abb9e8','#d4cf9d'],
 });
 
@@ -188,6 +194,14 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     this.orbitPitch=Math.asin(orbitOffset.y/this.orbitRadius);
     this.defaultOrbit={radius:this.orbitRadius,yaw:this.orbitYaw,pitch:this.orbitPitch};
     this.savedView = null;
+    this.orbitPhase = 0;
+    this.fieldYaw = 0;
+    this.fieldTilt = 0;
+    this.isDragging = false;
+    this.resumeOrbitAt = 0;
+    this.elapsedSeconds = 0;
+    this.lastFrameTime = null;
+    this.fieldCenter = new THREE.Vector3(CONFIG.clusterRing.centerX, 0.5, CONFIG.clusterRing.centerZ);
     this.pointer = new THREE.Vector2();
     this.raycaster = new THREE.Raycaster();
     this.$('map-back').onclick = () => this.close();
@@ -341,7 +355,7 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
         label.addEventListener('mouseenter',()=>{this.hoverId=item.id;this.requestFrame();});
         label.addEventListener('mouseleave',()=>{if(this.hoverId===item.id){this.hoverId=null;this.requestFrame();}});
         this.labelLayer.append(label);
-        this.orbSlots.push({mesh,material,base,baseScale,item,label,unitIndex,filterOpacity:1});
+        this.orbSlots.push({mesh,material,base,orbitPosition:base.clone(),baseScale,item,label,unitIndex,filterOpacity:1});
       });
     });
     this.orbMaterials.forEach(material=>{
@@ -359,6 +373,8 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     const finishDrag=event=>{
       if(!down)return null;
       const gesture=down;down=null;
+      this.isDragging = false;
+      this.resumeOrbitAt = performance.now() + CONFIG.revolution.resumeDelayMs;
       if(gesture.captureTarget?.hasPointerCapture(gesture.pointerId))gesture.captureTarget.releasePointerCapture(gesture.pointerId);
       canvas.style.cursor='grab';canvas.classList.remove('is-dragging');
       return gesture;
@@ -370,7 +386,8 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
       event.preventDefault();
       const captureTarget=label||canvas;
       down={pointerId:event.pointerId,pointerType:event.pointerType,x:event.clientX,y:event.clientY,
-        yaw:this.orbitYaw,pitch:this.orbitPitch,dragged:false,knowledgeId:label?.dataset.id||null,captureTarget};
+        yaw:this.fieldYaw,pitch:this.fieldTilt,dragged:false,knowledgeId:label?.dataset.id||null,captureTarget};
+      this.isDragging = true;
       captureTarget.setPointerCapture(event.pointerId);
       canvas.classList.add('is-dragging');canvas.style.cursor='grabbing';
     });
@@ -395,9 +412,9 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
         if(Math.hypot(dx,dy)>threshold)down.dragged=true;
         if(down.dragged){
           event.preventDefault();
-          this.orbitYaw=down.yaw-dx*.0045;
-          this.orbitPitch=THREE.MathUtils.clamp(down.pitch+dy*.0035,CONFIG.camera.minPitch,CONFIG.camera.maxPitch);
-          this.applyOrbit();canvas.style.cursor='grabbing';this.requestFrame();return;
+          this.fieldYaw = down.yaw - dx * CONFIG.revolution.dragSensitivity;
+          this.fieldTilt = THREE.MathUtils.clamp(down.pitch + dy * .001, -CONFIG.revolution.tiltLimit, CONFIG.revolution.tiltLimit);
+          canvas.style.cursor='grabbing';this.requestFrame();return;
         }
       }
       if(event.pointerType!=='mouse'||down)return;
@@ -444,6 +461,11 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     this.orbitRadius=this.defaultOrbit.radius;this.orbitYaw=this.defaultOrbit.yaw;this.orbitPitch=this.defaultOrbit.pitch;
     this.camera.position.copy(this.defaultCamera);this.cameraTarget.copy(this.defaultTarget);
     this.focusAmount=0;this.visualFocusId=null;this.savedView=null;this.transition=null;
+    this.orbitPhase = 0;
+    this.fieldYaw = 0;
+    this.fieldTilt = 0;
+    this.resumeOrbitAt = performance.now() + CONFIG.revolution.resumeDelayMs;
+    this.updateOrbs(this.elapsedSeconds, !this.reducedMotion.matches);
     this.filter(false);
     this.requestFrame();
   }
@@ -507,9 +529,10 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     if (!this.focusId) this.savedView={position:this.camera.position.clone(),target:this.cameraTarget.clone()};
     this.focusId=id;
     this.visualFocusId=id;
-    const approach=this.camera.position.clone().sub(slot.base).normalize();
-    const destination=slot.base.clone().addScaledVector(approach,CONFIG.camera.focusDistance*slot.baseScale);
-    this.beginTransition(destination,slot.base.clone(),1);
+    const target = slot.orbitPosition.clone();
+    const approach=this.camera.position.clone().sub(target).normalize();
+    const destination=target.clone().addScaledVector(approach,CONFIG.camera.focusDistance*slot.baseScale);
+    this.beginTransition(destination,target,1);
     this.$('map-back').hidden=false;
     this.viewport.classList.add('is-focused');
   }
@@ -576,12 +599,24 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     this.raf=requestAnimationFrame(time=>this.frame(time));
   }
 
-  stop() { if(this.raf){cancelAnimationFrame(this.raf);this.raf=0;} }
+  stop() {
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.raf = 0;
+    this.lastFrameTime = null;
+  }
   requestFrame() { if(this.active)this.start(); }
 
   frame(timestamp) {
     this.raf=0;
-    const seconds=timestamp*.001;
+    const delta = this.lastFrameTime === null ? 0 : Math.min(.1, Math.max(0, (timestamp - this.lastFrameTime) * .001));
+    this.lastFrameTime = timestamp;
+    const animate = !this.reducedMotion.matches;
+    if (animate) this.elapsedSeconds += delta;
+    const orbitPaused = this.isDragging || this.hoverId || this.visualFocusId || this.transition ||
+      this.$('map-search').value.trim() || this.$('map-unit').value || timestamp < this.resumeOrbitAt;
+    if (animate && !orbitPaused) {
+      this.orbitPhase = (this.orbitPhase + delta * CONFIG.revolution.angularSpeed) % (Math.PI * 2);
+    }
     if(this.transition) {
       const raw=Math.min(1,(timestamp-this.transition.started)/this.transition.duration);
       const eased=raw<.5?4*raw*raw*raw:1-Math.pow(-2*raw+2,3)/2;
@@ -594,9 +629,8 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
       }
     }
     this.camera.lookAt(this.cameraTarget);
-    const animate=!this.reducedMotion.matches;
-    this.oceanUniforms.uTime.value=animate?seconds:0;
-    this.updateOrbs(seconds,animate);
+    this.oceanUniforms.uTime.value = this.elapsedSeconds;
+    this.updateOrbs(this.elapsedSeconds,animate);
     this.updateLines();
     this.updateLabels();
     this.renderScene();
@@ -604,16 +638,30 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
   }
 
   updateOrbs(seconds,animate) {
+    const angle = this.orbitPhase + this.fieldYaw;
+    const cosine = Math.cos(angle), sine = Math.sin(angle);
+    const tiltCosine = Math.cos(this.fieldTilt), tiltSine = Math.sin(this.fieldTilt);
+    for (const slot of this.orbSlots) {
+      const x = slot.base.x - this.fieldCenter.x;
+      const y = slot.base.y - this.fieldCenter.y;
+      const z = slot.base.z - this.fieldCenter.z;
+      const rotatedZ = -x * sine + z * cosine;
+      slot.orbitPosition.set(
+        this.fieldCenter.x + x * cosine + z * sine,
+        this.fieldCenter.y + y * tiltCosine - rotatedZ * tiltSine,
+        this.fieldCenter.z + y * tiltSine + rotatedZ * tiltCosine,
+      );
+    }
     const focused=this.orbSlots.find(slot=>slot.item?.id===this.visualFocusId);
     this.orbSlots.forEach((slot,index)=>{
       if(!slot.item)return;
       const isFocused=slot.item.id===this.visualFocusId;
-      const direction=focused?slot.base.clone().sub(focused.base).normalize():new THREE.Vector3();
+      const direction=focused?slot.orbitPosition.clone().sub(focused.orbitPosition).normalize():new THREE.Vector3();
       const outward=isFocused?new THREE.Vector3():direction.multiply(new THREE.Vector3(4.2,2.0,2.8));
-      slot.mesh.position.copy(slot.base).addScaledVector(outward,this.focusAmount);
+      slot.mesh.position.copy(slot.orbitPosition).addScaledVector(outward,this.focusAmount);
       if(animate)slot.mesh.position.y+=Math.sin(seconds*.42+index*1.37)*.13*(1-this.focusAmount*.35);
       slot.mesh.scale.setScalar(slot.baseScale*(1+(isFocused ? .32 : 0)*this.focusAmount+(slot.item.id===this.hoverId ? .035 : 0)));
-      slot.material.uniforms.uTime.value=animate?seconds:0;
+      slot.material.uniforms.uTime.value=seconds;
       slot.material.uniforms.uFocus.value=(isFocused?this.focusAmount:0)+(slot.item.id===this.hoverId ? .18 : 0);
       const focusOpacity=isFocused||!this.visualFocusId?1:1-this.focusAmount*.94;
       slot.material.uniforms.uOpacity.value=slot.filterOpacity*focusOpacity;
@@ -647,7 +695,7 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     const width=this.viewport.clientWidth,height=this.viewport.clientHeight;
     const projected=[];
     this.orbSlots.forEach(slot=>{
-      const anchor=(!this.visualFocusId&&!this.transition)?slot.base:slot.mesh.position;
+      const anchor=(!this.visualFocusId&&!this.transition)?slot.orbitPosition:slot.mesh.position;
       const point=anchor.clone().project(this.camera);
       const visible=point.z<1&&Math.abs(point.x)<1.2&&Math.abs(point.y)<1.2;
       slot.label.hidden=!visible;

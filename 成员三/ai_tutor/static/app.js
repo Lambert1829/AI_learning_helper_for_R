@@ -1,5 +1,5 @@
 'use strict';
-import {markdownFragment} from './answer-markdown.js?v=20261115.12';
+import {markdownFragment} from './answer-markdown.js?v=20261115.13';
 const $ = id => document.getElementById(id);
 function syncViewportWidth() {
   document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
@@ -12,7 +12,8 @@ const mobile = matchMedia('(max-width:760px)');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let records = [], knowledge = [], relations = [], activeId = null, busy = false;
 let currentView = '', pendingRecord = null;
-let skipNextHashRoute = false, activeViewTransition = null, routeSequence = 0;
+let pendingLatestScroll = false;
+let skipNextHashRoute = false, activeViewAnimation = null, routeSequence = 0;
 const FOLLOW_LABELS = {'举个例子':'例题','有什么易错点':'易错点','给我练习':'练习'};
 let codeOpen = false, freshContext = false;
 let requestController = null;
@@ -335,6 +336,11 @@ function renderRecords() {
   }
 }
 function scrollToLatest() {
+  if ($('layout').hidden || document.body.dataset.view !== currentView) {
+    pendingLatestScroll = true;
+    return;
+  }
+  pendingLatestScroll = false;
   const card = [...$('messages').children].filter(n => currentView !== 'review' || n.classList.contains('review-message')).at(-1);
   if (!card) return;
   if (currentView === 'review') {
@@ -434,12 +440,12 @@ function route(focus = true) {
   const learning = view === 'chat' || view === 'review';
   const sequence=++routeSequence;
   setNav(false); setMore(false);
-  document.querySelectorAll('#main-nav a').forEach(a => {
-    if (a.hash === '#/' + view) a.setAttribute('aria-current', 'page');
-    else a.removeAttribute('aria-current');
-  });
   currentView = view;
   const applyView=()=>{
+    document.querySelectorAll('#main-nav a').forEach(a => {
+      if (a.hash === '#/' + view) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
     if (changed && view !== 'knowledge') mapUI.close(false);
     if (typeof mapUI.setActive === 'function') mapUI.setActive(view === 'knowledge');
     document.body.classList.toggle('learning', learning);
@@ -463,6 +469,7 @@ function route(focus = true) {
       window.scrollTo(0,0);
       if (focus) (learning ? $('workspace-title') : view === 'knowledge' ? $('map-title') : view === 'history' ? $('history-title') : $('main-content')).focus({preventScroll:true});
     }
+    if (learning && pendingLatestScroll) scrollToLatest();
     if (pendingRecord !== null) {
       const node = $('record-' + pendingRecord);
       pendingRecord = null;
@@ -470,19 +477,26 @@ function route(focus = true) {
     }
   };
   const animate=changed&&!!previousView&&!reducedMotion.matches;
-  if(animate&&document.startViewTransition){
-    activeViewTransition?.skipTransition();
-    const transition=document.startViewTransition(applyView);activeViewTransition=transition;
-    transition.ready.catch(()=>{});
-    transition.updateCallbackDone.then(finish,finish);
-    const clearTransition=()=>{if(activeViewTransition===transition)activeViewTransition=null;};
-    transition.finished.then(clearTransition,clearTransition);
-  }else{
+  const content = $('main-content');
+  activeViewAnimation?.cancel();
+  activeViewAnimation = null;
+  content.inert = false;
+  if (animate) {
+    content.inert = true;
+    const fadeOut = content.animate([{opacity:1},{opacity:0}], {duration:100,easing:'ease-in',fill:'forwards'});
+    activeViewAnimation = fadeOut;
+    fadeOut.finished.then(() => {
+      if (sequence !== routeSequence) return;
+      content.inert = false;
+      applyView();
+      finish();
+      const fadeIn = content.animate([{opacity:0},{opacity:1}], {duration:160,easing:'ease-out'});
+      activeViewAnimation = fadeIn;
+      fadeOut.cancel();
+      fadeIn.finished.catch(() => {});
+    }, () => {});
+  } else {
     applyView();
-    if(animate){
-      const incoming=learning?$('layout'):$(view+'-view');
-      incoming.animate([{opacity:0},{opacity:1}],{duration:220,easing:'cubic-bezier(.22,.75,.25,1)'});
-    }
     finish();
   }
 }

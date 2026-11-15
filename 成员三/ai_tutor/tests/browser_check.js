@@ -30,11 +30,9 @@ async (page) => {
     await page.reload();
     await page.waitForFunction(() => document.querySelectorAll('.knowledge-orb').length === 43);
     await page.evaluate(() => {
-      window.__viewTransitionCalls=0;
-      if(typeof document.startViewTransition==='function'){
-        const original=document.startViewTransition.bind(document);
-        document.startViewTransition=callback=>{window.__viewTransitionCalls++;return original(callback);};
-      }
+      window.__contentFadeCalls=0;
+      const original=document.querySelector('#main-content').animate.bind(document.querySelector('#main-content'));
+      document.querySelector('#main-content').animate=(...args)=>{window.__contentFadeCalls++;return original(...args);};
     });
     check(await page.locator('#home-view').isVisible(),'default home');
     check((await page.locator('.hero h1').textContent()) === 'R语言学习，从一个问题开始','hero title');
@@ -43,7 +41,7 @@ async (page) => {
     await page.screenshot({path:'output/playwright/v3-desktop-home.png',fullPage:true});
     await page.locator('.hero-actions a').first().click();
     await page.waitForFunction(() => !document.querySelector('#layout').hidden);
-    check(await page.evaluate(() => typeof document.startViewTransition!=='function'||window.__viewTransitionCalls===1),'main views crossfade');
+    check(await page.evaluate(() => window.__contentFadeCalls>=2),'main views crossfade');
     check(await page.locator('#welcome').isVisible(),'first visit examples');
     check(await page.locator('#sidebar,#catalog,#catalog-toggle').count() === 0,'chat has no course sidebar');
     await responseAfter(() => page.getByRole('button',{name:'缺失值与均值',exact:true}).click());
@@ -170,6 +168,7 @@ async (page) => {
     const count = await page.locator('.message').count();
     check(await page.locator('.history-row').count() === count,'history list');
     await page.locator('.history-row').last().click();
+    await page.waitForFunction(() => document.activeElement === document.querySelector('#record-0'));
     check(await page.locator('#record-0').evaluate(n => n === document.activeElement),'history return focus');
     await page.reload(); await ready();
     check(await page.locator('.message').count() === count,'legacy storage restore');
@@ -234,9 +233,9 @@ async (page) => {
     const targets = await page.locator('button:visible, #main-nav a:visible, .primary:visible').evaluateAll(nodes => nodes.filter(n => n.getBoundingClientRect().height < 44 || n.getBoundingClientRect().width < 44).map(n => n.textContent));
     check(targets.length === 0,'mobile touch targets');
     await page.emulateMedia({reducedMotion:'reduce'});
-    const transitionCount=await page.evaluate(()=>window.__viewTransitionCalls);
+    const transitionCount=await page.evaluate(()=>window.__contentFadeCalls);
     await route('home');
-    check(await page.evaluate(count=>window.__viewTransitionCalls===count,transitionCount),'reduced motion skips view transition');
+    check(await page.evaluate(count=>window.__contentFadeCalls===count,transitionCount),'reduced motion skips view transition');
     check(await page.locator('.reveal').first().evaluate(n => getComputedStyle(n).animationName === 'none'),'reduced motion');
     await route('history'); await page.locator('#history-clear').click(); await page.reload();
     check(await page.locator('.message').count() === 0 && await page.locator('.history-row').count() === 0,'clear persists');
