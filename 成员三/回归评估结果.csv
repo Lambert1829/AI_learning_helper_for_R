@@ -1,0 +1,51 @@
+﻿case_id,suite,mode,expected_knowledge_ids,retrieved_knowledge_ids,top4_hit,all_required_hit,http_status,duration_ms,answer,correctness,clarity,code_usability,citation_support,manual_review
+Q01,existing,mock,K04,K04,True,True,,,,,,,,pending
+Q02,existing,mock,K07,K07,True,True,,,,,,,,pending
+Q03,existing,mock,K19,K19,True,True,,,,,,,,pending
+Q04,existing,mock,K25,K25,True,True,,,,,,,,pending
+Q05,existing,mock,K31,K31,True,True,,,,,,,,pending
+Q06,existing,mock,K05,K05,True,True,,,,,,,,pending
+Q07,existing,mock,K08,K08,True,True,,,,,,,,pending
+Q08,existing,mock,K12,K12,True,True,,,,,,,,pending
+Q09,existing,mock,K14,K14,True,True,,,,,,,,pending
+Q10,existing,mock,K15,K15,True,True,,,,,,,,pending
+Q11,existing,mock,K17,K17,True,True,,,,,,,,pending
+Q12,existing,mock,K18,K18,True,True,,,,,,,,pending
+Q13,existing,mock,K04,K04,True,True,,,,,,,,pending
+Q14,existing,mock,K06,K06,True,True,,,,,,,,pending
+Q15,existing,mock,K07,K07,True,True,,,,,,,,pending
+Q16,existing,mock,K21,K21,True,True,,,,,,,,pending
+Q17,existing,mock,K36,K36,True,True,,,,,,,,pending
+Q18,existing,mock,K04,K04,True,True,,,,,,,,pending
+Q19,existing,mock,K39,K39,True,True,,,,,,,,pending
+Q20,existing,mock,K29,K29,True,True,,,,,,,,pending
+Q21,existing,mock,K30,K30,True,True,,,,,,,,pending
+Q22,existing,mock,K33,K33,True,True,,,,,,,,pending
+Q23,existing,mock,K37,K37,True,True,,,,,,,,pending
+Q24,existing,mock,K38,K38,True,True,,,,,,,,pending
+E01,existing,mock,K04,K04,True,True,,,,,,,,pending
+E02,existing,mock,K03,K03,True,True,,,,,,,,pending
+E03,existing,mock,K01,K01,True,True,,,,,,,,pending
+E04,existing,mock,K06,K06,True,True,,,,,,,,pending
+E05,existing,mock,K07,K07,True,True,,,,,,,,pending
+E06,existing,mock,K14,K14,True,True,,,,,,,,pending
+E07,existing,mock,K21,K21,True,True,,,,,,,,pending
+E08,existing,mock,K31,K31,True,True,,,,,,,,pending
+E09,existing,mock,K36,K36,True,True,,,,,,,,pending
+E10,existing,mock,K36,K36,True,True,,,,,,,,pending
+E11,existing,mock,K37,K37,True,True,,,,,,,,pending
+E12,existing,mock,K04,K04,True,True,,,,,,,,pending
+E13,existing,mock,K27,K27,True,True,,,,,,,,pending
+E14,existing,mock,K15,K15,True,True,,,,,,,,pending
+H01,candidate_holdout,mock,K09 K31,K09 K31,True,True,,,,,,,,pending
+H02,candidate_holdout,mock,K07,K07,True,True,,,,,,,,pending
+H03,candidate_holdout,mock,K06,K06 K28 K39,True,True,,,,,,,,pending
+H04,candidate_holdout,mock,K06,K06 K09 K03 K13,True,True,,,,,,,,pending
+H05,candidate_holdout,mock,K14,K14 K27 K39,True,True,,,,,,,,pending
+H06,candidate_holdout,mock,K37,K37 K04,True,True,,,,,,,,pending
+H07,candidate_holdout,mock,K06,K06,True,True,,,,,,,,pending
+H08,candidate_holdout,mock,K37,K37,True,True,,,,,,,,pending
+H09,candidate_holdout,mock,K07,K07 K04,True,True,,,,,,,,pending
+H10,candidate_holdout,mock,K39,K28 K30 K06 K08,False,False,,,,,,,,pending
+H11,candidate_holdout,mock,K21,K21 K19,True,True,,,,,,,,pending
+H12,candidate_holdout,mock,K30,K30 K06 K39,True,True,,,,,,,,pending

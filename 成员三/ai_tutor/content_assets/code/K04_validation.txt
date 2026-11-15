@@ -1,0 +1,187 @@
+K04 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K04_example_01.R
+SHA256 54b8ebe6aa0f5799b715e4c3339952fb658998015e4ecefb756bad28d43f86b2
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(c(typeof(1L), typeof(1), typeof("1")))
+mixed <- c(TRUE, 2, "3")
+print(mixed)
+print(typeof(mixed))
+f <- factor(c("low", "high"))
+print(typeof(f))
+print(class(f))
+OUTPUT
+[1] "integer"   "double"    "character"
+[1] "TRUE" "2"    "3"   
+[1] "character"
+[1] "integer"
+[1] "factor"
+
+BLOCK application
+SOURCE K04_example_02.R
+SHA256 7843608bc98af8b264570792bd8a283e163e5230a2af05ea14ce535a3b359142
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw_scores <- c("55", "60", " 65 ", "70", "75", "80", "85", "90", "95", "absent")
+cleaned <- trimws(raw_scores)
+cleaned[cleaned == "absent"] <- NA_character_
+scores <- as.numeric(cleaned)
+print(typeof(raw_scores))
+print(typeof(scores))
+print(scores)
+print(sum(is.na(scores)))
+OUTPUT
+[1] "character"
+[1] "double"
+ [1] 55 60 65 70 75 80 85 90 95 NA
+[1] 1
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 e8d8fecf3ceb2990775a66e40cdeeea9a63a13d475dd43669f466eb9dbf87eae
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(as.numeric(c("60", "absent")))
+OUTPUT
+[1] 60 NA
+Warning message:
+In print(as.numeric(c("60", "absent"))) : NAs introduced by coercion
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 99db8f0b6efda90a03db18ad5bd5aff87a15c0478689e12dfe6f84d8d7cc999c
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw <- c("60", "absent")
+raw[raw == "absent"] <- NA_character_
+print(as.numeric(raw))
+OUTPUT
+[1] 60 NA
+
+BLOCK exercise
+SOURCE K04_exercise.R
+SHA256 fa5db838024ae794e646dde1675e9c4c9c73a964537430ef5c41322c1f6df070
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw_scores <- c("60", " 64", "68 ", "72", "pending", "80", "84", "88", "", "96")
+cleaned <- trimws(raw_scores)
+cleaned[cleaned %in% c("pending", "")] <- NA_character_
+scores <- as.numeric(cleaned)
+print(scores)
+print(typeof(scores))
+print(sum(is.na(scores)))
+print(mean(scores, na.rm = TRUE))
+OUTPUT
+ [1] 60 64 68 72 NA 80 84 88 NA 96
+[1] "double"
+[1] 2
+[1] 76.5
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 cc4bac0ee51af3618eb1fc9b6124d195c7ace38666729c2b7ea203a62d9f4049
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+x <- c(TRUE, 2, "3")
+print(x)
+print(typeof(x))
+OUTPUT
+[1] "TRUE" "2"    "3"   
+[1] "character"
+
+BOUNDARY_CHECKS
+stopifnot(typeof(1L) == "integer", typeof(1) == "double")
+stopifnot(typeof(c(TRUE, 2, "3")) == "character")
+f <- factor(c("low", "high"))
+stopifnot(typeof(f) == "integer", inherits(f, "factor"))
+stopifnot(is.na(as.numeric(NA_character_)))
+stopifnot(identical(as.numeric(character(0)), numeric(0)))
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+typeof, class, numeric, c, factor
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K04_visual_01.R ../images
+CODE_SHA256 37258fa60f2ca3b65f66ced086240bad2dd369cde866b50744bee127c9ca836d
+SVG_SHA256 df31ba6821ef1961c280eda9ebe7f5d2921cd6ea1293f32ffd5d22bceb2111ff
+Generated K04_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 8
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

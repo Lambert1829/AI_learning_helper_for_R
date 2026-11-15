@@ -16,14 +16,14 @@ def test_data():
 def test_routes():
     health = client.get('/api/health').json()
     assert health['mode']=='mock'
-    assert health['version']=='1.1.0'
+    assert health['version']=='1.2.0'
     assert len(client.get('/api/knowledge').json()['items'])==43
     assert client.get('/api/knowledge/K06').json()['id']=='K06'
     assert client.get('/').status_code==200
     assert client.get('/static/app.js').status_code==200
     assert client.get('/docs').status_code==200
     schema=client.get('/openapi.json').json()
-    assert len([p for p in schema['paths'] if p.startswith('/api/')])==5
+    assert len([p for p in schema['paths'] if p.startswith('/api/')])==10
 
 
 @pytest.mark.parametrize('case', DATA['questions'], ids=lambda q:q['id'])

@@ -1,0 +1,6 @@
+scores <- c(60, 64, 68, 72, 76, 80, 84, 88, 92, 96)
+print(requireNamespace("stats", quietly = TRUE))
+print(utils::head(scores, n = 3))
+print(utils::tail(scores, n = 3))
+print(stats::median(scores))
+print(utils::packageVersion("stats"))

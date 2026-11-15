@@ -1,0 +1,5 @@
+dates <- as.Date(c("2026/11/01", "2026/11/11"), format = "%Y/%m/%d")
+print(dates)
+print(class(dates))
+print(as.numeric(difftime(dates[2], dates[1], units = "days")))
+print(format(dates, "%m"))

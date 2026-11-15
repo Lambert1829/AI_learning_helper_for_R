@@ -1,0 +1,197 @@
+K03 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K03_example_01.R
+SHA256 7a77ea7ac2404f873bc94fb55d14d64101f1f3476a6690f31147de24d7d627bc
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+mean_help <- utils::help("mean", package = "base")
+print(length(mean_help) > 0L)
+utils::example("mean", package = "base", echo = TRUE, ask = FALSE)
+OUTPUT
+[1] TRUE
+
+mean> x <- c(0:10, 50)
+
+mean> xm <- mean(x)
+
+mean> c(xm, mean(x, trim = 0.10))
+[1] 8.75 5.50
+
+BLOCK application
+SOURCE K03_example_02.R
+SHA256 e455c73f2fe895b77e38beed72c9192d1263fb9be8dab66292a1e1cf39a41fdf
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(55, 60, NA, 70, 75, 80, 85, 90, 95, 100)
+print(mean(scores))
+mini_scores <- c(60, NA, 80)
+print(mean(mini_scores))
+print(mean(mini_scores, na.rm = TRUE))
+print(utils::packageVersion("base"))
+OUTPUT
+[1] NA
+[1] NA
+[1] 70
+[1] '4.6.1'
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 1baecde1fb133e51a48acf106abc60523fc75e6ef7c2262cdff8ed37633ffc37
+EXPECTED_EXIT 1
+ACTUAL_EXIT 1
+CODE
+> scores <- c(60, 80, 100)
+> print(mean(scores))
+OUTPUT
+Error: unexpected '>' in ">"
+Execution halted
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 1ad1f60f81e098d7f40332e7e2e8f4c6941fce59dc22b7d511d60b3f3e474fce
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(60, 80, 100)
+print(mean(scores))
+OUTPUT
+[1] 80
+
+BLOCK exercise
+SOURCE K03_exercise.R
+SHA256 c87b932e11cbb0cb0e23823663e3327b9fead26fc787c4e35776d0ea149b4c8f
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(60, 64, 68, 72, NA, 80, 84, 88, 92, 96)
+mini_scores <- c(60, NA, 80)
+print(mean(mini_scores))
+print(mean(mini_scores, na.rm = TRUE))
+print(mean(scores, na.rm = TRUE))
+print(utils::sessionInfo())
+OUTPUT
+[1] NA
+[1] 70
+[1] 78.22222
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 2f940137cddd3ad0a04140a7d192c5557d394fc81bf4bd9e92b6ccb0656a1c58
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+x <- c(2, NA, 6)
+print(mean(x))
+print(mean(x, na.rm = TRUE))
+OUTPUT
+[1] NA
+[1] 4
+
+BOUNDARY_CHECKS
+stopifnot(length(utils::help("mean", package = "base")) > 0L)
+stopifnot(is.na(mean(c(60, NA_real_, 80))))
+stopifnot(mean(c(60, NA_real_, 80), na.rm = TRUE) == 70)
+stopifnot(inherits(utils::sessionInfo(), "sessionInfo"))
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+help, example, mean, sessionInfo
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K03_visual_01.R ../images
+CODE_SHA256 7980ae487d2afaa2a9e62795351d92d7c451f189ae396f67ca681a101820bd68
+SVG_SHA256 ccaef627ff85d8690c416ab542d4809bfe89a96a1cf81b5bf5b8f5d006e55baf
+Generated K03_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 7
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

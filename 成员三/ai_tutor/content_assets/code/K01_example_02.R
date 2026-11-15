@@ -1,0 +1,5 @@
+scores <- c(55, 60, 65, 70, 75, 80, 85, 90, 95, 100)
+count <- length(scores)
+total <- sum(scores)
+average <- mean(scores)
+print(c(count = count, total = total, average = average))

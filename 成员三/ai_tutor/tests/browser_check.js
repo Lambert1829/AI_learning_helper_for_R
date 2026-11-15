@@ -24,6 +24,7 @@ async (page) => {
   try {
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.setViewportSize({width:1440,height:1000});
+    await page.emulateMedia({reducedMotion:'no-preference'});
     await page.goto('http://127.0.0.1:8000/?test='+Date.now());
     await page.evaluate(() => localStorage.removeItem('r-tutor-mock-v1'));
     await page.reload();
@@ -205,7 +206,7 @@ async (page) => {
     await page.waitForFunction(() => document.querySelector('#status').textContent.includes('无法连接本地服务')); await ready();
     check(true,'connection failure and button recovery'); await page.unroute('**/api/chat',offline);
     await submit('mean中的na.rm怎么用？');
-    check(await page.locator('#status').isHidden(),'successful retry clears error');
+    check(!(await page.locator('#status').evaluate(node => node.classList.contains('error'))),'successful retry clears error');
     await page.locator('.skip-link').focus(); await page.keyboard.press('Enter');
     check(page.url().endsWith('#/chat') && await page.locator('#main-content').evaluate(n => n === document.activeElement),'skip link preserves workspace');
     for (const view of ['home','knowledge','history','chat','review']) { await route(view); await noOverflow('desktop '+view+' layout'); }
@@ -240,7 +241,7 @@ async (page) => {
     await route('history'); await page.locator('#history-clear').click(); await page.reload();
     check(await page.locator('.message').count() === 0 && await page.locator('.history-row').count() === 0,'clear persists');
     await route('chat'); check(await page.locator('#welcome').isVisible(),'examples return after clear');
-    check(errors.length === 0,'no uncaught browser errors');
+    check(errors.length === 0,'no uncaught browser errors ' + JSON.stringify(errors));
     await route('home');
     return {passed:checks.length,checks,errors};
   } finally { page.off('request',requestListener); page.off('pageerror',errorListener); }

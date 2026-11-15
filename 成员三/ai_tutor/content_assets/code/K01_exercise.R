@@ -1,0 +1,6 @@
+scores <- c(60, 64, 68, 72, 76, 80, 84, 88, 92, 96)
+average <- mean(scores)
+print(length(scores))
+print(average)
+print(R.version.string)
+print(utils::sessionInfo())

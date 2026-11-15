@@ -1,0 +1,171 @@
+K02 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K02_example_01.R
+SHA256 ea9ce4272e1af73d7beeb5843a4d0d372949cf9049b4554800333773e2706d70
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(requireNamespace("stats", quietly = TRUE))
+library(stats)
+print(stats::median(c(60, 80, 100)))
+print("package:stats" %in% search())
+OUTPUT
+[1] TRUE
+[1] 80
+[1] TRUE
+
+BLOCK application
+SOURCE K02_example_02.R
+SHA256 0568363d14f8da037281ff14e43ec1c372f7a15c66228f4003da63d144f1c593
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(55, 60, 65, 70, 75, 80, 85, 90, 95, 100)
+print(utils::head(scores, n = 4))
+print(stats::median(scores))
+print(round(stats::sd(scores), digits = 2))
+OUTPUT
+[1] 55 60 65 70
+[1] 77.5
+[1] 15.14
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 df24947ac9204b7c857b18a2b10b7e63114017cd97c7167e79349b33e8c19e48
+EXPECTED_EXIT 1
+ACTUAL_EXIT 1
+CODE
+print(stats::Median(c(60, 80, 100)))
+OUTPUT
+Error: 'Median' is not an exported object from 'namespace:stats'
+Execution halted
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 7b202650006b6c2f57837a960cfd09e318355baa8983baf25d9ca5025f2a7ff6
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(stats::median(c(60, 80, 100)))
+OUTPUT
+[1] 80
+
+BLOCK exercise
+SOURCE K02_exercise.R
+SHA256 650fa3f6ff66ccc32fd35b30514f975e61728fe1bd76ab1c56ed617dfa608aa0
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(60, 64, 68, 72, 76, 80, 84, 88, 92, 96)
+print(requireNamespace("stats", quietly = TRUE))
+print(utils::head(scores, n = 3))
+print(utils::tail(scores, n = 3))
+print(stats::median(scores))
+print(utils::packageVersion("stats"))
+OUTPUT
+[1] TRUE
+[1] 60 64 68
+[1] 88 92 96
+[1] 78
+[1] '4.6.1'
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 07aec217aa30bf8642cc4dc7932a26f651805d38858637b6d8fee06b36b48246
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(utils::head(1:8, n = 3))
+print(stats::median(c(1, 5, 9)))
+OUTPUT
+[1] 1 2 3
+[1] 5
+
+BOUNDARY_CHECKS
+stopifnot(requireNamespace("stats", quietly = TRUE))
+stopifnot(stats::median(c(60, 80, 100)) == 80)
+stopifnot(identical(utils::head(1:8, n = 3), 1:3))
+stopifnot(is.na(stats::median(c(1, NA_real_))))
+stopifnot(is.na(stats::median(numeric(0))))
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+install.packages, library, ::, requireNamespace
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K02_visual_01.R ../images
+CODE_SHA256 401e385355da556f72f3543a44e59611e6a50185cabcb6f47c0efcee416032c0
+SVG_SHA256 089ae566bcd718b1b3242d09abb7d6eeda1f35e8f67962bf56fba9276061e8b3
+Generated K02_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 8
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

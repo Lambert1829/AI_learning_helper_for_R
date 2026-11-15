@@ -1,0 +1,6 @@
+scores <- c(55, 60, NA, 70, 75, 80, 85, 90, 95, 100)
+print(mean(scores))
+mini_scores <- c(60, NA, 80)
+print(mean(mini_scores))
+print(mean(mini_scores, na.rm = TRUE))
+print(utils::packageVersion("base"))

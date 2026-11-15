@@ -1,0 +1,189 @@
+K06 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K06_example_01.R
+SHA256 d2d452a50d7808f70afdd986587e7c441e1960305c840313bd2b81eb17fb843e
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+x <- c(2, NA_real_, NaN, Inf, -Inf)
+print(is.na(x))
+print(is.nan(x))
+print(is.finite(x))
+print(mean(c(60, NA, 80), na.rm = TRUE))
+OUTPUT
+[1] FALSE  TRUE  TRUE FALSE FALSE
+[1] FALSE FALSE  TRUE FALSE FALSE
+[1]  TRUE FALSE FALSE FALSE FALSE
+[1] 70
+
+BLOCK application
+SOURCE K06_example_02.R
+SHA256 42474d0a27e6c57cbac2276e925a193bcebeeb2421baa5cc9d3aad701902609d
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+measurement <- c(12, 13, NA, 14, Inf, 15, NaN, 16, -Inf, 17, 18, 19)
+keep <- is.finite(measurement)
+print(c(total = length(measurement), missing = sum(is.na(measurement)),
+        nan = sum(is.nan(measurement)), infinite = sum(is.infinite(measurement)),
+        finite = sum(keep)))
+print(mean(measurement, na.rm = TRUE))
+print(measurement[keep])
+print(mean(measurement[keep]))
+OUTPUT
+   total  missing      nan infinite   finite 
+      12        2        1        2        8 
+[1] NaN
+[1] 12 13 14 15 16 17 18 19
+[1] 15.5
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 1077f02ad61e55ee3340c1fd8fae5cb99a24afc6e52ec60c328e9c543fb5474b
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+x <- c(2, NA, 4)
+print(x == NA)
+print(x[x == NA])
+OUTPUT
+[1] NA NA NA
+[1] NA NA NA
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 c93b887889e690535c08fb6389604f7ace831b93b3316b48dc032923e18ba78d
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+x <- c(2, NA, 4)
+print(is.na(x))
+print(x[!is.na(x)])
+OUTPUT
+[1] FALSE  TRUE FALSE
+[1] 2 4
+
+BLOCK exercise
+SOURCE K06_exercise.R
+SHA256 133602411978102c99b508c524b42dc8dc8dc9cedccab7a5ae8172d56ac872e9
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+measurement <- c(20, 22, NA, Inf, 24, NaN, 26, -Inf, 28, 30)
+keep <- is.finite(measurement)
+clean <- measurement[keep]
+print(c(total = length(measurement), kept = sum(keep), excluded = sum(!keep)))
+print(clean)
+print(mean(clean))
+print(mean(c(NA_real_, NA_real_), na.rm = TRUE))
+OUTPUT
+   total     kept excluded 
+      10        6        4 
+[1] 20 22 24 26 28 30
+[1] 25
+[1] NaN
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 a4ff6736d9883314293db0893b0a105e21c4bd1917579504945bf690c8ff1e62
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+x <- c(NA_real_, NA_real_)
+print(mean(x, na.rm = TRUE))
+print(length(x))
+print(c(is.na(NaN), is.nan(NA_real_), is.na(Inf)))
+OUTPUT
+[1] NaN
+[1] 2
+[1]  TRUE FALSE FALSE
+
+BOUNDARY_CHECKS
+stopifnot(identical(is.na(c(NA_real_, NaN, Inf)), c(TRUE, TRUE, FALSE)))
+stopifnot(identical(is.finite(c(NA_real_, NaN, Inf, 2)), c(FALSE, FALSE, FALSE, TRUE)))
+stopifnot(is.infinite(mean(c(2, Inf), na.rm = TRUE)))
+stopifnot(is.nan(mean(c(NA_real_, NA_real_), na.rm = TRUE)))
+stopifnot(is.nan(mean(c(Inf, -Inf), na.rm = TRUE)))
+stopifnot(mean(c(20, 22, 24, 26, 28, 30)) == 25)
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+NA, is.finite, mean, Arithmetic
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K06_visual_01.R ../images
+CODE_SHA256 63b08abf3fa3987b08c7318e1d571db7091356676df91d2f4c4edb308f8fdbe2
+SVG_SHA256 a636c63d192f90efbb8cced07f5203df5839883c5d372444fdfb1874a92f4484
+Generated K06_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 8
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

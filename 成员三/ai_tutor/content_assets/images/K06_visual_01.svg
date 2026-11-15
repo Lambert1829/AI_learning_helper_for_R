@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="822" viewBox="0 0 720 822" role="img" aria-labelledby="title desc">
+<title id="title">K06 数值状态与检测结果</title>
+<desc id="desc">四行比较普通有限数、NA、NaN与正负Inf。NA和NaN的is.na均为TRUE，只有NaN的is.nan为TRUE，只有普通有限数的is.finite为TRUE。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#79bdf1" stroke-width="1.5"/></marker></defs>
+<rect width="720" height="822" rx="20" fill="#030813"/>
+<g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" fill="#b7c5d4">
+<text x="36" y="62" font-size="32" font-weight="700" fill="#f5f9ff">K06 数值状态与检测结果</text>
+<rect x="36" y="106" width="648" height="118" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="147" font-size="30" font-weight="700" fill="#79bdf1">普通有限数　2</text>
+<text x="58" y="191" font-size="27" fill="#b7c5d4">is.na 为 FALSE，is.finite 为 TRUE</text>
+<rect x="36" y="254" width="648" height="118" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="295" font-size="30" font-weight="700" fill="#79bdf1">缺失值　NA</text>
+<text x="58" y="339" font-size="27" fill="#b7c5d4">is.na 为 TRUE，is.nan 为 FALSE</text>
+<rect x="36" y="402" width="648" height="118" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="443" font-size="30" font-weight="700" fill="#79bdf1">未定义数值　NaN</text>
+<text x="58" y="487" font-size="27" fill="#b7c5d4">is.na 与 is.nan 均为 TRUE</text>
+<rect x="36" y="550" width="648" height="118" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="591" font-size="30" font-weight="700" fill="#79bdf1">无穷值　Inf、-Inf</text>
+<text x="58" y="635" font-size="27" fill="#b7c5d4">is.na 为 FALSE，is.finite 为 FALSE</text>
+<text x="36" y="757" font-size="27" fill="#9eafc2">na.rm 移除 NA 与 NaN，</text>
+<text x="36" y="791" font-size="27" fill="#9eafc2">Inf 需要另定处理规则。</text>
+</g>
+</svg>

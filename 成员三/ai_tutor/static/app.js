@@ -1,4 +1,5 @@
 'use strict';
+import {markdownFragment} from './answer-markdown.js?v=20261115.7';
 const $ = id => document.getElementById(id);
 const STORE = 'r-tutor-mock-v1';
 const UNITS = ['环境与自助学习','类型与缺失','向量与字符串','矩阵与数组','数据框','列表与批量处理','函数与控制','综合与包扩展'];
@@ -9,9 +10,31 @@ let currentView = '', pendingRecord = null;
 let skipNextHashRoute = false, activeViewTransition = null, routeSequence = 0;
 const FOLLOW_LABELS = {'举个例子':'例题','有什么易错点':'易错点','给我练习':'练习'};
 let codeOpen = false, freshContext = false;
+let requestController = null;
+
+function pick(object, fields) {
+  return Object.fromEntries(fields.filter(key => object?.[key] !== undefined).map(key => [key, object[key]]));
+}
+function safeRecord(record) {
+  const response = record.response;
+  const result = {
+    time: record.time,
+    request: pick(record.request, ['session_id','question','task_type','code','error_message','knowledge_id','teaching_mode']),
+    response: pick(response, ['request_id','status','mode','task_type','related_knowledge','matched_case_id',
+      'prompt_version','knowledge_version','provider','model','used_web_search','search_status','duration_ms']),
+  };
+  result.response.answer = pick(response.answer, ['content_markdown','summary','steps','corrected_code','example_code','expected_output',
+    'execution_status','code_kind','follow_ups','is_supplementary']);
+  result.response.answer.issues = (response.answer.issues || []).map(issue => pick(issue, ['kind','line','reason']));
+  result.response.citations = (response.citations || []).map(source => pick(source, ['knowledge_id','source_id','file','locator','raw']));
+  result.response.web_citations = (response.web_citations || []).map(source => pick(source, ['source_id','title','url']));
+  result.response.usage = pick(response.usage, ['input_tokens','output_tokens','total_tokens']);
+  if (record.display_question) result.display_question = record.display_question;
+  return result;
+}
 try {
   const saved = JSON.parse(localStorage.getItem(STORE) || '[]');
-  if (Array.isArray(saved)) records = saved.filter(x => x?.request && typeof x?.response?.answer?.summary === 'string').slice(-100);
+  if (Array.isArray(saved)) records = saved.filter(x => x?.request && typeof x?.response?.answer?.summary === 'string').slice(-100).map(safeRecord);
 } catch { records = []; }
 activeId = records.at(-1)?.response.related_knowledge?.[0] || null;
 
@@ -38,24 +61,102 @@ function status(text = '', error = false) {
   $('status').classList.toggle('error', error);
 }
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify(records)); return true; }
+  try { localStorage.setItem(STORE, JSON.stringify(records.map(safeRecord))); return true; }
   catch { status('浏览器存储不可用，当前记录仍可导出。', true); return false; }
 }
-async function api(path, body) {
+async function api(path, body, options = {}) {
   const response = await fetch(path, {
     method: body ? 'POST' : 'GET',
     headers: body ? {'Content-Type': 'application/json'} : {},
     body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(10000)
+    credentials: 'include',
+    signal: options.signal || AbortSignal.timeout(body ? (modelSettings.config.mode === 'search' ? 100000 : 70000) : 10000)
   });
   let data;
   try { data = await response.json(); } catch { throw Error('服务返回了无法读取的响应'); }
-  if (!response.ok) throw Error(data.error?.message || '请求失败（' + response.status + '）');
+  if (!response.ok) {
+    const error = Error(data.error?.message || '请求失败（' + response.status + '）');
+    error.code = data.error?.code;
+    error.requestId = data.request_id;
+    throw error;
+  }
   return data;
 }
+async function streamApi(path, body, signal, onEvent) {
+  const response = await fetch(path, {method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), signal});
+  if (!response.ok) {
+    const data = await response.json();
+    const error = Error(data.error?.message || '请求失败');
+    error.code = data.error?.code; error.requestId = data.request_id; throw error;
+  }
+  if (!response.headers.get('content-type')?.includes('text/event-stream')) throw Error('服务返回了无法读取的流式响应');
+  const reader = response.body.getReader(), decoder = new TextDecoder();
+  let buffer = '';
+  try {
+    while (true) {
+      const {value, done} = await reader.read();
+      buffer += decoder.decode(value, {stream:!done});
+      buffer = buffer.replace(/\r\n/g, '\n');
+      let boundary;
+      while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+        const frame = buffer.slice(0,boundary); buffer = buffer.slice(boundary+2);
+        const lines = frame.split('\n');
+        const event = lines.find(line => line.startsWith('event:'))?.slice(6).trim();
+        const dataLines = lines.filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart());
+        if (!dataLines.length) continue;
+        const data = JSON.parse(dataLines.join('\n'));
+        if (event === 'done') return data;
+        if (event === 'error') {
+          const error = Error(data.error?.message || '生成失败');
+          error.code = data.error?.code; error.requestId = data.request_id; throw error;
+        }
+        onEvent(event, data);
+      }
+      if (done) throw Error('连接提前结束，请重新发送。');
+    }
+  } finally {
+    await reader.cancel().catch(()=>{});
+    reader.releaseLock();
+  }
+}
+
+function liveAnswer(question, review) {
+  const card = el('article', undefined, 'message streaming-message' + (review ? ' review-message' : ''));
+  card.setAttribute('aria-live', 'off'); card.setAttribute('aria-busy', 'true');
+  card.append(el('p', question || '审查提交的R代码', 'question'));
+  const content = el('div', undefined, 'assistant-answer');
+  const label = el('p', '生成中 · 待校验', 'answer-label');
+  const body = el('div', undefined, 'answer-body stream-summary');
+  content.append(label,body); card.append(content); $('messages').append(card);
+  $('welcome').hidden = true; $('review-empty').hidden = true;
+  let fields = {};
+  return {
+    remove: () => card.remove(),
+    update(event, data) {
+      const scroll = $('conversation-scroll');
+      const follow = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 100;
+      if (event === 'status') {
+        label.textContent = ({searching:'正在检索网络来源…',preparing:'正在准备…',generating:'生成中 · 待校验',validating:'正在校验回答和引用…',repairing:'正在修复回答结构…'})[data.stage] || '生成中 · 待校验';
+      } else if (event === 'reset') fields = {};
+      else if (event === 'delta' && typeof data.text === 'string' && /^(content_markdown|summary|corrected_code|example_code|expected_output|steps\.\d+)$/.test(data.field)) {
+        fields[data.field] = (fields[data.field] || '') + data.text;
+      }
+      const steps = Object.keys(fields).filter(key => key.startsWith('steps.'))
+        .sort((a,b) => Number(a.slice(6)) - Number(b.slice(6))).map(key => fields[key]);
+      renderTeachingBody(body, {...fields, steps}, []);
+      if (follow) scroll.scrollTop = scroll.scrollHeight;
+    }
+  };
+}
 function showError(error) {
-  status(error.name === 'TypeError' ? '无法连接本地服务，请启动服务后重试。' :
-    error.name === 'TimeoutError' ? '请求超时，请重试。' : error.message, true);
+  if (error.name === 'AbortError') { status('请求已取消。'); return; }
+  if (error.code === 'SESSION_EXPIRED' || error.code === 'CONFIG_REQUIRED') {
+    modelSettings.refresh().catch(() => {});
+  }
+  const message = error.name === 'TypeError' ? '无法连接本地服务，请启动服务后重试。' :
+    error.name === 'TimeoutError' ? '请求超时，请重试。' : error.message;
+  status(message + (error.requestId ? '（请求编号 ' + error.requestId + '）' : ''), true);
 }
 function setBusy(value) {
   busy = value;
@@ -63,6 +164,7 @@ function setBusy(value) {
   for (const id of ['send','question','code','error-message','code-toggle','clear','history-clear','file-pick','file-remove','code-clear','topic-clear']) $(id).disabled = value;
   document.querySelectorAll('[data-request]').forEach(b => { b.disabled = value; });
   $('send').textContent = value ? '发送中…' : '发送 ↑';
+  $('cancel-request').hidden = !value;
 }
 function setCode(value) {
   if (currentView === 'review') value = true;
@@ -95,8 +197,54 @@ function codeBlock(parent, text, label, unverified = false) {
   heading.append(copy); wrap.append(heading, el('pre', text)); parent.append(wrap);
 }
 function firstSentence(text) {
-  const match = text.match(/^.*?[。！？](?=\s|[^\x00-\x7F]|$)|^[^\n]+\n/u);
+  const match = text.match(/^.*?[。！？](?:\s*\[W\d+\])*|^[^\n]+\n/u);
   return match ? match[0].trim() : text;
+}
+function appendProse(node, text, sources = []) {
+  const parts = String(text).split(/(\[W\d+\])/g);
+  for (const part of parts) {
+    const source = sources.find(item => '[' + item.source_id + ']' === part);
+    let url;
+    try { url = source && new URL(source.url); } catch { url = null; }
+    if (url && ['https:','http:'].includes(url.protocol) && !url.username && !url.password) {
+      const link = el('a', part, 'web-citation');
+      link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.title = source.title;
+      node.append(link);
+    } else node.append(document.createTextNode(part));
+  }
+  return node;
+}
+function renderTeachingBody(node, answer, sources = []) {
+  node.replaceChildren();
+  if (answer.content_markdown?.trim()) {
+    node.append(markdownFragment(answer.content_markdown));
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    const references = [];
+    while (walker.nextNode()) {
+      const text = walker.currentNode;
+      if (/\[W\d+\]/.test(text.textContent) && !text.parentElement.closest('code,pre,a')) references.push(text);
+    }
+    for (const text of references) text.replaceWith(appendProse(el('span'), text.textContent, sources));
+    for (const pre of [...node.querySelectorAll('pre')]) {
+      const code = pre.querySelector('code');
+      const language = code?.className.match(/\blanguage-([\w+-]+)/)?.[1] || '';
+      const holder = el('div');
+      const label = language.toLowerCase() === 'r' ? 'R代码' : (language ? language + '代码' : '代码');
+      codeBlock(holder, (code || pre).textContent.replace(/\n$/, ''), label, true);
+      pre.replaceWith(...holder.childNodes);
+    }
+    return;
+  }
+  if (answer.summary) node.append(appendProse(el('p'), answer.summary, sources));
+  const steps = el('ol', undefined, 'steps');
+  (answer.steps || []).forEach(text => steps.append(appendProse(el('li'), text, sources)));
+  if (steps.childElementCount) node.append(steps);
+  for (const issue of answer.issues || []) {
+    const label = ({error:'运行错误',warning:'警告',logic:'逻辑错误'}[issue.kind] || issue.kind) +
+      (issue.line == null ? '' : ' · 第' + issue.line + '行');
+    node.append(appendProse(el('p'), label + '。' + issue.reason, sources));
+  }
+  codeBlock(node, answer.corrected_code || answer.example_code, answer.corrected_code ? '参考修正' : '代码讲解', true);
 }
 function renderRecords() {
   const root = $('messages'); root.replaceChildren();
@@ -117,43 +265,34 @@ function renderRecords() {
     card.append(user);
     const assistant = el('div', undefined, 'assistant-answer');
     assistant.append(el('p', r.task_type === 'debug' ? (r.matched_case_id ? '参考案例 · ' + r.matched_case_id : '代码纠错') : '助教', 'answer-label'));
+    if (r.mode && r.mode !== 'mock') {
+      assistant.append(el('span', (r.provider || '') + ' · ' + (r.model || '') + (a.is_supplementary ? ' · AI补充' : ''), 'answer-mode'));
+      if (r.mode === 'search') assistant.append(el('p', {
+        completed:'本轮已获取网络来源', not_triggered:'本轮未触发网页搜索',
+        no_results:'搜索未获得可用来源', failed:'本轮搜索失败'
+      }[r.search_status] || '本轮未获得网络来源', 'search-notice'));
+    }
     if (r.task_type === 'debug' && r.status === 'no_match') assistant.append(el('p','当前资料未匹配到可靠案例。请补充最小复现代码、完整报错和预期结果。','review-advice'));
-    const issue = a.issues?.[0];
-    const direct = firstSentence(issue?.reason || a.summary);
-    assistant.append(el('h2', direct, 'answer-heading'));
-    const steps = el('ol', undefined, 'steps');
-    (a.steps || []).slice(0,3).forEach(t => {
-      const text = issue && t === issue.reason ?
-        '问题类型：' + ({error:'运行错误',warning:'警告',logic:'逻辑错误'}[issue.kind] || issue.kind) +
-        (issue.line == null ? '。' : '；位置：第' + issue.line + '行。') : t;
-      steps.append(el('li', text));
-    });
-    if (steps.childElementCount) assistant.append(steps);
-    codeBlock(assistant, a.corrected_code || a.example_code, a.corrected_code ? '参考修正' : '代码讲解', true);
+    const body = el('div', undefined, 'answer-body');
+    renderTeachingBody(body, a, r.web_citations);
+    assistant.append(body);
     const follow = el('div', undefined, 'followups');
-    (a.follow_ups || []).forEach(t => follow.append(button(FOLLOW_LABELS[t] || '继续提问', () => {
+    (a.follow_ups || []).forEach(t => follow.append(button(FOLLOW_LABELS[t] || t, () => {
       navigate('chat'); setCode(false);
-      if (!FOLLOW_LABELS[t]) { $('question').focus(); return; }
-      send(t, {knowledgeId: r.related_knowledge?.[0] || null, useComposer: false, displayQuestion: FOLLOW_LABELS[t]});
+      send(t, {knowledgeId: r.related_knowledge?.[0] || null, useComposer: false,
+        taskType:t === '给我练习' ? 'exercise' : 'auto', displayQuestion: FOLLOW_LABELS[t] || t});
     }, '', true)));
     if (r.task_type === 'exercise' && record.request.teaching_mode !== 'solution' && r.status === 'ok') {
       follow.append(button('参考答案', () => {
         navigate('chat'); setCode(false);
-        send(record.request.question, {knowledgeId:r.related_knowledge?.[0] || null, useComposer:false, solution:true, displayQuestion:'参考答案'});
+        send(record.request.question, {knowledgeId:r.related_knowledge?.[0] || null, useComposer:false,
+          taskType:'exercise', solution:true, displayQuestion:'参考答案'});
       }, 'solution', true));
     }
     follow.append(button('继续提问', () => $('question').focus()));
-    assistant.append(follow);
-    const extra = issue ? a.summary : a.summary.slice(direct.length).trim();
-    if (extra || (a.issues || []).length || (a.steps || []).length > 3) {
-      const explanation = details('深入讲解', 'explanation');
-      if (extra) explanation.append(el('p', extra));
-      (a.steps || []).slice(3).forEach(t => explanation.append(el('p',t)));
-      (a.issues || []).forEach(i => explanation.append(el('p', i.kind + (i.line == null ? '' : ' · 第' + i.line + '行') + '：' + i.reason)));
-      assistant.append(explanation);
-    }
-    if (a.expected_output) {
+    if (!a.content_markdown && a.expected_output) {
       const output = details('参考输出', 'reference-output');
+      output.append(el('p', '预期输出 · 未经运行验证', 'muted'));
       output.append(el('pre',a.expected_output)); assistant.append(output);
     }
     if ((r.citations || []).length) {
@@ -166,6 +305,18 @@ function renderRecords() {
       }
       assistant.append(sources);
     }
+    if ((r.web_citations || []).length) {
+      const sources = details('网络来源', 'web-sources');
+      sources.open = true;
+      for (const source of r.web_citations) {
+        let url;
+        try { url = new URL(source.url); } catch { continue; }
+        if (!['https:','http:'].includes(url.protocol) || url.username || url.password) continue;
+        const link = el('a', '[' + source.source_id + '] ' + source.title, 'web-citation');
+        link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; sources.append(link);
+      }
+      assistant.append(sources);
+    }
     if ((r.related_knowledge || []).length) {
       const related = details('相关知识', 'related-knowledge');
       for (const id of r.related_knowledge) {
@@ -174,6 +325,7 @@ function renderRecords() {
       }
       assistant.append(related);
     }
+    assistant.append(follow);
     card.append(assistant); root.append(card);
   }
 }
@@ -192,28 +344,56 @@ async function send(question, options = {}) {
   const code = includeCode ? $('code').value : '';
   const error = includeCode ? $('error-message').value : '';
   if (!q && !code.trim()) { status('请先输入问题或代码。', true); $('question').focus(); return; }
+  const historyRecords = freshContext ? [] : records.slice(-6);
+  let historyTrimmed = !freshContext && records.length > 6;
   const body = {
-    session_id:'local-browser', question:q, task_type:includeCode ? 'debug' : 'auto',
+    session_id:'local-browser', question:q, task_type:includeCode ? 'debug' : (options.taskType || 'auto'),
     code, error_message:error,
     knowledge_id:options.knowledgeId === undefined ? activeId : options.knowledgeId,
-    teaching_mode:options.solution ? 'solution' : 'hint',
-    history:(freshContext ? [] : records.slice(-6)).flatMap(x => [
-      {role:'user',content:(x.request.question || '').slice(0,2000)},
-      {role:'assistant',content:x.response.answer.summary.slice(0,1500)}
-    ])
+    history:historyRecords.flatMap(x => {
+      const oldQuestion = x.request.question || '';
+      const oldError = x.request.error_message || '';
+      const answer = x.response.answer;
+      const previousAnswer = answer.content_markdown || [answer.summary, ...(answer.steps || []),
+        ...(answer.issues || []).map(issue => issue.reason), answer.corrected_code || answer.example_code || ''].join('\n\n');
+      if (oldQuestion.length > 1500 || oldError.length > 400) historyTrimmed = true;
+      return [
+        {role:'user',content:[oldQuestion.slice(0,1500), x.request.code || '', oldError.slice(0,400)].join('\n')},
+        {role:'assistant',content:previousAnswer}
+      ];
+    })
   };
+  if (body.task_type === 'exercise') body.teaching_mode = options.solution ? 'solution' : 'hint';
+  for (const item of body.history) {
+    if (item.content.length > 12000) { item.content = item.content.slice(0,12000); historyTrimmed = true; }
+  }
+  while (body.history.reduce((total, item) => total + item.content.length, 0) > 24000) {
+    body.history.splice(0, 2); historyTrimmed = true;
+  }
   setBusy(true); status('正在查询…');
+  requestController = new AbortController();
+  const signal = AbortSignal.any([requestController.signal, AbortSignal.timeout(modelSettings.config.mode === 'search' ? 100000 : 70000)]);
+  let draft = null;
   try {
-    const response = await api(includeCode ? '/api/review' : '/api/chat', body);
-    records.push({time:new Date().toISOString(), request:body, response,
-      ...(options.displayQuestion ? {display_question:options.displayQuestion} : {})});
+    const path = includeCode ? '/api/review' : '/api/chat';
+    let response;
+    if (modelSettings.config.mode === 'mock') response = await api(path, body, {signal});
+    else {
+      draft = liveAnswer(q, includeCode); scrollToLatest();
+      response = await streamApi(path + '/stream', body, signal, (event,data) => draft.update(event,data));
+    }
+    records.push(safeRecord({time:new Date().toISOString(), request:body, response,
+      ...(options.displayQuestion ? {display_question:options.displayQuestion} : {})}));
     records = records.slice(-100); freshContext = false;
     renderRecords(); renderHistory(); selectTopic(response.related_knowledge?.[0] || null);
     if (useComposer) $('question').value = '';
-    if (save()) status();
+    if (save()) status(historyTrimmed ? '较早对话已裁剪，需要分析完整代码时请重新提交。' : '');
     scrollToLatest();
-  } catch (e) { showError(e); }
-  finally { setBusy(false); }
+  } catch (e) {
+    if (draft) { draft.remove(); renderRecords(); }
+    showError(e);
+  }
+  finally { draft?.remove(); requestController = null; setBusy(false); }
 }
 function explainKnowledge(id) {
   if (busy) return;
@@ -278,8 +458,10 @@ function route(focus = true) {
   if(animate&&document.startViewTransition){
     activeViewTransition?.skipTransition();
     const transition=document.startViewTransition(applyView);activeViewTransition=transition;
+    transition.ready.catch(()=>{});
     transition.updateCallbackDone.then(finish,finish);
-    transition.finished.finally(()=>{if(activeViewTransition===transition)activeViewTransition=null;});
+    const clearTransition=()=>{if(activeViewTransition===transition)activeViewTransition=null;};
+    transition.finished.then(clearTransition,clearTransition);
   }else{
     applyView();
     if(animate){
@@ -305,10 +487,11 @@ function renderHistory() {
     root.append(row);
   }
 }
+const modelSettings = new window.ModelSettings(status);
 const fileInput = new window.RFileInput();
 const mapUI = new window.KnowledgeMap({api, codeBlock, units:UNITS,
   explain: id => explainKnowledge(id),
-  exercise: id => { if(busy)return; navigate('chat');setCode(false);send('给我练习',{knowledgeId:id,useComposer:false,displayQuestion:'练习'}); }
+  exercise: id => { if(busy)return; navigate('chat');setCode(false);send('给我练习',{knowledgeId:id,useComposer:false,taskType:'exercise',displayQuestion:'练习'}); }
 });
 $('topic-clear').onclick = () => {selectTopic(null); freshContext=true; $('question').focus();};
 document.querySelector('.skip-link').onclick = e => { e.preventDefault(); $('main-content').focus(); };
@@ -329,6 +512,7 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
 }
 
 $('ask-form').onsubmit = e => { e.preventDefault(); send(); };
+$('cancel-request').onclick = () => requestController?.abort();
 $('code-toggle').onclick = () => { setCode(!codeOpen); if (codeOpen) $('code').focus(); };
 $('more-toggle').onclick = () => setMore($('more-panel').hidden);
 $('more-toggle').onkeydown = e => { if (e.key === 'ArrowDown') { e.preventDefault(); setMore(true,true); } };
@@ -353,7 +537,7 @@ $('clear').onclick = () => {
 };
 $('export').onclick = () => {
   setMore(false);
-  const blob = new Blob([JSON.stringify({mode:'mock',records},null,2)], {type:'application/json;charset=utf-8'});
+  const blob = new Blob([JSON.stringify({version:'1.2.0',records:records.map(safeRecord)},null,2)], {type:'application/json;charset=utf-8'});
   const url = URL.createObjectURL(blob), link = el('a');
   link.href = url; link.download = 'R语言学习记录.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);

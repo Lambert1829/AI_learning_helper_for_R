@@ -1,238 +1,169 @@
-"""Generate member-two handoff from the running service and its OpenAPI schema."""
-from pathlib import Path
+"""Generate handoff documentation from the running app's actual OpenAPI schema."""
 import json
-import urllib.request
-import urllib.error
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'http://127.0.0.1:8000'
 
 
-def call(path, body=None):
-    req = urllib.request.Request(BASE+path,
-        data=json.dumps(body,ensure_ascii=False).encode('utf-8') if body is not None else None,
-        headers={'Content-Type':'application/json'} if body is not None else {})
-    try:
-        with urllib.request.urlopen(req, timeout=10) as response:
-            return response.status, json.load(response)
-    except urllib.error.HTTPError as e:
-        return e.code, json.load(e)
+def read(path):
+    with urlopen(BASE + path, timeout=10) as response:
+        return json.load(response)
 
 
-def block(obj):
-    return '\n```json\n'+json.dumps(obj, ensure_ascii=False, indent=2)+'\n```\n'
-
-
-def type_name(field):
-    if '$ref' in field:
-        return field['$ref'].split('/')[-1]
-    if 'anyOf' in field:
-        return ' / '.join(type_name(x) for x in field['anyOf'])
-    if field.get('type')=='array':
-        return 'array<'+type_name(field['items'])+'>'
-    return field.get('type','object')
+def type_name(schema):
+    if '$ref' in schema:
+        return schema['$ref'].split('/')[-1]
+    if 'anyOf' in schema:
+        return ' / '.join(type_name(item) for item in schema['anyOf'])
+    if schema.get('type') == 'array':
+        return 'array<' + type_name(schema['items']) + '>'
+    return schema.get('type', 'object')
 
 
 def table(schema, name):
-    model=schema['components']['schemas'][name]
-    out='\n| 字段 | 类型 | 必填 | 默认值 | 约束 |\n|---|---|---|---|---|\n'
-    for key,value in model['properties'].items():
-        rules=[]
-        for f in ['enum','const','maxLength','maxItems','minimum']:
-            if f in value: rules.append(f+'='+json.dumps(value[f],ensure_ascii=False))
-        out+=f"| `{key}` | {type_name(value)} | {'是' if key in model.get('required',[]) else '否'} | {json.dumps(value['default'],ensure_ascii=False) if 'default' in value else '—'} | {'；'.join(rules) or '—'} |\n"
-    return out
+    model = schema['components']['schemas'][name]
+    lines = ['| 字段 | 类型 | 必填 | 默认值 |', '|---|---|---|---|']
+    for key, value in model['properties'].items():
+        required = '是' if key in model.get('required', []) else '否'
+        default = json.dumps(value.get('default'), ensure_ascii=False)
+        lines.append(f'| `{key}` | {type_name(value)} | {required} | {default} |')
+    return '\n'.join(lines)
 
 
 def main():
-    health=call('/api/health')
-    assert health[0]==200 and health[1]['mode']=='mock'
-    _,schema=call('/openapi.json')
-    required={'/api/health','/api/knowledge','/api/knowledge/{knowledge_id}','/api/chat','/api/review'}
-    assert required<=set(schema['paths'])
-    query={'question':'mean中的na.rm怎么用？','task_type':'function'}
-    review={'question':'为什么不能用x == NA判断缺失？','code':'x <- c(1, NA, 3)\nx[x == NA]'}
-    calls={
-      'health':health,
-      'catalog':call('/api/knowledge'),
-      'detail':call('/api/knowledge/K06'),
-      'chat':call('/api/chat',query),
-      'review':call('/api/review',review),
-      'no_match':call('/api/chat',{'question':'明天天气如何'}),
-      'not_found':call('/api/knowledge/K99'),
-      'invalid':call('/api/chat',{'question':'   '}),
-    }
-    for key,value in calls.items():
-        assert value[0]==({'not_found':404,'invalid':422}.get(key,200)), (key,value)
-    (ROOT/'tests/http_evidence.json').write_text(json.dumps(calls,ensure_ascii=False,indent=2),encoding='utf-8')
-    # Use a fixed UTC+8 offset to avoid depending on Windows IANA timezone data.
-    from datetime import timezone, timedelta
-    stamp=datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S +08:00')
-    text=f'''# R语言AI助教接口说明
+    health, schema = read('/api/health'), read('/openapi.json')
+    if health['version'] != '1.2.0':
+        raise RuntimeError('请先重启至1.2.0再生成接口说明')
+    timestamp = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
+    routes = ['| 方法 | 路径 | 用途 |', '|---|---|---|']
+    for path, operations in schema['paths'].items():
+        for method, operation in operations.items():
+            if method in {'get', 'post', 'put', 'delete'}:
+                routes.append(f'| {method.upper()} | `{path}` | {operation.get("summary", "")} |')
+    text = f'''# R语言AI助教接口说明
 
-适用读者：开发小白、成员二和成员三  
-版本：1.0.0 本地模拟版  
-接口实测时间：{stamp}  
-知识版本：`{health[1]['knowledge_version']}`
+应用版本为{health['version']}，核对时间为{timestamp}。
+接口表和数据类型取自当前运行服务的OpenAPI。模型适配测试使用模拟上游，真实账号与公网验收状态见测试记录。
 
-本文根据当前代码、运行服务的OpenAPI定义和真实HTTP请求生成。五个接口已经实现并测试；回答由课程资料和规则产生，未接入大模型，未运行R代码。参数表来自实际OpenAPI定义，不是规划草案。
+## 启动与接入
 
-## 1 先运行再连接
+运行 `ai_tutor/start.cmd`，通过浏览器访问 `http://127.0.0.1:8000/`。
+交互文档为 `/docs`，完整字段约束为 `/openapi.json`。
+同域页面使用相对路径，JavaScript请求设置 `credentials: 'include'`。
 
-双击 `ai_tutor/start.cmd`，出现Ready后访问：
+## 已实现接口
 
-- 网页：<http://127.0.0.1:8000/>
-- API基础地址：`http://127.0.0.1:8000`
-- FastAPI交互文档：<http://127.0.0.1:8000/docs>
-- 原始接口定义：<http://127.0.0.1:8000/openapi.json>
+{chr(10).join(routes)}
 
-当前电脑依赖已安装。其他电脑先安装Python 3.12，再运行 `setup.cmd`。停止服务使用 `stop.cmd`。地址只适用于运行服务的电脑，不是公网地址。
+目录接口返回43个知识点和95条关系，详情接口返回成员一课程字段、来源定位和先修知识。
+健康接口报告应用能力与版本，读取健康状态无需模型调用。
 
-同源页面使用 `/api/...` 即可。独立前端允许来自 `http://localhost:5173` 和 `http://127.0.0.1:5173` 的GET/POST请求；没有开放任意来源。不要直接双击HTML用file协议调用。没有登录、认证或服务端会话存储。
+## 问答请求
 
-## 2 接口一览
+{table(schema, 'ChatRequest')}
 
-| 方法 | 路径 | 用途 | 成功响应 |
-|---|---|---|---|
-| GET | `/api/health` | 检查服务和模拟模式 | 服务状态、版本、资料数量 |
-| GET | `/api/knowledge` | 获取课程导航与关系 | items、relations、knowledge_version |
-| GET | `/api/knowledge/{{knowledge_id}}` | 获取一个知识点 | 标准教学内容、来源与先修 |
-| POST | `/api/chat` | 自动或指定类型问答、追问 | ChatResponse |
-| POST | `/api/review` | 代码审查；强制debug模式 | ChatResponse |
+`history`每条包含user或assistant角色与文本，最多12条，每条最多12000字符，总计最多24000字符。
+问题、代码或知识编号至少提供一项，审查入口还需要问题或代码。未知知识编号返回404。
+当前模式由服务器Cookie会话决定，`session_id`用于兼容既有调用。
+`/api/review`强制debug，练习使用hint或solution模式。
+普通问答发送模型时省略teaching_mode，练习题按hint或solution处理。
 
-所有接口返回JSON；每个HTTP响应附带 `X-Request-ID` 便于排错。GET的成功正文不重复该请求编号，问答及错误正文包含 `request_id`。
+## 问答响应
 
-## 3 健康检查
+{table(schema, 'ChatResponse')}
 
-`GET /api/health` 没有参数，不调用模型。`status`是服务状态，`mode`固定为mock，`version`是应用版本，`knowledge_version`标识资料版本，`counts`包含各类资料数量。
+### 回答内容
 
-成功200的完整实测响应：
-'''+block(calls['health'][1])+'''
-## 4 课程目录与知识详情
+{table(schema, 'Answer')}
 
-`GET /api/knowledge` 没有参数。`items`数组每项包含 `id`、`title`、`chapter`（教学单元）、`prerequisites`（先修知识ID数组）。`relations`每项包含 `from`、`to`、`type`、`description`；顶层 `knowledge_version`用于识别数据版本。
+- 新AI回答使用 `answer.content_markdown` 保存连续Markdown正文，包含按顺序排列的解释、列表、多段代码及预期现象。
+- 前端完整渲染正文，同级要点保持在同一列表。代码块保留复制及未经运行验证标识。
+- `summary`提供兼容文本。已有记录及模拟回答继续支持steps、issues、corrected_code、example_code和expected_output，全部步骤按顺序展示。
+- `follow_ups`位于完整回答与来源之后。练习题可主动选择参考答案。
 
-成功200响应节选如下，仅展示前2个条目和前2条关系，完整响应见服务或 `ai_tutor/tests/http_evidence.json`：
-'''+block({'items':calls['catalog'][1]['items'][:2], 'relations':calls['catalog'][1]['relations'][:2], 'knowledge_version':health[1]['knowledge_version']})+'''
-`GET /api/knowledge/{knowledge_id}` 的路径参数必填，大小写敏感，例如K06。只接受数据中存在的编号，不存在返回404。
+- `mode`取mock、ai、search。
+- `answer.code_kind`取reference_example或ai_suggestion，`execution_status`为not_executed。
+- `answer.is_supplementary`标识课程之外的AI补充。
+- `citations`由后端课程映射生成，包含knowledge_id、source_id、file、locator、raw。
+- `web_citations`每项包含source_id、title、url，编号形如W1，正文以[W1]关联可点击来源。
+- `search_status`取not_requested、not_triggered、completed、no_results或failed。
+- `used_web_search`只在获取有效搜索来源时为true。
+- `usage`保存厂商返回的input_tokens、output_tokens和total_tokens。搜索与整理调用相加。
+- `duration_ms`为后端模型流程总耗时。
 
-详情字段：`id/title/chapter`标识知识点；`fields`保留来源文档的教学字段（解释、函数语法、参数说明、运行示例、实际输出、易错提醒、练习提示等）；`sources`保存来源定位；`knowledge_ids`为本条编号；`prerequisites`为先修编号；`keywords`为检索用词；`verification`说明本应用未执行R代码；`catalog_row`为Excel原始行；`level`为Excel原始层级。
+## 模型配置与连接测试
 
-`fields`是资料字段映射，不同条目的可选字段可能不同。代码中的换行由JSON的 `\\n` 表示，前端解析后按原换行展示。不要把资料中的核验记录解读成这次请求执行了代码。
+{table(schema, 'ModelConfig')}
 
-K06详情成功200的完整实测响应：
-'''+block(calls['detail'][1])+'''
-## 5 问答和代码审查请求
+GET配置返回mode、provider、model、workspace_id、region、max_output_tokens、configured、key_suffix、expires_in_seconds、expired和last_test。
+配置查询、写入和连接测试响应使用Cache-Control no-store。
+max_output_tokens默认8192，允许256至32768。回答正文、示例代码、修正代码及预期输出按完整字符串返回，输出预算通过厂商请求参数控制。
 
-两个POST接口均接受 `Content-Type: application/json`。`/api/review`强制使用debug，其他输入与问答相同。所有未定义字段均拒绝；参数非法返回422。
+PUT配置以mode、provider、model及api_key应用新连接。同厂商更新可省略Key，后端沿用该会话已有Key。切换厂商需要该厂商的Key。mode=mock会清除连接配置。
+百炼支持北京和新加坡，业务空间ID填写后使用对应官方空间域名，留空使用传统DashScope官方域名。
 
-请求参数表（自动提取自ChatRequest）：
-'''+table(schema,'ChatRequest')+'''
-额外约束：question、code和knowledge_id至少提供一个有效非空值；审查入口还要求question或code非空。knowledge_id若提供，必须存在，否则返回404。history默认空数组，最多12条消息（6轮），每条最多12000字符，总计最多24000字符。它不允许system角色。
+POST连接测试以小请求核实聊天连接，会计入用量及限流。它返回status、provider、model、usage、duration_ms、search_tested，搜索实测在实际提问中完成。
+DELETE配置取消会话中的在途模型调用并清除Key，配置回到mock。
 
-session_id仅用于客户端标识，不用于认证或服务端记忆。question是问题，code是待审查代码，error_message为可选报错，task_type控制任务类型，teaching_mode控制提示/答案，knowledge_id用于知识导航或追问主题。
+## 流式问答与纠错
 
-history每项字段：
-'''+table(schema,'History')+'''
-短追问可携带上次返回的related_knowledge首个ID作为knowledge_id。新问题出现明确主题时会重新检索。history用于找回最近用户问题中的主题，不进行大模型式对话理解。
+POST `/api/chat/stream` 和 `/api/review/stream` 使用相同的ChatRequest，通过SSE返回事件。
+真实AI与搜索模式的前端采用流式接口，厂商回答通过实际流式HTTP读取。
+搜索模式先收集网络证据，再流式生成教学回答。
 
-问答成功请求：
-'''+block(query)+'''
-问答成功200完整实测响应：
-'''+block(calls['chat'][1])+'''
-代码审查成功请求：
-'''+block(review)+'''
-代码审查成功200完整实测响应：
-'''+block(calls['review'][1])+'''
-## 6 回答字段说明
+| 事件 | 数据与用途 |
+|---|---|
+| status | stage为preparing、searching、generating、validating或repairing |
+| delta | field与text，新正文追加到content_markdown，兼容summary、steps.0等步骤和旧代码字段 |
+| reset | 清除当前草稿，开始重试或结构修复后的预览 |
+| done | 完整ChatResponse，结构和引用校验通过后写入学习记录 |
+| error | request_id及统一error对象，终止生成并丢弃草稿 |
 
-ChatResponse结构：
-'''+table(schema,'ChatResponse')+'''
-`status=ok`表示找到资料或案例；`status=no_match`表示没有可靠匹配，HTTP仍为200。`mode`固定为mock；`task_type`是最终采用的类型；`matched_case_id`是Q/E案例编号，未匹配特定案例时为null；`related_knowledge`最多4个知识ID。prompt_version是模拟规则版本，knowledge_version是资料版本，均用于复现。
+响应使用text/event-stream，并设置Cache-Control及X-Accel-Buffering。等待期间发送心跳注释。
+初始输入和来源错误采用HTTP错误响应，响应头发出后的生成错误通过error事件返回。
+浏览器取消、连接断开或清除模型配置会取消上游调用并释放会话及并发名额。
+预览标记待校验，模型内部思考内容过滤，最终成功事件到达后保存记录。
+已输出内容的流式连接发生故障时，由页面提示用户手动重试。
 
-answer结构：
-'''+table(schema,'Answer')+'''
-summary是概括，steps是教学步骤，issues是问题建议，corrected_code是错误案例的参考修正，example_code是教学示例。expected_output来自资料，是参考输出；execution_status始终not_executed，code_kind始终reference_example。follow_ups是可点击追问文本。无内容的代码和输出字段返回空字符串，无问题列表返回空数组。
+## 会话、限额和错误
 
-issues每项：
-'''+table(schema,'Issue')+'''
-kind使用error、warning或logic；line只有能定位时才为从1开始的行号，其余为null。reason是参考案例解释，不是执行诊断。
+Cookie名称为r_tutor_session，随机生成，启用HttpOnly与SameSite=Strict，公网启用Secure。
+会话空闲30分钟到期。服务重启后配置失效，GET配置返回expired标记并创建空配置。
+写入接口检查Origin和Sec-Fetch-Site，公网配置与模型调用要求HTTPS。
 
-citations每项：
-'''+table(schema,'Citation')+'''
-source_id是S1等来源编号；file为资料名称；locator保留原始PDF页码、教材章节或其他定位文字；raw为原始来源描述。使用locator而不是强行把所有定位转成页码数组，避免把章节号当页码。点击引用可用knowledge_id读取知识详情；当前不提供原PDF下载接口。
+每会话同时1次模型请求，全服务并发3个，会话与IP每分钟各5次，连接测试计入额度。
+普通模型请求总期限60秒，搜索流程90秒。暂时性故障共享1次重试额度，结构校验失败可修复1次。
 
-未知问题请求 `{"question":"明天天气如何"}` 的200实测响应：
-'''+block(calls['no_match'][1])+'''
-## 7 失败处理与状态码
+所有HTTP响应附带X-Request-ID。问答正文及错误正文同时包含request_id。
+错误结构如下。
 
-| 状态码 | 已实现情形 | 前端处理 |
-|---|---|---|
-| 200 | 成功或no_match | 展示回答；no_match说明能力范围 |
-| 404 | 路由或知识编号不存在 | 提示重新选择知识点或核对路径 |
-| 422 | 空输入、超长、非法类型、额外字段、非法history等 | 展示error.message，允许修改后重试 |
-| 500 | 后端未处理异常 | 提示查看日志；自动测试通过注入故障验证 |
-
-404、422示例来自当前运行服务；500已在单元测试中注入异常验证，不代表当前服务实际发生故障。没有实现模型超时、上游鉴权失败、限流或付费余额接口，不记录对应状态码为已支持。
-
-`GET /api/knowledge/K99` 实测404响应：
-'''+block(calls['not_found'][1])+'''
-`POST /api/chat` 输入 `{"question":"   "}` 实测422响应：
-'''+block(calls['invalid'][1])+'''
-统一错误格式为request_id和error；error包含code、message和retryable。500使用INTERNAL_ERROR，retryable=true；404和422为false。页面不应无限重试。
-
-浏览器连接拒绝或断网时没有HTTP状态码，fetch会抛异常；前端应提示“无法连接本地服务”，恢复发送按钮。此情形已通过实际停止服务验证。
-
-## 8 成员二可直接使用的前端示例
-
-以下脚本适用于本站页面，或允许的5173端口开发页面。代码与已通过浏览器测试的页面采用相同请求字段和错误读取方式：
-
-```javascript
-const API_BASE = location.port === "5173" ? "http://127.0.0.1:8000" : "";
-async function askTutor(question, knowledgeId = null, history = []) {
-  try {
-    const response = await fetch(`${API_BASE}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question, task_type: "auto", teaching_mode: "hint",
-        knowledge_id: knowledgeId, history
-      }),
-      signal: AbortSignal.timeout(10000)
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "请求失败");
-    // 用textContent展示；不要把资料或用户代码直接赋给innerHTML。
-    console.log(data.answer.summary, data.citations);
-    return data; // 检查status，no_match也是正常JSON响应。
-  } catch (error) {
-    console.error("请检查本地服务或输入：", error.message);
-    throw error; // 在调用方finally中恢复发送按钮。
-  }
-}
-const first = await askTutor("空值怎么判断");
-await askTutor("举个例子", first.related_knowledge[0], [
-  {role: "user", content: "空值怎么判断"},
-  {role: "assistant", content: first.answer.summary}
-]);
+```json
+{{"request_id":"请求编号","error":{{"code":"稳定错误码","message":"中文说明","retryable":false}}}}
 ```
 
-审查代码时改为 `/api/review`，请求体至少提供question或code，例如第5节的实测请求。练习先发送teaching_mode=hint；点击查看答案后，原问题不变，改为solution重发。返回的课程参考代码不得标为已执行。
+| 状态 | 错误码或含义 |
+|---|---|
+| 400 | PROVIDER_AUTH_FAILED、MODEL_NOT_FOUND、PROVIDER_BAD_REQUEST、HTTPS_REQUIRED |
+| 402 | QUOTA_EXCEEDED |
+| 403 | ORIGIN_FORBIDDEN |
+| 404 | NOT_FOUND |
+| 409 | SESSION_EXPIRED、CONFIG_REQUIRED、CONFIG_CHANGED |
+| 422 | VALIDATION_ERROR、CONFIG_REQUIRED、SEARCH_UNSUPPORTED、CONTENT_REFUSED |
+| 429 | SESSION_BUSY、SERVICE_BUSY、RATE_LIMITED、PROVIDER_RATE_LIMITED |
+| 499 | REQUEST_CANCELLED |
+| 502 | SEARCH_FAILED、STRUCTURED_OUTPUT_INVALID、UPSTREAM_FORMAT_ERROR、EMPTY_RESPONSE、OUTPUT_TRUNCATED、STREAM_INTERRUPTED |
+| 503 | SERVICE_BUSY、NETWORK_ERROR、PROVIDER_UNAVAILABLE |
+| 504 | UPSTREAM_TIMEOUT |
 
-## 9 更新记录
-
-| 日期 | 变更 | 证据 |
-|---|---|---|
-| 2026-11-13 | 初建说明，标记当时无接口实现 | 当时工作区检查 |
-| 2026-11-13 | 实现v1本地模拟版，替换占位内容；核对5个接口、请求与响应字段、来源定位、错误和前端示例 | pytest回归、Playwright浏览器验收、tests/http_evidence.json |
-
-每次修改接口后，应先运行测试、重启服务，再执行scripts/generate_api_docs.py更新本文。本文未声称接入真实模型或完成公网部署。
+参数错误返回422。Markdown正文经本地DOMPurify净化，代码按文本展示，链接限定HTTP或HTTPS并排除URL凭据。网络引用编号映射到实际搜索来源。
+源码、日志与浏览器记录中采用脱敏及明确字段清单，API Key保存在服务器会话内存。
 '''
-    (ROOT.parent/'接口说明.md').write_text(text,encoding='utf-8')
-    print('Updated API documentation and live HTTP evidence.')
+    (ROOT.parent / '接口说明.md').write_text(text, encoding='utf-8')
+    print('接口说明已按当前运行服务的OpenAPI更新。')
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()

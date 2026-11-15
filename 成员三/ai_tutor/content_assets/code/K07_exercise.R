@@ -1,0 +1,8 @@
+raw <- c("10", "20", "30", "10", "20", "30", "20", "10", "30", "unknown")
+f <- factor(raw, levels = c("10", "20", "30"), ordered = TRUE)
+invalid <- !is.na(raw) & is.na(f)
+values <- as.numeric(as.character(f))
+print(table(f, useNA = "ifany"))
+print(raw[invalid])
+print(as.integer(f))
+print(values)

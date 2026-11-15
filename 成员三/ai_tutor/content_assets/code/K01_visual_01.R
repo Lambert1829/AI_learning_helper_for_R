@@ -1,0 +1,39 @@
+# UTF-8 is needed for Chinese labels. This fallback supports Windows C locales.
+if (!l10n_info()[["UTF-8"]]) {
+  invisible(Sys.setlocale("LC_CTYPE", "English_United States.utf8"))
+}
+# Run from the code directory. An optional argument selects the output directory.
+# Without an argument, the image is written into R's temporary directory.
+args <- commandArgs(trailingOnly = TRUE)
+output_dir <- if (length(args) > 0L) args[[1L]] else tempdir()
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+svg_lines <- c(
+  "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"720\" height=\"822\" viewBox=\"0 0 720 822\" role=\"img\" aria-labelledby=\"title desc\">",
+  "<title id=\"title\">K01 脚本怎样变成对象与输出</title>",
+  "<desc id=\"desc\">四步纵向流程。脚本中的scores赋值语句交给R执行，环境中出现scores对象，print(mean(scores))把80显示到控制台。修改脚本后再次执行才能更新对象。</desc>",
+  "<defs><marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"10\" refX=\"7\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8\" fill=\"none\" stroke=\"#79bdf1\" stroke-width=\"1.5\"/></marker></defs>",
+  "<rect width=\"720\" height=\"822\" rx=\"20\" fill=\"#030813\"/>",
+  "<g font-family=\"Microsoft YaHei, Noto Sans CJK SC, sans-serif\" fill=\"#b7c5d4\">",
+  "<text x=\"36\" y=\"62\" font-size=\"32\" font-weight=\"700\" fill=\"#f5f9ff\">K01 脚本怎样变成对象与输出</text>",
+  "<rect x=\"36\" y=\"106\" width=\"648\" height=\"118\" rx=\"12\" fill=\"#0c1522\" stroke=\"#294158\" stroke-width=\"2\"/>",
+  "<text x=\"58\" y=\"147\" font-size=\"30\" font-weight=\"700\" fill=\"#79bdf1\">脚本编辑区</text>",
+  "<text x=\"58\" y=\"191\" font-size=\"27\" fill=\"#b7c5d4\">scores &lt;- c(60, 80, 100)</text>",
+  "<path d=\"M360,226 V245\" stroke=\"#79bdf1\" stroke-width=\"2\" marker-end=\"url(#arrow)\"/>",
+  "<rect x=\"36\" y=\"254\" width=\"648\" height=\"118\" rx=\"12\" fill=\"#0c1522\" stroke=\"#294158\" stroke-width=\"2\"/>",
+  "<text x=\"58\" y=\"295\" font-size=\"30\" font-weight=\"700\" fill=\"#79bdf1\">R 执行语句</text>",
+  "<text x=\"58\" y=\"339\" font-size=\"27\" fill=\"#b7c5d4\">运行选中行或整个脚本</text>",
+  "<path d=\"M360,374 V393\" stroke=\"#79bdf1\" stroke-width=\"2\" marker-end=\"url(#arrow)\"/>",
+  "<rect x=\"36\" y=\"402\" width=\"648\" height=\"118\" rx=\"12\" fill=\"#0c1522\" stroke=\"#294158\" stroke-width=\"2\"/>",
+  "<text x=\"58\" y=\"443\" font-size=\"30\" font-weight=\"700\" fill=\"#79bdf1\">环境中的对象</text>",
+  "<text x=\"58\" y=\"487\" font-size=\"27\" fill=\"#b7c5d4\">scores 保存 60、80、100</text>",
+  "<path d=\"M360,522 V541\" stroke=\"#79bdf1\" stroke-width=\"2\" marker-end=\"url(#arrow)\"/>",
+  "<rect x=\"36\" y=\"550\" width=\"648\" height=\"118\" rx=\"12\" fill=\"#0c1522\" stroke=\"#294158\" stroke-width=\"2\"/>",
+  "<text x=\"58\" y=\"591\" font-size=\"30\" font-weight=\"700\" fill=\"#79bdf1\">控制台输出</text>",
+  "<text x=\"58\" y=\"635\" font-size=\"27\" fill=\"#b7c5d4\">print(mean(scores)) 显示 80</text>",
+  "<text x=\"36\" y=\"757\" font-size=\"27\" fill=\"#9eafc2\">再次修改代码后，再次执行相应语句。</text>",
+  "</g>",
+  "</svg>"
+)
+output_file <- file.path(output_dir, "K01_visual_01.svg")
+writeLines(enc2utf8(svg_lines), output_file, useBytes = TRUE)
+cat("Generated K01_visual_01.svg\n")

@@ -1,0 +1,7 @@
+print(c(typeof(1L), typeof(1), typeof("1")))
+mixed <- c(TRUE, 2, "3")
+print(mixed)
+print(typeof(mixed))
+f <- factor(c("low", "high"))
+print(typeof(f))
+print(class(f))

@@ -1,0 +1,7 @@
+scores <- c(60, 80, 100)
+average <- mean(scores)
+print(average)
+scores <- c(70, 85, 100)
+print(average)
+average <- mean(scores)
+print(average)

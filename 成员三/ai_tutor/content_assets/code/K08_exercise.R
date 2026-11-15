@@ -1,0 +1,11 @@
+raw <- c("2026/11/01", "2026/11/03", "2026/11/05", "2026/11/07", "bad",
+         "2026/11/11", "2026/11/13", NA, "2026/11/17", "2026/11/19")
+dates <- as.Date(raw, format = "%Y/%m/%d")
+invalid <- !is.na(raw) & is.na(dates)
+baseline <- as.Date("2026-11-01")
+days <- as.numeric(difftime(dates, baseline, units = "days"))
+print(dates)
+print(which(invalid))
+print(sum(is.na(dates)))
+print(days)
+print(format(dates, "%m"))

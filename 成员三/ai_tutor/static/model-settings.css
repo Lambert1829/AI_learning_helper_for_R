@@ -1,0 +1,28 @@
+#model-dialog { width:min(560px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); padding:28px; overflow-y:auto; border:0; border-radius:24px; color:#1d1d1f; background:#fff; box-shadow:0 24px 80px #0003; }
+#model-dialog::backdrop { background:#15202c66; backdrop-filter:blur(5px); }
+#model-dialog .dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+#model-dialog h2 { margin:0; font-size:24px; letter-spacing:-.03em; }
+#model-form { display:grid; gap:16px; margin-top:24px; }
+#model-form label { display:grid; gap:7px; font-size:14px; font-weight:600; }
+#model-form input:not([type=checkbox]), #model-form select { width:100%; box-sizing:border-box; min-height:44px; padding:10px 12px; border:1px solid #d2d2d7; border-radius:10px; background:#fafafa; font:inherit; color:inherit; }
+#model-cloud-fields, #model-qwen-fields { display:grid; gap:16px; }
+#model-dialog [hidden] { display:none !important; }
+.model-key-row { display:flex; gap:8px; }
+.model-key-row input { min-width:0; flex:1 1 0; }
+.model-key-row button { flex:none; white-space:nowrap; }
+#model-dialog button { min-height:44px; padding:9px 15px; border-radius:12px; border:1px solid #d2d2d7; background:#f5f5f7; font:inherit; cursor:pointer; }
+#model-dialog button.primary { background:#0071e3; color:white; border-color:#0071e3; }
+#model-dialog button:disabled { opacity:.5; cursor:wait; }
+#model-dialog .model-consent { display:flex; align-items:flex-start; gap:10px; font-weight:400; line-height:1.6; }
+#model-consent { margin-top:4px; flex:none; }
+#model-dialog p { margin:0; line-height:1.65; font-size:13px; }
+#model-key-link { font-size:13px; color:#0071e3; }
+#model-feedback { min-height:24px; margin-top:16px !important; color:#425b72; white-space:pre-wrap; }
+#model-feedback.error { color:#af2636; }
+#model-dialog .dialog-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; }
+.answer-mode, .search-notice { display:block; color:#6e6e73; font-size:12px; line-height:1.6; margin:6px 0 12px; }
+.web-citation { color:#0066cc; text-decoration:underline; text-underline-offset:3px; overflow-wrap:anywhere; }
+.web-sources a { display:block; margin:8px 0; font-size:14px; }
+.stream-summary { white-space:pre-wrap; line-height:1.75; overflow-wrap:anywhere; }
+#cancel-request { margin-right:10px; }
+@media(max-width:760px) { #model-dialog { padding:20px; border-radius:20px; } #model-dialog h2 { font-size:22px; } #model-form { gap:14px; } }

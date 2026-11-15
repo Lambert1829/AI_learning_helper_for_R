@@ -1,0 +1,184 @@
+K05 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K05_example_01.R
+SHA256 b268f7bcaf8aa6ee9c48ade91dbcb985c8acb1cc8deade9573be736f2b63369e
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(55, 60, NA, 90, 100)
+keep <- !is.na(scores) & scores >= 60 & scores < 90
+print(keep)
+print(scores[keep])
+print(c(any = any(keep), all = all(keep)))
+OUTPUT
+[1] FALSE  TRUE FALSE FALSE FALSE
+[1] 60
+  any   all 
+ TRUE FALSE
+
+BLOCK application
+SOURCE K05_example_02.R
+SHA256 d5240b9f67c49d242a7aa7ca7daf5f265234ded0af29c80775edf1fbfcac239a
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+id <- c("Q01", "Q02", "Q03", "Q04", "Q05", "Q06", "Q07", "Q08", "Q09", "Q10")
+age <- c(17, 18, 21, NA, 24, 30, 19, 22, 20, 18)
+consent <- c(TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, NA, TRUE, TRUE, TRUE)
+score <- c(80, 60, 95, 70, NA, 88, 77, 90, 59, 100)
+keep <- !is.na(age) & age >= 18 & age <= 25 &
+  !is.na(consent) & consent & !is.na(score) & score >= 60
+print(id[keep])
+print(score[keep])
+print(sum(keep))
+OUTPUT
+[1] "Q02" "Q08" "Q10"
+[1]  60  90 100
+[1] 3
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 3a1bf642ec9a85a7b60f6f8e7dc1ab6046494b3f8ef6e141344055f08c847b3c
+EXPECTED_EXIT 1
+ACTUAL_EXIT 1
+CODE
+scores <- c(55, 60, 90)
+print(scores >= 60 && scores < 90)
+OUTPUT
+Error in scores >= 60 && scores < 90 : 
+  'length = 3' in coercion to 'logical(1)'
+Calls: print
+Execution halted
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 5fef9c4e412c40d8e0ae8a197f22ce1ab127f76fda439023a97ab2da8b714145
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+scores <- c(55, 60, 90)
+print(scores >= 60 & scores < 90)
+OUTPUT
+[1] FALSE  TRUE FALSE
+
+BLOCK exercise
+SOURCE K05_exercise.R
+SHA256 381b557088d933ad574252c3d9f3c36bb6633797e978b2c24372066b256c549a
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+id <- c("S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10")
+scores <- c(59, 60, 90, 91, NA, 80, 100, 0, 60, 90)
+attended <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, NA, TRUE)
+keep <- !is.na(scores) & scores >= 60 & scores <= 90 &
+  !is.na(attended) & attended
+print(id[keep])
+print(scores[keep])
+print(sum(keep))
+OUTPUT
+[1] "S02" "S03" "S10"
+[1] 60 90 90
+[1] 3
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 18f9b9a8e44e6e9256b7443699ca5509ed03f5d6a1bee1d8a75b95fcd40a1f66
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(c(FALSE & NA, TRUE | NA, TRUE & NA))
+print(FALSE && stop("This branch is skipped"))
+OUTPUT
+[1] FALSE  TRUE    NA
+[1] FALSE
+
+BOUNDARY_CHECKS
+stopifnot(identical(c(FALSE & NA, TRUE | NA, TRUE & NA), c(FALSE, TRUE, NA)))
+stopifnot(identical(FALSE && stop("Skipped"), FALSE))
+x <- c(59, 60, 90, 91, NA_real_)
+keep <- !is.na(x) & x >= 60 & x <= 90
+stopifnot(identical(x[keep], c(60, 90)))
+stopifnot(!any(is.na(keep)), identical(x[logical(5)], numeric(0)))
+stopifnot(inherits(tryCatch(c(TRUE, FALSE) && TRUE, error = identity), "error"))
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+Logic, Comparison, any, all, Extract
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K05_visual_01.R ../images
+CODE_SHA256 ead0d4d8d0a86d0fff32d712fba2b6fb6e5145a1d335288c0db5d156d6e7e209
+SVG_SHA256 eda6395d9f76f096cc92f68ccff1b39138b2a1ce41cb05e2240cdea9fbbf37be
+Generated K05_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 8
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

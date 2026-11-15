@@ -1,0 +1,6 @@
+scores <- c(60, 64, 68, 72, NA, 80, 84, 88, 92, 96)
+mini_scores <- c(60, NA, 80)
+print(mean(mini_scores))
+print(mean(mini_scores, na.rm = TRUE))
+print(mean(scores, na.rm = TRUE))
+print(utils::sessionInfo())

@@ -1,0 +1,17 @@
+{
+  "status": "候选保留题，由开发者起草，待成员四独立审核。未加入课程库或提示词示例。",
+  "cases": [
+    {"id":"H01","task_type":"concept","question":"向量里放数字和文字，与列表保存它们有什么差别？","knowledge_ids":["K09","K31"]},
+    {"id":"H02","task_type":"concept","question":"factor的levels顺序会怎样影响问卷等级？","knowledge_ids":["K07"]},
+    {"id":"H03","task_type":"concept","question":"NA和NaN在is.na与is.nan中分别会怎样？","knowledge_ids":["K06"]},
+    {"id":"H04","task_type":"function","question":"mean里的na.rm会直接修改原来的向量吗？","knowledge_ids":["K06"]},
+    {"id":"H05","task_type":"function","question":"order和sort如何在排序时保留姓名与分数的对应？","knowledge_ids":["K14"]},
+    {"id":"H06","task_type":"function","question":"seq_along碰到numeric(0)时怎样帮助安全循环？","knowledge_ids":["K37"]},
+    {"id":"H07","task_type":"debug","question":"这段代码筛出的缺失位置为什么不正确？","code":"scores <- c(60, NA, 90)\nscores[scores == NA]","knowledge_ids":["K06"]},
+    {"id":"H08","task_type":"debug","question":"空向量循环为什么仍然出现两次索引？","code":"items <- numeric(0)\nfor (i in 1:length(items)) print(i)","knowledge_ids":["K37"]},
+    {"id":"H09","task_type":"debug","question":"factor直接转as.numeric后，10和20为什么变成1和2？","code":"grades <- factor(c('10','20'))\nas.numeric(grades)","knowledge_ids":["K07"]},
+    {"id":"H10","task_type":"exercise","question":"为模拟电影表设计日期解析、缺失处理、排序和分组汇总流程，先给提示。","knowledge_ids":["K39"]},
+    {"id":"H11","task_type":"exercise","question":"如何为矩阵乘法的加权总分任务检查维度并设计核对步骤？","knowledge_ids":["K21"]},
+    {"id":"H12","task_type":"exercise","question":"用aggregate按班级分组汇总成绩，应该怎样明确缺失值处理规则？","knowledge_ids":["K30"]}
+  ]
+}

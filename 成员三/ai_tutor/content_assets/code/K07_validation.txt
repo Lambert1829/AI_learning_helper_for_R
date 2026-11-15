@@ -1,0 +1,189 @@
+K07 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K07_example_01.R
+SHA256 b630f1cefb74dbb5b07def7f487002045e43938cb6c00f3a3112ef0063b2957a
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+f <- factor(c("low", "high", "mid"),
+            levels = c("low", "mid", "high"),
+            labels = c("Low", "Mid", "High"), ordered = TRUE)
+print(f)
+print(levels(f))
+print(as.integer(f))
+print(f > "Low")
+OUTPUT
+[1] Low  High Mid 
+Levels: Low < Mid < High
+[1] "Low"  "Mid"  "High"
+[1] 1 3 2
+[1] FALSE  TRUE  TRUE
+
+BLOCK application
+SOURCE K07_example_02.R
+SHA256 b0c5e5d55eb47119c453d9a346baffb610e49880f8063c97b465494595b469fa
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw <- c("high", "low", "mid", "high", "mid", "low", "high", "mid", "other", "high", NA, "mid")
+satisfaction <- factor(raw, levels = c("low", "mid", "high"),
+                       labels = c("Low", "Mid", "High"), ordered = TRUE)
+invalid <- !is.na(raw) & is.na(satisfaction)
+print(satisfaction)
+print(table(satisfaction, useNA = "ifany"))
+print(raw[invalid])
+OUTPUT
+ [1] High Low  Mid  High Mid  Low  High Mid  <NA> High <NA> Mid 
+Levels: Low < Mid < High
+satisfaction
+ Low  Mid High <NA> 
+   2    4    4    2 
+[1] "other"
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 ec57424dcfb48acf3b781f09a9c83b9540b6d1c025d7a9ce56b59e253106c926
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+f <- factor(c("10", "20", "10"), levels = c("10", "20"))
+print(as.numeric(f))
+OUTPUT
+[1] 1 2 1
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 8e7373b71e81b10cf7350aa42d4ab741fe256867ff4f54c3fd4d77f40136fbd8
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+f <- factor(c("10", "20", "10"), levels = c("10", "20"))
+print(as.numeric(as.character(f)))
+OUTPUT
+[1] 10 20 10
+
+BLOCK exercise
+SOURCE K07_exercise.R
+SHA256 284f0fef90e70ff4b802d2feebf88fee105cffebb3737ee544e7dd69eef1a552
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw <- c("10", "20", "30", "10", "20", "30", "20", "10", "30", "unknown")
+f <- factor(raw, levels = c("10", "20", "30"), ordered = TRUE)
+invalid <- !is.na(raw) & is.na(f)
+values <- as.numeric(as.character(f))
+print(table(f, useNA = "ifany"))
+print(raw[invalid])
+print(as.integer(f))
+print(values)
+OUTPUT
+f
+  10   20   30 <NA> 
+   3    3    3    1 
+[1] "unknown"
+ [1]  1  2  3  1  2  3  2  1  3 NA
+ [1] 10 20 30 10 20 30 20 10 30 NA
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 ad50e4b327baa7ef1335026031c2449a0518e7fbd8eb1114c4e24e08c3ad06ad
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+f <- factor(c("a", "b", "a"), levels = c("b", "a"))
+print(as.integer(f))
+print(levels(f))
+OUTPUT
+[1] 2 1 2
+[1] "b" "a"
+
+BOUNDARY_CHECKS
+f <- factor(c("low", "high", "mid"), levels = c("low", "mid", "high"), ordered = TRUE)
+stopifnot(identical(as.integer(f), c(1L, 3L, 2L)))
+stopifnot(identical(f > "low", c(FALSE, TRUE, TRUE)))
+stopifnot(is.na(factor("other", levels = c("low", "mid", "high"))))
+g <- factor(c("10", "20", NA), levels = c("10", "20"))
+stopifnot(identical(as.numeric(as.character(g)), c(10, 20, NA_real_)))
+stopifnot(length(levels(factor(character(0), levels = c("low", "high")))) == 2L)
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+factor, ordered, numeric, table
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K07_visual_01.R ../images
+CODE_SHA256 152fa3c65fa09c84111fb0f84844a14724c57090c1e3a6a3c55bb3b0460220a3
+SVG_SHA256 29373ffdc49b2511640dfefd32fe172684569e4483fc9044bcac1495df2c1041
+Generated K07_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 8
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

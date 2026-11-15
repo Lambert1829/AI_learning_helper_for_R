@@ -1,0 +1,192 @@
+K08 validation record
+Date 2026-11-15
+Verifier Codex
+
+R version 4.6.1 (2026-06-24 ucrt) 
+LC_ALL=C
+LANGUAGE=en
+TZ=Asia/Shanghai
+[1] "C"
+[1] "Asia/Shanghai"
+[1] 80
+base 4.6.1 
+stats 4.6.1 
+utils 4.6.1 
+tools 4.6.1 
+R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26300)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] C
+system code page: 65001
+
+time zone: Asia/Shanghai
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] compiler_4.6.1 tools_4.6.1
+
+BLOCK basic
+SOURCE K08_example_01.R
+SHA256 52935656500692df51a92246c6e997fdb003d8cd8bfa2ad1f8fa28663b98b48c
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+dates <- as.Date(c("2026/11/01", "2026/11/11"), format = "%Y/%m/%d")
+print(dates)
+print(class(dates))
+print(as.numeric(difftime(dates[2], dates[1], units = "days")))
+print(format(dates, "%m"))
+OUTPUT
+[1] "2026-11-01" "2026-11-11"
+[1] "Date"
+[1] 10
+[1] "11" "11"
+
+BLOCK application
+SOURCE K08_example_02.R
+SHA256 c206b95a0ef390522d8a79321702fa995b89790fddcb66e389910f7f720e65df
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw_time <- c("2026-10-31 23:30:00", "2026-11-01 00:30:00",
+              "2026-11-01 08:00:00", "2026-11-02 08:00:00",
+              "2026-11-03 08:00:00", "2026-11-04 08:00:00",
+              "2026-11-05 08:00:00", "2026-11-06 08:00:00",
+              "2026-11-07 08:00:00", "2026-11-08 08:00:00")
+times <- as.POSIXct(raw_time, format = "%Y-%m-%d %H:%M:%S", tz = "Asia/Shanghai")
+print(table(format(times, "%Y-%m", tz = "Asia/Shanghai")))
+print(format(times[1], "%Y-%m-%d %H:%M", tz = "UTC"))
+print(as.numeric(difftime(times[2], times[1], units = "hours")))
+parts <- as.POSIXlt(times, tz = "Asia/Shanghai")
+print(parts$mon + 1L)
+OUTPUT
+
+2026-10 2026-11 
+      1       9 
+[1] "2026-10-31 15:30"
+[1] 1
+ [1] 10 11 11 11 11 11 11 11 11 11
+
+BLOCK error
+SOURCE Markdown section error
+SHA256 956dafdd4a44564ce3160ace5a6b5f1ada091408beeb34cea9e0be9a26f3965c
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(as.Date("2026/11/05", format = "%Y-%m-%d"))
+OUTPUT
+[1] NA
+
+BLOCK fix
+SOURCE Markdown section fix
+SHA256 60563aa160e8fedf32e782d0f9bf39e18ee179fc20181fdbcbf2697af3a01579
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+print(as.Date("2026/11/05", format = "%Y/%m/%d"))
+OUTPUT
+[1] "2026-11-05"
+
+BLOCK exercise
+SOURCE K08_exercise.R
+SHA256 e5c4c7370e3aef4a5644c56ec8eeea64c6a9de427e54289be3ccf910b9144b7c
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+raw <- c("2026/11/01", "2026/11/03", "2026/11/05", "2026/11/07", "bad",
+         "2026/11/11", "2026/11/13", NA, "2026/11/17", "2026/11/19")
+dates <- as.Date(raw, format = "%Y/%m/%d")
+invalid <- !is.na(raw) & is.na(dates)
+baseline <- as.Date("2026-11-01")
+days <- as.numeric(difftime(dates, baseline, units = "days"))
+print(dates)
+print(which(invalid))
+print(sum(is.na(dates)))
+print(days)
+print(format(dates, "%m"))
+OUTPUT
+ [1] "2026-11-01" "2026-11-03" "2026-11-05" "2026-11-07" NA          
+ [6] "2026-11-11" "2026-11-13" NA           "2026-11-17" "2026-11-19"
+[1] 5
+[1] 2
+ [1]  0  2  4  6 NA 10 12 NA 16 18
+ [1] "11" "11" "11" "11" NA   "11" "11" NA   "11" "11"
+
+BLOCK selftest
+SOURCE Markdown section selftest
+SHA256 963b723982291faa16b4ad3c203b3e2418aef5c4428e5f44d693ff6ec8dba4dc
+EXPECTED_EXIT 0
+ACTUAL_EXIT 0
+CODE
+d <- as.Date("2026-11-01")
+print(class(format(d, "%Y/%m/%d")))
+print(as.numeric(difftime(d + 2, d, units = "days")))
+OUTPUT
+[1] "character"
+[1] 2
+
+BOUNDARY_CHECKS
+stopifnot(as.numeric(as.Date("2026-11-11") - as.Date("2026-11-01")) == 10)
+stopifnot(is.na(as.Date("bad", format = "%Y/%m/%d")))
+stopifnot(is.na(as.Date(NA_character_, format = "%Y/%m/%d")))
+stopifnot(is.na(as.Date("2026/11/05", format = "%Y-%m-%d")))
+stopifnot(is.character(format(as.Date("2026-11-01"), "%Y/%m/%d")))
+t <- as.POSIXct("2026-11-01 00:30:00", format = "%Y-%m-%d %H:%M:%S", tz = "Asia/Shanghai")
+stopifnot(format(t, "%Y-%m-%d %H:%M", tz = "UTC") == "2026-10-31 16:30")
+stopifnot(length(as.Date(character(0), format = "%Y/%m/%d")) == 0L)
+cat("All boundary checks passed\n")
+OUTPUT
+All boundary checks passed
+
+OFFICIAL_HELP_TOPICS_RESOLVED
+as.Date, as.POSIXct, strptime, difftime, DateTimeClasses
+
+VISUAL
+Chinese labels use UTF-8 LC_CTYPE; Windows C locale fallback is in the script.
+Rscript --vanilla K08_visual_01.R ../images
+CODE_SHA256 9d96158f764e1674bb97749f7754e8bff29dbf147e217954b98e79b1b15a6f43
+SVG_SHA256 9576934fc4c742e2fd52c87e229205fce2968388871e1ef9cb7c915abde9e33e
+Generated K08_visual_01.svg
+
+VERDICT PASS for independent R execution and boundary assertions
+
+FINAL_REVIEW
+All six Markdown R blocks rerun with exact recorded output
+Local resource links checked 8
+SVG rendered in Chrome headless at desktop viewport 1500x1000
+All eight diagrams checked at narrow viewport 390x900
+Rendered SVG width 366 CSS pixels
+Minimum effective text size 13.725 CSS pixels
+SVG text boundary checks PASS
+Contact sheet reviewed by Codex for labels, connectors and spacing
+VERDICT PASS for code, links and diagram review
+
+PALETTE_REVIEW
+Date 2026-11-15
+Verifier Codex
+Reference user-provided knowledge-map screenshot
+BACKGROUND #030813
+SURFACE #0c1522
+BORDER #294158
+TITLE #f5f9ff
+BODY #b7c5d4
+MUTED #9eafc2
+ACCENT #79bdf1
+CONTRAST_TITLE_ON_BACKGROUND 18.97:1
+CONTRAST_BODY_ON_SURFACE 10.43:1
+CONTRAST_MUTED_ON_BACKGROUND 8.94:1
+CONTRAST_ACCENT_ON_SURFACE 9.04:1
+R regeneration PASS with exact script-to-SVG match
+SVG text and geometry comparison PASS
+Chrome desktop 1500x1000 and narrow viewport 390x900 PASS
+Text bounds and mobile minimum font size PASS
+Rendered contact sheet and mobile preview reviewed by Codex
+VERDICT PASS for screenshot palette update

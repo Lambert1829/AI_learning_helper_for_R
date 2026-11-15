@@ -799,6 +799,19 @@ summary:hover {
   white-space:pre-wrap;
   overflow-wrap:anywhere;
 }
+.answer-body { overflow-wrap:anywhere; line-height:1.8; }
+.answer-body > :first-child { margin-top:0; }
+.answer-body p { margin:14px 0; white-space:pre-wrap; }
+.answer-body h1, .answer-body h2 { font-size:22px; line-height:1.5; margin:26px 0 12px; }
+.answer-body h3, .answer-body h4, .answer-body h5, .answer-body h6 { font-size:18px; margin:22px 0 10px; }
+.answer-body ol, .answer-body ul { padding-left:26px; margin:16px 0; }
+.answer-body li { margin:8px 0; }
+.answer-body li > p { margin:8px 0; }
+.answer-body :not(pre) > code { background:var(--bg); border-radius:4px; padding:2px 5px; font-size:.92em; }
+.answer-body blockquote { border-left:3px solid #d8d8df; margin:18px 0; padding-left:16px; color:var(--muted); }
+.answer-body table { display:block; overflow-x:auto; border-collapse:collapse; margin:18px 0; }
+.answer-body th, .answer-body td { padding:8px 12px; border:1px solid #e6e6eb; text-align:left; }
+.answer-body a { color:var(--blue); }
 .code-wrap {
   background:var(--bg);
   border-radius:14px;

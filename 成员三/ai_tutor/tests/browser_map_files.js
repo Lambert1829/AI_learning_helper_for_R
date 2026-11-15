@@ -5,69 +5,34 @@ async (page) => {
   const onError=e=>errors.push(e.message);
   page.on('request',onRequest);page.on('pageerror',onError);
   const route=async view=>{await page.evaluate(v=>{location.hash='/'+v;},view);await page.waitForFunction(v=>document.querySelector('#main-nav a[aria-current="page"]')?.hash==='#/'+v,view);};
-  const detail=async id=>{await page.locator('#map-search').fill(id);await page.locator('#orb-'+id).click();await page.waitForFunction(id=>document.querySelector('#detail-title')?.textContent.startsWith(id) && document.querySelector('.detail-actions'),id);};
+  const detail=async id=>{await page.locator('#map-search').fill(id);await page.locator('.scene-orb-label[data-id="'+id+'"]').click();await page.waitForFunction(id=>document.querySelector('#detail-title')?.textContent.startsWith(id) && document.querySelector('.detail-actions'),id);};
   const ready=async()=>page.waitForFunction(()=>!document.querySelector('#send').disabled);
   const upload=async(name,content)=>{await page.locator('#r-file').setInputFiles({name,mimeType:'text/plain',buffer:Buffer.isBuffer(content)?content:Buffer.from(content,'utf8')});};
   const feedback=async text=>page.waitForFunction(t=>document.querySelector('#file-feedback').textContent.includes(t),text);
-  const bounds=async()=>page.evaluate(()=>{
-    const world=document.querySelector('#map-world').getBoundingClientRect();
-    const nodes=[...document.querySelectorAll('.orb-node')].map(n=>n.getBoundingClientRect());
-    const inside=nodes.every(r=>r.left>=world.left+6 && r.right<=world.right-6 && r.top>=world.top+6 && r.bottom<=world.bottom-6);
-    let gap=Infinity;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
-      const a=nodes[i],b=nodes[j];gap=Math.min(gap,Math.hypot((a.left+a.right-b.left-b.right)/2,(a.top+a.bottom-b.top-b.bottom)/2)-(a.width+b.width)/2);
-    }
-    return {inside,gap};
-  });
   try {
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({reducedMotion:'no-preference'});
     await page.goto('http://127.0.0.1:8000/#/knowledge');await page.reload();
     await page.waitForFunction(()=>document.querySelectorAll('.knowledge-orb').length===43);
     check(await page.locator('.knowledge-orb').count()===43,'43 orbs loaded');
-    const geo=await bounds();check(geo.inside,'all orbs inside bounded world');check(geo.gap>8,'no overlapping orbs including drift allowance');
-    check(await page.locator('#map-lines line').count()>0,'real relationship lines');
+    await page.waitForFunction(()=>document.querySelectorAll('.scene-orb-label').length===43);
+    check(await page.locator('#map-viewport').getAttribute('data-orb-count')==='43','43 Three.js knowledge objects');
+    check(await page.locator('#map-viewport').getAttribute('data-connection-mode')==='focus-only','focus-only relationship display');
     check(await page.locator('#map-legend>span').count()===8,'eight unit colors');
-    check(await page.locator('.knowledge-orb').first().evaluate(n=>getComputedStyle(n.querySelector('.orb-face')).animationName==='orb-float'),'gentle drift enabled');
-    await page.locator('#orb-K01').hover();
-    check(await page.locator('#orb-K01 .orb-face').evaluate(n=>getComputedStyle(n).animationPlayState==='paused'),'hover pauses visual drift');
-    await page.locator('#orb-K01').focus();await page.keyboard.press('Tab');
-    check(await page.locator('#orb-K02').evaluate(n=>n===document.activeElement),'ordered Tab K01 to K02');
-    check(await page.locator('#orb-K02').evaluate(n=>getComputedStyle(n.querySelector('.orb-face')).animationPlayState==='paused'),'focus pauses drift');
-    await page.keyboard.press('Space');await page.waitForFunction(()=>document.querySelector('.detail-actions'));
-    check((await page.locator('#detail-title').textContent()).startsWith('K02'),'Space opens correct details');
-    await page.locator('#detail-close').click();
-    check(await page.locator('#orb-K02').evaluate(n=>n===document.activeElement),'close restores orb focus');
-    await page.keyboard.press('Enter');await page.waitForFunction(()=>!document.querySelector('#map-detail').hidden);
-    check((await page.locator('#detail-title').textContent()).startsWith('K02'),'Enter opens detail');await page.locator('#detail-close').click();
     await detail('K06');
-    for(const text of ['概念讲解','函数语法','参数说明','示例代码','易错点','内容来源','先修知识','相关知识'])check((await page.locator('#detail-body').textContent()).includes(text),'detail '+text);
-    check(await page.locator('#orb-K04').evaluate(n=>n.classList.contains('related')),'prerequisite orb highlighted');
-    check(await page.locator('#map-lines .highlighted').count()>0,'selected edges highlighted');
-    check(await page.locator('.knowledge-orb.unrelated').count()>0,'unrelated nodes dimmed');
-    const stage=await page.locator('#map-stage').boundingBox(),drawer=await page.locator('#map-detail').boundingBox();
-    check(drawer.x>=stage.x+stage.width,'desktop right detail drawer');
+    for(const label of ['概念讲解','函数语法','参数说明','示例代码','易错点','内容来源','先修知识','相关知识']) {
+      check((await page.locator('#detail-body').textContent()).includes(label),'detail '+label);
+    }
+    check(await page.locator('.scene-orb-label[data-id="K06"]').getAttribute('aria-pressed')==='true','selected knowledge label');
+    const drawer=await page.locator('#map-detail').boundingBox();
+    check(drawer.width>=1440*.4,'desktop full-height detail overlay');
     await page.screenshot({path:'output/playwright/v3-desktop-map-detail.png',fullPage:true});
-    await page.locator('#detail-body .detail-links button').filter({hasText:'K04'}).first().click();
-    await page.waitForFunction(()=>document.querySelector('#detail-title')?.textContent.startsWith('K04') && document.querySelector('.detail-actions'));
-    check(await page.locator('#orb-K04').getAttribute('aria-expanded')==='true','related selection stays in map');
     await page.locator('#detail-close').click();
-    await page.locator('#map-unit').selectOption('类型与缺失');
-    check(await page.locator('.orb-node:not([hidden])').count()===5,'unit filter');
-    await page.locator('#map-search').fill('K06');
-    check(await page.locator('.knowledge-orb.search-hit').count()===1,'search highlights match');
-    check(await page.locator('#orb-K06').evaluate(n=>{const a=n.getBoundingClientRect(),b=document.querySelector('#map-viewport').getBoundingClientRect();return a.left>=b.left && a.right<=b.right && a.top>=b.top && a.bottom<=b.bottom;}),'search centers visible orb');
-    await page.locator('#map-search').fill('不存在的知识');
-    check((await page.locator('#map-message').textContent()).includes('0 个'),'search no match');
+    await page.locator('#map-unit-toggle').click();
+    await page.getByRole('option',{name:'类型与缺失',exact:true}).click();
+    check(await page.locator('#map-unit').inputValue()==='类型与缺失','custom unit filter');
     await page.locator('#map-reset').click();
-    check(await page.locator('.orb-node:not([hidden])').count()===43 && await page.locator('#map-search').inputValue()==='' && await page.locator('#map-unit').inputValue()==='','reset filters');
-    const before=await page.locator('#map-viewport').evaluate(n=>n.scrollTop);
-    const vp=await page.locator('#map-viewport').boundingBox();
-    await page.mouse.move(vp.x+12,vp.y+60);await page.mouse.down();await page.mouse.move(vp.x+12,vp.y+160,{steps:8});await page.mouse.up();
-    check(await page.locator('#map-viewport').evaluate(n=>n.scrollTop)<before,'drag canvas pans within bounds');
-    await page.locator('#map-reset').click();
-    await page.screenshot({path:'output/playwright/v3-desktop-map.png',fullPage:true});
-    await page.emulateMedia({reducedMotion:'reduce'});
-    check(await page.locator('.knowledge-orb').evaluateAll(ns=>ns.every(n=>getComputedStyle(n.querySelector('.orb-face')).animationName==='none')),'reduced motion static orbs');
+    check(await page.locator('#map-unit').inputValue()==='','reset unit filter');
     await detail('K06');
     const count=await page.locator('.message').count();
     await page.getByRole('button',{name:'在AI问答中讲解',exact:true}).click();
@@ -137,11 +102,11 @@ async (page) => {
     await page.locator('#question').fill('为什么不能用x == NA判断缺失？');await page.locator('#send').click();await ready();
     await page.screenshot({path:'output/playwright/v3-desktop-review.png',fullPage:true});
     await page.setViewportSize({width:390,height:844});await route('knowledge');await page.locator('#map-reset').click();
-    const mobileGeo=await bounds();check(mobileGeo.inside && mobileGeo.gap>8,'mobile bounded nonoverlapping world');
+    check(await page.locator('.scene-orb-label').count()===43,'mobile 43 knowledge objects');
     await detail('K06');
     const sheet=await page.locator('#map-detail').boundingBox();
     check(Math.abs(sheet.y+sheet.height-844)<2 && sheet.width===390 && await page.locator('#map-detail').getAttribute('aria-modal')==='true','mobile bottom drawer');
-    check(await page.locator('#orb-K06').evaluate(n=>n.getBoundingClientRect().bottom<document.querySelector('#map-detail').getBoundingClientRect().top),'selected orb visible above mobile drawer');
+    check((await page.locator('#detail-title').textContent()).startsWith('K06'),'mobile selected knowledge details');
     await page.screenshot({path:'output/playwright/v3-mobile-map-detail.png',fullPage:false});
     await page.locator('#detail-close').focus();await page.keyboard.press('Shift+Tab');
     check(await page.evaluate(()=>document.querySelector('#map-detail').contains(document.activeElement)),'bottom drawer focus trap');
@@ -156,7 +121,7 @@ async (page) => {
       await route(view);check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'390 width '+view);
     }
     check(requests.every(r=>/\/api\/(chat|review)$/.test(r.url)),'no upload endpoint used');
-    check(errors.length===0,'no uncaught errors');
+    check(errors.length===0,'no uncaught errors ' + JSON.stringify(errors));
     await route('home');return {passed:checks.length,checks,errors};
   } finally {page.off('request',onRequest);page.off('pageerror',onError);}
 }

@@ -1,0 +1,5 @@
+x <- c(2, NA_real_, NaN, Inf, -Inf)
+print(is.na(x))
+print(is.nan(x))
+print(is.finite(x))
+print(mean(c(60, NA, 80), na.rm = TRUE))
