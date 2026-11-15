@@ -112,4 +112,4 @@ npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 run-code --
 
 在ai_tutor目录启动该测试服务后，用Playwright CLI打开 `http://127.0.0.1:8001/` 并运行 `tests/browser_ai.js`。该脚本覆盖设置、模拟真实问答、搜索引用、取消、密钥存储、键盘和手机布局。测试完成后停止该隔离服务。
 
-Render配置位于仓库根目录 `render.yaml`。正式URL到位后运行 `scripts/publish_info.py --url HTTPS地址`，生成经基础核验的二维码及发布信息。
+Render配置位于仓库根目录 `render.yaml`，Root Directory使用 `.`，通过根目录 `render_service.py build` 安装依赖，通过 `render_service.py start` 启动。正式URL到位后运行 `scripts/publish_info.py --url HTTPS地址`，生成经基础核验的二维码及发布信息。

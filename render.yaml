@@ -4,9 +4,9 @@ services:
     runtime: python
     plan: free
     region: singapore
-    rootDir: 成员三/ai_tutor
-    buildCommand: python -m pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips "*" --no-access-log
+    rootDir: .
+    buildCommand: python render_service.py build
+    startCommand: python render_service.py start
     healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
