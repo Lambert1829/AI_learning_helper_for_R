@@ -38,12 +38,6 @@ class KnowledgeMap {
     this.narrow.addEventListener('change', () => this.accessibility());
     this.$('map-detail').addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); this.close(); }
-      if (event.key === 'Tab' && this.narrow.matches) {
-        const controls = [...this.$('map-detail').querySelectorAll('button,a,summary')].filter(n => n.checkVisibility() && !n.disabled);
-        const first = controls[0], last = controls.at(-1);
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-      }
     });
     this.viewport.addEventListener('keydown', event => {
       if (event.target !== this.viewport) return;
@@ -179,13 +173,13 @@ class KnowledgeMap {
     });
   }
   accessibility() {
-    const open=!this.$('map-detail').hidden, modal=open && this.narrow.matches;
-    this.$('map-detail').setAttribute('role',modal?'dialog':'complementary');
-    if(modal)this.$('map-detail').setAttribute('aria-modal','true');else this.$('map-detail').removeAttribute('aria-modal');
-    for(const id of ['map-stage','map-controls','map-accessible','map-legend'])this.$(id).inert=modal;
-    document.querySelector('.app-header').inert=modal;
-    document.body.classList.toggle('map-detail-modal',modal);
-    if(modal)this.$('detail-close').focus({preventScroll:true});
+    const open=!this.$('map-detail').hidden, mobileSheet=open && this.narrow.matches;
+    this.$('map-detail').setAttribute('role',mobileSheet?'dialog':'complementary');
+    this.$('map-detail').removeAttribute('aria-modal');
+    for(const id of ['map-stage','map-controls','map-accessible','map-legend'])this.$(id).inert=mobileSheet;
+    document.querySelector('.app-header').inert=false;
+    document.body.classList.toggle('map-detail-sheet-open',mobileSheet);
+    if(mobileSheet)this.$('detail-close').focus({preventScroll:true});
   }
   close(restore=true) {
     const previous=this.selected;const wasMobile=!this.$('map-detail').hidden && this.narrow.matches;this.sequence++;this.selected=null;

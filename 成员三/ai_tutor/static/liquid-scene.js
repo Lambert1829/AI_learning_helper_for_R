@@ -332,7 +332,10 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
         label.setAttribute('aria-label',item.id+' '+item.title+'，'+item.chapter);
         const id=document.createElement('span');id.className='scene-orb-id';id.textContent=item.id;
         const title=document.createElement('span');title.className='scene-orb-title';title.textContent=this.shortNames[Number(item.id.slice(1))-1]||item.title;
-        label.append(id,title);label.onclick=()=>this.select(item.id);
+        label.append(id,title);
+        // Pointer activation is resolved on pointerup by the shared scene gesture.
+        // Native keyboard activation emits a click with detail === 0.
+        label.addEventListener('click',event=>{if(event.detail===0)this.select(item.id);});
         label.addEventListener('focus',()=>{this.hoverId=item.id;this.requestFrame();});
         label.addEventListener('blur',()=>{if(this.hoverId===item.id)this.hoverId=null;});
         label.addEventListener('mouseenter',()=>{this.hoverId=item.id;this.requestFrame();});
@@ -354,45 +357,57 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
   bindSceneEvents(canvas) {
     let down = null;
     const finishDrag=event=>{
-      if(!down)return;
-      const pointerId=down.pointerId;down=null;
-      if(event?.pointerId===pointerId&&canvas.hasPointerCapture(pointerId))canvas.releasePointerCapture(pointerId);
+      if(!down)return null;
+      const gesture=down;down=null;
+      if(gesture.captureTarget?.hasPointerCapture(gesture.pointerId))gesture.captureTarget.releasePointerCapture(gesture.pointerId);
       canvas.style.cursor='grab';canvas.classList.remove('is-dragging');
+      return gesture;
     };
-    canvas.addEventListener('pointerdown', event => {
+    this.viewport.addEventListener('pointerdown', event => {
+      const label=event.target instanceof Element?event.target.closest('.scene-orb-label'):null;
+      if(event.target!==canvas&&!label)return;
       if(event.button!==0)return;
       event.preventDefault();
-      down={pointerId:event.pointerId,x:event.clientX,y:event.clientY,yaw:this.orbitYaw,pitch:this.orbitPitch,dragged:false};
-      canvas.setPointerCapture(event.pointerId);
+      const captureTarget=label||canvas;
+      down={pointerId:event.pointerId,pointerType:event.pointerType,x:event.clientX,y:event.clientY,
+        yaw:this.orbitYaw,pitch:this.orbitPitch,dragged:false,knowledgeId:label?.dataset.id||null,captureTarget};
+      captureTarget.setPointerCapture(event.pointerId);
       canvas.classList.add('is-dragging');canvas.style.cursor='grabbing';
     });
-    canvas.addEventListener('pointerup', event => {
-      if (!down)return;
-      const clicked=!down.dragged;
-      finishDrag(event);
-      if(clicked){const hit=this.pick(event);if(hit)this.select(hit.userData.knowledgeId);else if(this.focusId)this.close();}
+    this.viewport.addEventListener('pointerup', event => {
+      if (!down||event.pointerId!==down.pointerId)return;
+      event.preventDefault();
+      const gesture=finishDrag(event);
+      if(!gesture.dragged){
+        const id=gesture.knowledgeId||this.pick(event)?.userData.knowledgeId;
+        if(id)this.select(id);else if(this.focusId)this.close();
+      }
     });
-    canvas.addEventListener('pointermove', event => {
+    this.viewport.addEventListener('pointermove', event => {
+      if(event.target!==canvas&&!(event.target instanceof Element&&event.target.closest('.scene-orb-label'))&&!down)return;
       const rect=canvas.getBoundingClientRect();
       this.pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);
       this.oceanUniforms.uPointer.value.copy(this.pointer);
-      if(down&&!this.focusId){
-        if((event.buttons&1)!==1){finishDrag(event);this.requestFrame();return;}
+      if(down&&event.pointerId===down.pointerId&&!this.focusId){
+        if(down.pointerType==='mouse'&&(event.buttons&1)!==1){finishDrag(event);this.requestFrame();return;}
         const dx=event.clientX-down.x,dy=event.clientY-down.y;
-        if(Math.hypot(dx,dy)>4)down.dragged=true;
+        const threshold=down.pointerType==='mouse'?4:8;
+        if(Math.hypot(dx,dy)>threshold)down.dragged=true;
         if(down.dragged){
+          event.preventDefault();
           this.orbitYaw=down.yaw-dx*.0045;
           this.orbitPitch=THREE.MathUtils.clamp(down.pitch+dy*.0035,CONFIG.camera.minPitch,CONFIG.camera.maxPitch);
           this.applyOrbit();canvas.style.cursor='grabbing';this.requestFrame();return;
         }
       }
+      if(event.pointerType!=='mouse'||down)return;
       const hit=this.pick(event);
       const id=hit?.userData.knowledgeId || null;
       if (id!==this.hoverId) { this.hoverId=id; canvas.style.cursor=id?'pointer':'grab'; this.requestFrame(); }
     });
-    canvas.addEventListener('pointerleave',()=>{if(!down){this.hoverId=null;canvas.style.cursor='grab';}});
-    canvas.addEventListener('pointercancel',finishDrag);
-    canvas.addEventListener('lostpointercapture',event=>{if(down&&event.pointerId===down.pointerId)finishDrag(event);});
+    this.viewport.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse'&&!down){this.hoverId=null;canvas.style.cursor='grab';}});
+    this.viewport.addEventListener('pointercancel',event=>{if(down&&event.pointerId===down.pointerId)finishDrag(event);});
+    this.viewport.addEventListener('lostpointercapture',event=>{if(down&&event.pointerId===down.pointerId)finishDrag(event);});
     window.addEventListener('pointerup',event=>{if(down&&event.pointerId===down.pointerId)finishDrag(event);});
     window.addEventListener('blur',()=>finishDrag());
     canvas.addEventListener('wheel',event=>{

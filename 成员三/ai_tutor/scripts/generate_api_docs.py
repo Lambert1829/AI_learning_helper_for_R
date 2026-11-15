@@ -35,8 +35,8 @@ def table(schema, name):
 
 def main():
     health, schema = read('/api/health'), read('/openapi.json')
-    if health['version'] != '1.2.0':
-        raise RuntimeError('请先重启至1.2.0再生成接口说明')
+    if health['version'] != '1.2.1':
+        raise RuntimeError('请先重启至1.2.1再生成接口说明')
     timestamp = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
     routes = ['| 方法 | 路径 | 用途 |', '|---|---|---|']
     for path, operations in schema['paths'].items():

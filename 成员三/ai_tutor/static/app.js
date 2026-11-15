@@ -1,5 +1,5 @@
 'use strict';
-import {markdownFragment} from './answer-markdown.js?v=20261115.7';
+import {markdownFragment} from './answer-markdown.js?v=20261115.8';
 const $ = id => document.getElementById(id);
 const STORE = 'r-tutor-mock-v1';
 const UNITS = ['环境与自助学习','类型与缺失','向量与字符串','矩阵与数组','数据框','列表与批量处理','函数与控制','综合与包扩展'];
@@ -537,7 +537,7 @@ $('clear').onclick = () => {
 };
 $('export').onclick = () => {
   setMore(false);
-  const blob = new Blob([JSON.stringify({version:'1.2.0',records:records.map(safeRecord)},null,2)], {type:'application/json;charset=utf-8'});
+  const blob = new Blob([JSON.stringify({version:'1.2.1',records:records.map(safeRecord)},null,2)], {type:'application/json;charset=utf-8'});
   const url = URL.createObjectURL(blob), link = el('a');
   link.href = url; link.download = 'R语言学习记录.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);

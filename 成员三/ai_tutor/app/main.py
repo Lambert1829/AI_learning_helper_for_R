@@ -36,7 +36,7 @@ class ErrorResponse(BaseModel):
     error: ErrorDetail
 
 
-app = FastAPI(title='R语言AI助教', version='1.2.0', description='课程模拟、三厂商AI与网页搜索；代码分析及参考修正。',
+app = FastAPI(title='R语言AI助教', version='1.2.1', description='课程模拟、三厂商AI与网页搜索；代码分析及参考修正。',
               responses={404:{'model':ErrorResponse,'description':'资源或知识点不存在'},
                          422:{'model':ErrorResponse,'description':'参数校验失败'},
                          500:{'model':ErrorResponse,'description':'内部错误；测试中通过故障注入验证'}})
@@ -161,7 +161,7 @@ class RequestContextMiddleware:
             response = failure(request, 500, 'INTERNAL_ERROR', '服务内部错误，请查看本地日志或联系维护者')
             await response(scope, receive, send_response)
         finally:
-            logger.info('version=1.2.0 request_id=%s status=%s duration_ms=%s', request.state.request_id,
+            logger.info('version=1.2.1 request_id=%s status=%s duration_ms=%s', request.state.request_id,
                         status_code, round((time.monotonic() - started) * 1000))
 
 
@@ -189,7 +189,7 @@ async def ai_error(request, exc):
 
 @app.get('/api/health')
 def health():
-    return {'status':'ok','mode':'mock','version':'1.2.0','available_modes':['mock','ai','search'],'knowledge_version':DATA['version'],
+    return {'status':'ok','mode':'mock','version':'1.2.1','available_modes':['mock','ai','search'],'knowledge_version':DATA['version'],
             'counts':{k:len(DATA[k]) for k in ['knowledge','questions','errors','relations']}}
 
 

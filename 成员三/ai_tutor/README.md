@@ -1,4 +1,4 @@
-# R语言AI助教 1.2.0
+# R语言AI助教 1.2.1
 
 这是基于成员一课程资料的学习应用，支持本地模拟、DeepSeek、通义千问和OpenAI真实问答，以及厂商网页搜索。默认模拟模式使用课程规则，所有代码建议显示未经运行验证。
 
@@ -21,7 +21,7 @@ AI回答以连续Markdown正文组织，标题、完整列表和多段代码按�
 1. 双击本目录的 `start.cmd`。看到 `Ready` 表示启动成功；如果提示8000端口已经占用，先打开下面的网址确认已有服务。
 2. 浏览器打开 [新版首页](http://127.0.0.1:8000/#/home)，点击“AI问答”，再点“缺失值与均值”。回答后点击“例题”或“易错点”连续学习；首条回答出现后隐藏示例入口。
 3. 从导航进入“代码纠错”，手动输入或点击“选择.R文件”（也可拖入文件），补充报错后发送。桌面左侧编辑、右侧查看参考分析，手机上下排列。问答中仍可“添加代码”，收起后不提交残留内容。“内容来源”和“参考输出”默认折叠。
-4. 知识地图把43个液态玻璃知识球体同时放在粒子海洋上，八个课程单元沿大圆环分组。按住鼠标左键拖动旋转视角，松开后固定当前视角；滚轮缩放，搜索和单元筛选用于高亮。点击球体后镜头聚焦并打开详情，桌面详情在右侧，手机在底部。
+4. 知识地图把43个液态玻璃知识球体同时放在粒子海洋上，八个课程单元沿大圆环分组。按住鼠标左键或手指拖动旋转视角，松开后固定当前视角；未拖动时松手才打开球体详情。滚轮缩放，搜索和单元筛选用于高亮。桌面详情在右侧，手机详情在底部，详情打开时仍可使用顶部导航切换栏目。
 5. “学习记录”可返回某条对话、导出或清空当前浏览器记录；刷新恢复记录，切换视图保留未发送草稿（草稿不会保存到刷新后）。右上角“更多”同时提供导出、清空、接口文档及版本说明。导出文件包含提问和代码，分享前自行检查。
 6. 用完后双击 `stop.cmd`。脚本只停止它启动且身份核对一致的本项目进程，不关闭其他占用端口的程序。
 
@@ -98,6 +98,8 @@ FastAPI交互文档：[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)�
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 open http://127.0.0.1:8000
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 run-code --filename "成员三/ai_tutor/tests/browser_check.js"
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 run-code --filename "成员三/ai_tutor/tests/browser_map_files.js"
+npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-mobile-map open http://127.0.0.1:8000/#/knowledge --device "Pixel 7"
+npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-mobile-map run-code --filename "成员三/ai_tutor/tests/browser_mobile_map.js"
 ```
 
 脚本清空独立测试浏览器中的学习记录，请勿连接个人常用浏览器执行。断开验收脚本 `tests/browser_offline.js` 须在测试页面已加载、项目服务已停止时运行；随后使用 `start.cmd` 恢复服务。停止脚本兼容 Windows PowerShell 与 PowerShell 7，并核对父进程身份及项目 Python 子进程。
