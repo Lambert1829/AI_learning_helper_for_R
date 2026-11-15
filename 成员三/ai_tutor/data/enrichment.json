@@ -1,0 +1,619 @@
+{
+ "version": "1.0.0",
+ "count": 8,
+ "items": {
+  "K01": {
+   "id": "K01",
+   "title": "R、RStudio与脚本执行",
+   "unit": "环境与自助学习",
+   "difficulty": "核心",
+   "prerequisites": [],
+   "related": [
+    "K02",
+    "K03",
+    "K09"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够辨认脚本编辑区、控制台、环境窗格和输出所在位置。\n- 能够运行选中代码与完整脚本，并解释对象更新的时机。\n- 能够保存脚本，在新会话中复现计算并记录版本信息。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. 输入三个分数后，希望得到什么结果？预期回答为一个平均分。\n2. 文件保存到哪里才能再次找到？预期回答为自己选定的项目目录，并知道文件名。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "把一次计算拆成编辑、执行和查看三个动作。脚本保存计算步骤，R负责执行语句，环境窗格展示当前会话里的对象，控制台显示执行信息和显式打印的结果。保存文件只完成了记录步骤。修改分数后，还要重新执行赋值和计算语句，平均分才会更新。新会话重新运行整份脚本，可以检验步骤是否齐全。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么改了分数，平均分仍可能保持原值？`average <- mean(scores)`执行时保存当时的计算结果，后续更新`scores`后，需要再次执行这条计算语句。\n2. 为什么脚本中使用`print()`？整份脚本通过`source()`运行时，显式打印便于稳定查看结果，并清楚标出希望展示的对象。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "题目要求比较修改成绩前后两次查看`average`的结果。三名虚构学生的成绩以分为单位，第二次数据专门用于演示重新计算。\n\n独立脚本见[K01_example_01.R](/content/code/K01_example_01.R)。\n\n```r\nscores <- c(60, 80, 100)\naverage <- mean(scores)\nprint(average)\nscores <- c(70, 85, 100)\nprint(average)\naverage <- mean(scores)\nprint(average)\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 80\n[1] 80\n[1] 85\n```\n\n### 逐步讲解\n\n1. `c()`把三个数放入向量，`<-`把向量保存为`scores`。\n2. 首次计算把80保存为`average`，`print()`将它显示出来。\n3. 更新`scores`后立即打印`average`，看到的仍是已经保存的80。\n4. 再次执行`mean()`的赋值语句，`average`更新为85。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "为一份虚构的十人成绩表生成基本统计记录。数据单位为分，取值依次为55至100、每次增加5，无缺失项。\n\n独立脚本见[K01_example_02.R](/content/code/K01_example_02.R)。\n\n```r\nscores <- c(55, 60, 65, 70, 75, 80, 85, 90, 95, 100)\ncount <- length(scores)\ntotal <- sum(scores)\naverage <- mean(scores)\nprint(c(count = count, total = total, average = average))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n  count   total average \n   10.0   775.0    77.5\n```\n\n### 逐步讲解\n\n1. `length()`统计成绩项数，`sum()`计算总分，`mean()`计算均值。\n2. 将三个计算结果分别保存为有明确含义的对象。\n3. `c(count = ..., total = ..., average = ...)`给输出项加名称，方便对应人数、总分和平均分。\n\n这十项数据的均值为77.5分。解释范围限于这组教学数据，评价课程教学效果还需要实际样本和研究设计。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“脚本怎样变成对象与输出”，采用流程图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![四步纵向流程。脚本中的scores赋值语句交给R执行，环境中出现scores对象，print(mean(scores))把80显示到控制台。修改脚本后再次执行才能更新对象。](/content/images/K01_visual_01.svg)\n\n生成代码见[K01_visual_01.R](/content/code/K01_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K01_visual_01.R ../images\n```\n\n流程从可保存的脚本经过R执行到达会话对象，再展示明确打印的结果。每层都标出具体语句或数据，帮助学生对照RStudio中的区域定位操作，并观察再次执行与对象更新的关系。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "错误写法把已经创建的`scores`写成了`Scores`。\n\n\n```r\nscores <- c(60, 80, 100)\nprint(mean(Scores))\n```\n\n### 实际错误或异常结果\n\n```text\nError: object 'Scores' not found\nExecution halted\n```\n\nR区分名称中的大小写。参考修正统一使用已经创建的名称。\n\n\n```r\nscores <- c(60, 80, 100)\nprint(mean(scores))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 80\n```\n\n判断时需要检查完整代码的执行顺序。其他会话中若恰好存在`Scores`，这段代码可能读取那个对象，因此复查应从干净会话开始。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "将下面答案代码保存为`K01_exercise.R`。输入为十名虚构学生的成绩，单位为分。完成三个任务，计算人数和均值，输出R版本与会话信息，然后在新会话中重新运行并比较成绩统计结果。\n\n提示先在RStudio中新建R脚本，输入全部语句并保存。选中代码后使用Run或Ctrl+Enter逐段执行，再使用Source执行整份脚本。使用Restart R后重新执行整份文件。\n\n独立脚本见[K01_exercise.R](/content/code/K01_exercise.R)。\n\n```r\nscores <- c(60, 64, 68, 72, 76, 80, 84, 88, 92, 96)\naverage <- mean(scores)\nprint(length(scores))\nprint(average)\nprint(R.version.string)\nprint(utils::sessionInfo())\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 10\n[1] 78\n[1] \"R version 4.6.1 (2026-06-24 ucrt)\"\nR version 4.6.1 (2026-06-24 ucrt)\nPlatform: x86_64-w64-mingw32/x64\nRunning under: Windows 11 x64 (build 26300)\n\nMatrix products: default\n  LAPACK version 3.12.1\n\nlocale:\n[1] C\nsystem code page: 65001\n\ntime zone: Asia/Shanghai\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.6.1\n```\n\n评分共10分，正确创建输入得2分，人数与均值各2分，保存并复现脚本得2分，会话信息记录得2分。常见错误是只运行最后一行、漏存输入数据，或把旧会话已有对象当作脚本的一部分。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面代码最后打印什么，并说明原因。\n\n\n```r\nx <- c(2, 4, 6)\ny <- mean(x)\nx <- c(10, 20, 30)\nprint(y)\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 4\n```\n\n答案为4。`y`保存了首次均值，更新`x`后需要再次计算才能得到新的均值。\n\n2. 只点击保存，环境窗格一定出现新对象吗？答案为否。对象在相应赋值语句执行后进入当前会话。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S1《CH11R语言安装.pdf》PDF  4–20。\n- 课程来源为S2《CH12R语言安装.pdf》PDF  1–7。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"assignOps\", package = \"base\")`、`help(\"source\", package = \"base\")`、`help(\"print\", package = \"base\")`、`help(\"sessionInfo\", package = \"utils\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K01_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K01_validation.txt](/content/code/K01_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。\n- 待人工复核项为RStudio中的保存、Run、Source和Restart R界面操作。新会话计算已通过两个独立R进程重复核验。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求演示只重新运行一部分语句时的对象变化。",
+    "易错点请求检查对象名称和运行顺序。",
+    "练习请求解释如何用新会话复现同一份脚本。",
+    "相关知识继续学习K03的最小复现与会话记录。"
+   ],
+   "assets": [
+    "code/K01_example_01.R",
+    "code/K01_example_02.R",
+    "code/K01_exercise.R",
+    "code/K01_validation.txt",
+    "code/K01_visual_01.R",
+    "images/K01_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K01.md",
+   "sha256": "1759b16d963f6bfff5d409df11646c3f378e36929ba3e95385dc366295bcb09f"
+  },
+  "K02": {
+   "id": "K02",
+   "title": "安装、加载与命名空间",
+   "unit": "环境与自助学习",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K01"
+   ],
+   "related": [
+    "K01",
+    "K03",
+    "K40"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够根据电脑和会话的状态选择安装、加载或命名空间调用。\n- 能够用随R附带的包完成显式函数调用并记录版本。\n- 能够从包缺失、名称拼写和安装环境三个方向排查问题。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. RStudio关闭后重新打开，上一会话的执行状态是否自然保留？预期回答为新会话需要重新执行所需代码。\n2. `stats::median`中的`stats`表示什么？预期回答为函数所属包的名称。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "包为R提供一组函数、数据和帮助文档。安装让包文件保存在某个包库中，通常可以跨会话使用。`library()`把包附加到当前会话的搜索路径，之后能直接按函数名查找。`包名::函数名`指定函数来源，并按需加载命名空间。把电脑上有什么包与当前会话使用了什么包分别检查，排错会更清楚。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么重新打开R后常要运行`library()`？附加状态属于会话。包文件已经存在时，再次分析通常从加载或显式调用开始。\n2. 为什么示例写`stats::median()`？包名明确了函数来源，有助于阅读代码，并减少同名函数带来的疑惑。\n3. 为什么安装可能失败？镜像连接、库目录写入权限、R版本兼容性以及源码编译工具都会影响安装，需要结合完整安装日志判断。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "检查`stats`是否可加载，再计算三项分数的中位数。`stats`随R提供，标准R会话通常已经附加它。\n\n独立脚本见[K02_example_01.R](/content/code/K02_example_01.R)。\n\n```r\nprint(requireNamespace(\"stats\", quietly = TRUE))\nlibrary(stats)\nprint(stats::median(c(60, 80, 100)))\nprint(\"package:stats\" %in% search())\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] TRUE\n[1] 80\n[1] TRUE\n```\n\n### 逐步讲解\n\n1. `requireNamespace()`检查包能否加载，成功时返回`TRUE`，过程中可以加载命名空间。\n2. `library(stats)`将包附加到搜索路径，本例会话通常已经包含它。\n3. `stats::median()`明确选择该包的导出函数，得到80。\n4. `%in%`检查搜索路径中是否有指定名称，这里只用它完成一次成员判断。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "对十名虚构学生的成绩预览前四项，并计算中位数和样本标准差。成绩单位为分，标准差用于描述这组数据的波动。\n\n独立脚本见[K02_example_02.R](/content/code/K02_example_02.R)。\n\n```r\nscores <- c(55, 60, 65, 70, 75, 80, 85, 90, 95, 100)\nprint(utils::head(scores, n = 4))\nprint(stats::median(scores))\nprint(round(stats::sd(scores), digits = 2))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 55 60 65 70\n[1] 77.5\n[1] 15.14\n```\n\n### 逐步讲解\n\n1. `utils::head()`提供数据预览，参数`n`控制展示项数。\n2. `stats::median()`计算中心位置，`stats::sd()`计算样本标准差。\n3. `round()`将标准差显示到小数点后两位，便于阅读。\n\n这里着重练习调用来源。更全面的统计解释见K13，对总体作推断还需要相应抽样条件。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“安装、加载和显式调用”，采用分支流程图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![分支关系图。安装先把包存入包库。随后可以用library附加包再按函数名调用，也可以用包名双冒号函数名直接调用导出函数。双冒号会按需加载命名空间。](/content/images/K02_visual_01.svg)\n\n生成代码见[K02_visual_01.R](/content/code/K02_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K02_visual_01.R ../images\n```\n\n图中分别标明包库、会话和函数调用所在阶段。结合说明指出双冒号会按需加载命名空间，学生可以据此判断实际任务要执行哪一步，并理解安装操作的持续范围。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "错误写法将导出函数名称`median`写成了`Median`。\n\n\n```r\nprint(stats::Median(c(60, 80, 100)))\n```\n\n### 实际错误或异常结果\n\n```text\nError: 'Median' is not an exported object from 'namespace:stats'\nExecution halted\n```\n\nR区分大小写，`::`会检查指定名称是否为该包的导出对象。参考修正使用官方帮助中的名称。\n\n\n```r\nprint(stats::median(c(60, 80, 100)))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 80\n```\n\n单凭这条错误无法推断网络和安装权限状况。先读错误中提到的包名与对象名，再针对当前步骤检查。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "输入为十项成绩，单位为分。先给以下三个场景选择操作，再运行参考代码预览首尾成绩、计算中位数并记录包版本。\n\n| 场景 | 参考选择 |\n|---|---|\n| 所需扩展包尚未安装 | 在明确包名和安装条件后使用`install.packages()` |\n| 包已安装，新会话希望直接使用其导出函数名 | 使用`library()`附加包 |\n| 包已安装，希望明确调用来源 | 使用`包名::函数名` |\n\n提示安装语法属于操作判断题，本练习运行部分使用随R附带的包。`tail()`与`head()`分别查看尾部和头部。\n\n独立脚本见[K02_exercise.R](/content/code/K02_exercise.R)。\n\n```r\nscores <- c(60, 64, 68, 72, 76, 80, 84, 88, 92, 96)\nprint(requireNamespace(\"stats\", quietly = TRUE))\nprint(utils::head(scores, n = 3))\nprint(utils::tail(scores, n = 3))\nprint(stats::median(scores))\nprint(utils::packageVersion(\"stats\"))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] TRUE\n[1] 60 64 68\n[1] 88 92 96\n[1] 78\n[1] '4.6.1'\n```\n\n评分共10分，三个场景各2分，首尾预览、中位数和版本记录共4分。常见错误包括每次运行都重复安装、把示意名称直接当真实包名，以及函数名大小写错误。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测两行输出。\n\n\n```r\nprint(utils::head(1:8, n = 3))\nprint(stats::median(c(1, 5, 9)))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 1 2 3\n[1] 5\n```\n\n答案依次为整数向量`1 2 3`与中位数5。`n`控制项数，显式命名空间指定函数来源。\n\n2. `requireNamespace()`返回`TRUE`能否证明包已附加到搜索路径？答案为否。附加状态可以通过`search()`检查。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S1《CH11R语言安装.pdf》PDF 21–29。\n- 课程来源为S2《CH12R语言安装.pdf》PDF 8–10。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"install.packages\", package = \"utils\")`、`help(\"library\", package = \"base\")`、`help(\"::\", package = \"base\")`、`help(\"requireNamespace\", package = \"base\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K02_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K02_validation.txt](/content/code/K02_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。\n- 安装场景采用题目判断，实际联网安装、权限失败及编译失败的现场操作尚未验证。\n- 待核对事项为S2 PDF第10页使用了“调用R包后，方可使用”的概括表达。正式知识库已补充双冒号调用，本样品按实测说明附加包与加载命名空间的职责，交由整合线程核对课件措辞。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求比较同一函数的直接调用与显式调用。",
+    "易错点请求依据完整安装日志定位失败阶段。",
+    "练习请求为一个新会话列出准备步骤。",
+    "相关知识继续学习K03的函数帮助和包版本记录。"
+   ],
+   "assets": [
+    "code/K02_example_01.R",
+    "code/K02_example_02.R",
+    "code/K02_exercise.R",
+    "code/K02_validation.txt",
+    "code/K02_visual_01.R",
+    "images/K02_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K02.md",
+   "sha256": "63e336f341e00518c1a61a4e7050782971b2fdd580350b0e251f060da9dcb61b"
+  },
+  "K03": {
+   "id": "K03",
+   "title": "帮助与可复现记录",
+   "unit": "环境与自助学习",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K01",
+    "K02"
+   ],
+   "related": [
+    "K01",
+    "K02",
+    "K06"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`?`和`help()`查找函数参数，并运行官方示例。\n- 能够把一段较长代码缩小为可独立运行的最小复现。\n- 能够记录期望、实际输出和`sessionInfo()`，形成可核验的问题说明。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. 在新脚本里使用一个对象前需要做什么？预期回答为提供创建该对象的语句或输入数据。\n2. 函数来源不清楚时怎样指定包？预期回答为使用`包名::函数名`。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "遇到问题时，先把“我以为会怎样”和“实际发生了什么”写下来。帮助文档说明函数接受哪些参数，官方示例展示基本用法。接着逐步缩小输入和步骤，同时保留触发问题的特征，得到别人复制后就能观察的最小复现。再加上版本和会话信息，接收者才能在具体环境中核对现象。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么查到函数名还要看参数？默认参数决定函数的初始行为，例如`mean()`的`na.rm`默认值为`FALSE`，会影响含缺失值的结果。\n2. 为什么精简数据时要保留`NA`？本例问题由缺失值触发，删除这一特征会使问题消失，无法再解释原来的现象。\n3. 为什么记录会话信息？R版本、已加载包和语言区域都可能影响行为或输出，记录这些信息方便复查。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "查找`mean`的帮助主题，并运行安装版本附带的示例。交互会话还可输入`?mean`阅读同一主题，关注Usage、Arguments、Value和Examples等部分。\n\n独立脚本见[K03_example_01.R](/content/code/K03_example_01.R)。\n\n```r\nmean_help <- utils::help(\"mean\", package = \"base\")\nprint(length(mean_help) > 0L)\nutils::example(\"mean\", package = \"base\", echo = TRUE, ask = FALSE)\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] TRUE\n\nmean> x <- c(0:10, 50)\n\nmean> xm <- mean(x)\n\nmean> c(xm, mean(x, trim = 0.10))\n[1] 8.75 5.50\n```\n\n### 逐步讲解\n\n1. `help()`取得帮助主题，`length(...) > 0L`检查是否找到条目。\n2. `example()`运行官方帮助中的示例，`ask = FALSE`避免等待交互确认。\n3. `echo = TRUE`显示示例语句与计算结果，输出中的`mean>`表示语句回显。这里保留本机安装版本的完整记录。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "十项模拟成绩中第三项缺失，单位为分。目标是解释均值为什么出现`NA`，并缩小复现所需的数据。\n\n独立脚本见[K03_example_02.R](/content/code/K03_example_02.R)。\n\n```r\nscores <- c(55, 60, NA, 70, 75, 80, 85, 90, 95, 100)\nprint(mean(scores))\nmini_scores <- c(60, NA, 80)\nprint(mean(mini_scores))\nprint(mean(mini_scores, na.rm = TRUE))\nprint(utils::packageVersion(\"base\"))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] NA\n[1] NA\n[1] 70\n[1] '4.6.1'\n```\n\n### 逐步讲解\n\n1. 完整成绩向量运行后得到`NA`，先记录这个实际现象。\n2. 将输入缩小为三项，仍保留一个`NA`，现象继续出现。\n3. 根据帮助设置`na.rm = TRUE`后得到70，这说明计算使用了两个已有分数。\n4. 记录`base`版本，为复核提供环境线索。\n\n该设置规定缺失值在计算中的处理方式。原始缺考原因、缺失机制及其对班级评价的影响，需要结合实际教学记录判断。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“从问题到可复现记录”，采用流程图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![四步路径。先写清实际结果与期望，再查函数帮助，然后保留含NA的三项最小输入复现问题，最后记录代码、输出和sessionInfo交给他人核验。](/content/images/K03_visual_01.svg)\n\n生成代码见[K03_visual_01.R](/content/code/K03_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K03_visual_01.R ../images\n```\n\n图沿问题描述、阅读帮助、最小复现和会话记录四步展开。每步配一个可执行或可检查的动作，使学生能把模糊的提问整理成同伴可以运行并核验的材料。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "从控制台复制内容时保留了输入提示符，写入脚本后形成下面的语法错误。\n\n\n```r\n> scores <- c(60, 80, 100)\n> print(mean(scores))\n```\n\n### 实际错误或异常结果\n\n```text\nError: unexpected '>' in \">\"\nExecution halted\n```\n\n首行开头的`>`是控制台提示符。整理脚本时应只保留输入语句。续行提示符`+`也要结合控制台上下文识别，代码本身使用的加法运算符则应保留。\n\n\n```r\nscores <- c(60, 80, 100)\nprint(mean(scores))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 80\n```\n\n单张截图可能隐藏了此前的对象定义，核验时还需要创建数据的语句和完整错误文本。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "输入为十项模拟成绩，其中第五项缺失。提交一份问题说明，写清“希望计算已有成绩的均值”、默认结果、最小复现、根据帮助选择的参数、修正结果和会话信息。\n\n提示按应用例题先缩小数据，再回到完整输入。参考代码中的`mini_scores`用于说明问题，`scores`用于完成原始计算。\n\n独立脚本见[K03_exercise.R](/content/code/K03_exercise.R)。\n\n```r\nscores <- c(60, 64, 68, 72, NA, 80, 84, 88, 92, 96)\nmini_scores <- c(60, NA, 80)\nprint(mean(mini_scores))\nprint(mean(mini_scores, na.rm = TRUE))\nprint(mean(scores, na.rm = TRUE))\nprint(utils::sessionInfo())\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] NA\n[1] 70\n[1] 78.22222\nR version 4.6.1 (2026-06-24 ucrt)\nPlatform: x86_64-w64-mingw32/x64\nRunning under: Windows 11 x64 (build 26300)\n\nMatrix products: default\n  LAPACK version 3.12.1\n\nlocale:\n[1] C\nsystem code page: 65001\n\ntime zone: Asia/Shanghai\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.6.1\n```\n\n评分共10分，期望与实际描述得2分，三项最小复现得2分，参数及原因得2分，完整数据结果得2分，会话记录得2分。常见错误是只发截图、漏掉输入数据，或精简时删除了所有缺失值。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面两次计算的结果。\n\n\n```r\nx <- c(2, NA, 6)\nprint(mean(x))\nprint(mean(x, na.rm = TRUE))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] NA\n[1] 4\n```\n\n答案依次为`NA`与4，第二次计算使用2和6。\n\n2. `sessionInfo()`能否独立恢复原始数据？答案为否。问题说明还要提供输入数据和创建对象的代码。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S1《CH11R语言安装.pdf》PDF 28–42。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"help\", package = \"utils\")`、`help(\"example\", package = \"utils\")`、`help(\"mean\", package = \"base\")`、`help(\"sessionInfo\", package = \"utils\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K03_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K03_validation.txt](/content/code/K03_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。\n- 帮助主题解析和官方示例已实测，RStudio帮助窗格的界面展示待人工复核。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求演示如何从十项输入缩小到三项。",
+    "易错点请求辨认控制台提示符与实际代码。",
+    "练习请求审核一份问题说明能否独立复现。",
+    "相关知识继续学习K06的缺失值传播规则。"
+   ],
+   "assets": [
+    "code/K03_example_01.R",
+    "code/K03_example_02.R",
+    "code/K03_exercise.R",
+    "code/K03_validation.txt",
+    "code/K03_visual_01.R",
+    "images/K03_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K03.md",
+   "sha256": "2db94c76a09e0aa68eb04b1b34906984d147aa0aad4a6f2cd1de3be2684a098f"
+  },
+  "K04": {
+   "id": "K04",
+   "title": "类型、类与类型转换",
+   "unit": "类型与缺失",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K01"
+   ],
+   "related": [
+    "K05",
+    "K06",
+    "K07",
+    "K08"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`typeof()`与`class()`分别检查存储类型和对象类别。\n- 能够预测逻辑值、数值和字符合并后的常见类型变化。\n- 能够按已声明的缺失标记清理字符型分数，并核对转换结果。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `1`与`\"1\"`在写法上有什么区别？预期回答为后一项带引号，表示字符。\n2. 怎样查看一个已创建的对象？预期回答为使用`print()`或在交互控制台运行对象名。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "同样显示为一个数字，R内部保存的形式可能不同。`typeof()`查看底层存储，`class()`描述对象按什么类别参与操作。普通原子向量要采用统一类型，合并字符和数字时会发生类型转换。处理导入数据时，先检查原始值和缺失标记，再转换并核对结果，可以保留每一步的数据含义。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`c(1, \"2\")`得到字符向量？普通原子向量采用统一的底层类型，字符元素参与合并后，这些值一起以字符形式保存。\n2. 为什么因子的`typeof()`与`class()`不同？因子使用整数编码存储类别，同时保存水平和类别属性，具体类别处理规则见K07。\n3. 为什么转换前要统一缺失标记？像`absent`这样的文本无法直接解释为数值。明确其业务含义后映射到`NA`，才能记录数据处理的依据。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "比较整数、双精度数和字符，再观察混合向量与因子。`1L`末尾的`L`明确创建整数。\n\n独立脚本见[K04_example_01.R](/content/code/K04_example_01.R)。\n\n```r\nprint(c(typeof(1L), typeof(1), typeof(\"1\")))\nmixed <- c(TRUE, 2, \"3\")\nprint(mixed)\nprint(typeof(mixed))\nf <- factor(c(\"low\", \"high\"))\nprint(typeof(f))\nprint(class(f))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"integer\"   \"double\"    \"character\"\n[1] \"TRUE\" \"2\"    \"3\"   \n[1] \"character\"\n[1] \"integer\"\n[1] \"factor\"\n```\n\n### 逐步讲解\n\n1. 前三项分别返回`integer`、`double`和`character`。\n2. 合并逻辑值、数值和字符后，`mixed`各项都以字符保存。\n3. 因子示例显示整数存储与`factor`类别，说明两个检查函数回答的问题不同。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "十项模拟成绩由文本导入，单位为分。`absent`表示教学设计的缺考标记，第三项附带空格，原始向量保留以供复查。\n\n独立脚本见[K04_example_02.R](/content/code/K04_example_02.R)。\n\n```r\nraw_scores <- c(\"55\", \"60\", \" 65 \", \"70\", \"75\", \"80\", \"85\", \"90\", \"95\", \"absent\")\ncleaned <- trimws(raw_scores)\ncleaned[cleaned == \"absent\"] <- NA_character_\nscores <- as.numeric(cleaned)\nprint(typeof(raw_scores))\nprint(typeof(scores))\nprint(scores)\nprint(sum(is.na(scores)))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"character\"\n[1] \"double\"\n [1] 55 60 65 70 75 80 85 90 95 NA\n[1] 1\n```\n\n### 逐步讲解\n\n1. `trimws()`清除每个文本两端的空格，其作用限于首尾空白。\n2. 条件索引定位明确约定的缺考标记，用字符型缺失值`NA_character_`替换。\n3. `as.numeric()`生成数值向量，检查转换前后的底层类型。\n4. `is.na()`识别缺失项，`sum()`统计其数量。这里用到的缺失检测会在K06展开。\n\n最终得到九项有效成绩和一项缺失。缺考原因与成绩评价规则需要由具体课程记录确定。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“值、存储类型与对象类别”，采用对比图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![四行对照。1L的存储类型为integer，1为double，数字与字符串合并后成为character，因子的存储类型为integer且class为factor。](/content/images/K04_visual_01.svg)\n\n生成代码见[K04_visual_01.R](/content/code/K04_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K04_visual_01.R ../images\n```\n\n每行将对象表达式与检查结果放在一起，既展示混合输入导致的转换，也标明因子的类别属性。学生可以据图选择先检查存储类型还是对象类别，再考虑合适的转换路径。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "直接把含有缺考文本的字符向量转换成数值。\n\n\n```r\nprint(as.numeric(c(\"60\", \"absent\")))\n```\n\n### 实际错误或异常结果\n\n```text\n[1] 60 NA\nWarning message:\nIn print(as.numeric(c(\"60\", \"absent\"))) : NAs introduced by coercion\n```\n\n输出中的`NA`伴随实际转换警告。应先确认无法转换文本的含义，再按约定处理。\n\n\n```r\nraw <- c(\"60\", \"absent\")\nraw[raw == \"absent\"] <- NA_character_\nprint(as.numeric(raw))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 60 NA\n```\n\n仅凭这条警告无法判断所有新增缺失是否合理。遇到其他未约定文本，应保留原始值并逐项核对。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "输入为十项文本成绩，单位为分。`pending`和空字符串均为本练习约定的缺失标记。要求保留原始向量、去除首尾空格、转换为数值、统计缺失数并计算已有成绩均值。\n\n提示`%in%`可以一次判断是否属于两个约定标记。`na.rm = TRUE`用于本题约定的已有成绩汇总，详细含义见K06。\n\n独立脚本见[K04_exercise.R](/content/code/K04_exercise.R)。\n\n```r\nraw_scores <- c(\"60\", \" 64\", \"68 \", \"72\", \"pending\", \"80\", \"84\", \"88\", \"\", \"96\")\ncleaned <- trimws(raw_scores)\ncleaned[cleaned %in% c(\"pending\", \"\")] <- NA_character_\nscores <- as.numeric(cleaned)\nprint(scores)\nprint(typeof(scores))\nprint(sum(is.na(scores)))\nprint(mean(scores, na.rm = TRUE))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n [1] 60 64 68 72 NA 80 84 88 NA 96\n[1] \"double\"\n[1] 2\n[1] 76.5\n```\n\n评分共10分，保留原始输入得2分，处理空格和两种标记得3分，类型及缺失检查得3分，均值与处理说明得2分。常见错误是直接覆盖原始向量、只处理一种标记，或忽略转换警告。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测向量内容与底层类型。\n\n\n```r\nx <- c(TRUE, 2, \"3\")\nprint(x)\nprint(typeof(x))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"TRUE\" \"2\"    \"3\"   \n[1] \"character\"\n```\n\n答案为字符`\"TRUE\"`、`\"2\"`和`\"3\"`，底层类型为`character`。合并时进行了统一类型转换。\n\n2. 因子的`typeof()`返回`integer`，它是否就具有普通整数的所有使用含义？答案为否。还要检查`class()`与水平，按类别规则理解对象。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 9–14。\n- 课程来源为S4《R数据科学_译本.pdf》第15章 PDF 230–247。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"typeof\", package = \"base\")`、`help(\"class\", package = \"base\")`、`help(\"numeric\", package = \"base\")`、`help(\"c\", package = \"base\")`、`help(\"factor\", package = \"base\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K04_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K04_validation.txt](/content/code/K04_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。\n- 待核对事项为S3 PDF第9页采用“四个基本类型”的教学分类，并列出因子。正式知识库已区分原子存储类型和对象类别，本样品分别展示typeof与class，供整合线程核对术语。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求逐项比较带引号与未带引号的数据。",
+    "易错点请求定位转换后新增缺失的原始文本。",
+    "练习请求补充一种已约定的缺失标记并复核。",
+    "相关知识继续学习K07的因子内部编码。"
+   ],
+   "assets": [
+    "code/K04_example_01.R",
+    "code/K04_example_02.R",
+    "code/K04_exercise.R",
+    "code/K04_validation.txt",
+    "code/K04_visual_01.R",
+    "images/K04_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K04.md",
+   "sha256": "06b0eea98a67ea335751b1eabf88e113babe621e1fb5a983f5686db458c47463"
+  },
+  "K05": {
+   "id": "K05",
+   "title": "逻辑运算与条件筛选",
+   "unit": "类型与缺失",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K04"
+   ],
+   "related": [
+    "K04",
+    "K06",
+    "K10",
+    "K26",
+    "K36"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够把文字筛选要求写成比较表达式与逻辑组合。\n- 能够用同一个逻辑掩码提取对应的编号和数值。\n- 能够解释含`NA`的三值逻辑，以及逐项运算和短路求值的适用位置。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `60 >= 60`得到什么？预期回答为`TRUE`，因为边界值包含在内。\n2. 怎样识别缺失项？预期回答为`is.na()`，本节会直接用它保证筛选条件明确。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "条件比较给每个位置贴上逻辑标签，索引再根据这些标签提取数据。多个条件同时满足时用`&`连接，满足任意条件时用`|`连接，`!`把逻辑结果取反。含缺失输入时，有些条件的真假暂时无法确定。先明确缺失记录的处理规则，再形成与原数据等长的逻辑向量，可以保持编号和数值的对应。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么筛选向量通常使用`&`和`|`？它们逐项组合条件，为各位置生成结果。`&&`与`||`用于长度为一的逻辑判断，并采用短路求值。\n2. 为什么`FALSE & NA`可以得到`FALSE`？只要一个必需条件已经为假，整体就为假。同理，`TRUE | NA`已经可以确定为真，而`TRUE & NA`仍需保留未知状态。\n3. 为什么编号和成绩要共享掩码？同一位置表示同一条记录。共享条件才能使提取后的编号与成绩继续一一对应。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "筛选非缺失、至少60分且低于90分的成绩。五项模拟成绩包含一个专门设计的缺失值。\n\n独立脚本见[K05_example_01.R](/content/code/K05_example_01.R)。\n\n```r\nscores <- c(55, 60, NA, 90, 100)\nkeep <- !is.na(scores) & scores >= 60 & scores < 90\nprint(keep)\nprint(scores[keep])\nprint(c(any = any(keep), all = all(keep)))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] FALSE  TRUE FALSE FALSE FALSE\n[1] 60\n  any   all \n TRUE FALSE\n```\n\n### 逐步讲解\n\n1. `!is.na(scores)`判断每个位置是否已有成绩。\n2. 两个比较表达式分别检验下界与上界，90因为严格小于条件被排除。\n3. 将三个条件逐项合并，`scores[keep]`只保留60。\n4. `any()`回答是否至少保留一项，`all()`回答是否全部保留。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "筛选十条原创模拟问卷，要求年龄18至25周岁、明确同意使用数据、成绩至少60分。`id`为虚构编号，`age`单位为周岁，`score`单位为分，`consent`为逻辑值。缺失年龄、同意状态或成绩均按本题规则排除。\n\n独立脚本见[K05_example_02.R](/content/code/K05_example_02.R)。\n\n```r\nid <- c(\"Q01\", \"Q02\", \"Q03\", \"Q04\", \"Q05\", \"Q06\", \"Q07\", \"Q08\", \"Q09\", \"Q10\")\nage <- c(17, 18, 21, NA, 24, 30, 19, 22, 20, 18)\nconsent <- c(TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, NA, TRUE, TRUE, TRUE)\nscore <- c(80, 60, 95, 70, NA, 88, 77, 90, 59, 100)\nkeep <- !is.na(age) & age >= 18 & age <= 25 &\n  !is.na(consent) & consent & !is.na(score) & score >= 60\nprint(id[keep])\nprint(score[keep])\nprint(sum(keep))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"Q02\" \"Q08\" \"Q10\"\n[1]  60  90 100\n[1] 3\n```\n\n### 逐步讲解\n\n1. 四个等长向量用相同位置表示同一条问卷。\n2. 年龄条件包含18和25两个边界。\n3. 先明确各字段的缺失处理，再合并同意和成绩条件。\n4. 提取编号与成绩并统计人数，结果为三条符合本题规则的记录。\n\n此结果描述规则筛选后的模拟记录。问卷是否具有代表性还需要核对抽样过程。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“逻辑掩码与成绩逐项对应”，采用索引图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![五行对应表。55、60、NA、90、100分别对应FALSE、TRUE、FALSE、FALSE、FALSE。条件为非缺失且大于等于60并小于90，最终选中60。](/content/images/K05_visual_01.svg)\n\n生成代码见[K05_visual_01.R](/content/code/K05_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K05_visual_01.R ../images\n```\n\n图将每个原始值与掩码值并排展示，标明边界和缺失项的去向。学生可以沿同一行核对每个条件，发现位置错位或漏写缺失检查的问题。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "把整列条件交给`&&`，在本次R版本中会触发长度错误。\n\n\n```r\nscores <- c(55, 60, 90)\nprint(scores >= 60 && scores < 90)\n```\n\n### 实际错误或异常结果\n\n```text\nError in scores >= 60 && scores < 90 : \n  'length = 3' in coercion to 'logical(1)'\nCalls: print\nExecution halted\n```\n\n错误发生在条件求值阶段。逐项筛选的参考修正使用`&`。\n\n\n```r\nscores <- c(55, 60, 90)\nprint(scores >= 60 & scores < 90)\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] FALSE  TRUE FALSE\n```\n\n对旧版本行为的判断需要相应版本记录，本例错误文本来自R 4.6.1。复杂条件还需核对每个向量的长度和记录顺序。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "输入为十条模拟成绩和出勤状态，成绩单位为分。要求选出明确出勤且分数在闭区间60至90内的记录，返回编号、分数和人数。缺失出勤状态按本题规则排除。\n\n提示分别测试59、60、90和91，再合并出勤条件。`sum()`在无缺失的逻辑向量上统计`TRUE`数量。\n\n独立脚本见[K05_exercise.R](/content/code/K05_exercise.R)。\n\n```r\nid <- c(\"S01\", \"S02\", \"S03\", \"S04\", \"S05\", \"S06\", \"S07\", \"S08\", \"S09\", \"S10\")\nscores <- c(59, 60, 90, 91, NA, 80, 100, 0, 60, 90)\nattended <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, NA, TRUE)\nkeep <- !is.na(scores) & scores >= 60 & scores <= 90 &\n  !is.na(attended) & attended\nprint(id[keep])\nprint(scores[keep])\nprint(sum(keep))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"S02\" \"S03\" \"S10\"\n[1] 60 90 90\n[1] 3\n```\n\n评分共10分，边界条件得3分，缺失规则得3分，编号与成绩对应得2分，人数及解释得2分。常见错误是把`<= 90`写成`< 90`，或编号和成绩使用不同掩码。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测三值逻辑结果，以及短路表达式会否执行`stop()`。\n\n\n```r\nprint(c(FALSE & NA, TRUE | NA, TRUE & NA))\nprint(FALSE && stop(\"This branch is skipped\"))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] FALSE  TRUE    NA\n[1] FALSE\n```\n\n答案依次为`FALSE TRUE NA`和`FALSE`。最后一行的左侧已经为假，因此右侧跳过求值。\n\n2. 判断相等应该写`=`还是`==`？答案为`==`，条件比较应使用比较运算符。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 14、72。\n- 课程来源为S4《R数据科学_译本.pdf》第14章 PDF 219–222。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"Logic\", package = \"base\")`、`help(\"Comparison\", package = \"base\")`、`help(\"any\", package = \"base\")`、`help(\"all\", package = \"base\")`、`help(\"Extract\", package = \"base\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K05_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K05_validation.txt](/content/code/K05_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求逐行核对问卷的保留原因。",
+    "易错点请求解释逻辑掩码中出现`NA`的来源。",
+    "练习请求更改区间端点后预测人数变化。",
+    "相关知识继续学习K10的逻辑索引与定位。"
+   ],
+   "assets": [
+    "code/K05_example_01.R",
+    "code/K05_example_02.R",
+    "code/K05_exercise.R",
+    "code/K05_validation.txt",
+    "code/K05_visual_01.R",
+    "images/K05_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K05.md",
+   "sha256": "9c6608602fa643463a287c2826adf1ca55cb491ad64f380e38933cc893e367f2"
+  },
+  "K06": {
+   "id": "K06",
+   "title": "缺失、NaN与无穷值",
+   "unit": "类型与缺失",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K04",
+    "K05"
+   ],
+   "related": [
+    "K04",
+    "K05",
+    "K13",
+    "K28"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够区分缺失、未定义数值计算结果和无穷值。\n- 能够用检测函数统计数据状态，并解释检测集合的重叠。\n- 能够按明确规则汇总有限测量值，解释全缺失和无穷值的边界。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. 比较结果暂时未知时，逻辑值可能是什么？预期回答为`NA`。\n2. 怎样保留条件为真的位置？预期回答为使用形如`x[keep]`的逻辑索引。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "一个数值向量可以同时装着有效测量和不同状态的特殊值。`NA`表示缺失，`NaN`可由未定义的数值运算产生，`Inf`和`-Inf`表示正负无穷。清理前要逐项确认这些状态的含义，再决定纳入计算的范围。检测函数帮助记录现状，汇总参数则规定一次计算怎样处理缺失，原向量依然保存着原有数据。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`is.na(NaN)`也为真？R的缺失检测将`NaN`纳入其中，进一步识别这种数值状态可以使用`is.nan()`，因此两种计数会重叠。\n2. 为什么`na.rm = TRUE`后仍可能出现无穷或`NaN`？该参数移除缺失项，`Inf`仍参加计算。正负无穷共同求和时也会形成`NaN`。\n3. 为什么全缺失均值得到`NaN`？移除缺失后没有可用于求均值的观测。实际报告应明确标记缺少有效观测。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "观察普通数、缺失值、未定义数值和正负无穷的检测结果，再对含缺失的两项有效成绩求均值。\n\n独立脚本见[K06_example_01.R](/content/code/K06_example_01.R)。\n\n```r\nx <- c(2, NA_real_, NaN, Inf, -Inf)\nprint(is.na(x))\nprint(is.nan(x))\nprint(is.finite(x))\nprint(mean(c(60, NA, 80), na.rm = TRUE))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] FALSE  TRUE  TRUE FALSE FALSE\n[1] FALSE FALSE  TRUE FALSE FALSE\n[1]  TRUE FALSE FALSE FALSE FALSE\n[1] 70\n```\n\n### 逐步讲解\n\n1. 五项输入按固定顺序保存，便于对应各检测向量。\n2. `is.na()`标出`NA`和`NaN`，`is.nan()`只标出第三项。\n3. `is.finite()`只保留第一项普通有限数。\n4. 成绩均值在排除一个缺失项后为70分。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "十二条模拟实验测量以毫克为单位，特意加入一个`NA`、一个`NaN`和两个无穷值。为本次教学汇总约定仅使用有限值，原始数据保留以便复核。\n\n独立脚本见[K06_example_02.R](/content/code/K06_example_02.R)。\n\n```r\nmeasurement <- c(12, 13, NA, 14, Inf, 15, NaN, 16, -Inf, 17, 18, 19)\nkeep <- is.finite(measurement)\nprint(c(total = length(measurement), missing = sum(is.na(measurement)),\n        nan = sum(is.nan(measurement)), infinite = sum(is.infinite(measurement)),\n        finite = sum(keep)))\nprint(mean(measurement, na.rm = TRUE))\nprint(measurement[keep])\nprint(mean(measurement[keep]))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n   total  missing      nan infinite   finite \n      12        2        1        2        8 \n[1] NaN\n[1] 12 13 14 15 16 17 18 19\n[1] 15.5\n```\n\n### 逐步讲解\n\n1. 先保存有限值掩码，再统计各状态。\n2. `missing`包括一个`NA`和一个`NaN`，`nan`已经包含在这个计数中。\n3. 仅设置`na.rm`的均值依然为`NaN`，反映正负无穷同时参与运算。\n4. 按本题规则选出八项有限测量，均值为15.5毫克。\n\n这说明筛选后数据的计算结果。非有限值是否反映仪器故障、超量程或其他原因，需要结合实验记录判断。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“数值状态与检测结果”，采用对比图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![四行比较普通有限数、NA、NaN与正负Inf。NA和NaN的is.na均为TRUE，只有NaN的is.nan为TRUE，只有普通有限数的is.finite为TRUE。](/content/images/K06_visual_01.svg)\n\n生成代码见[K06_visual_01.R](/content/code/K06_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K06_visual_01.R ../images\n```\n\n图把四类状态与检测结果对应起来，并明确缺失检测的重叠关系。配合应用例题可以解释为什么各检测计数直接相加会重复统计，以及为何需要另行判断无穷值。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "使用等号比较识别缺失，得到未知逻辑值，后续索引也失去有效判断。\n\n\n```r\nx <- c(2, NA, 4)\nprint(x == NA)\nprint(x[x == NA])\n```\n\n### 实际错误或异常结果\n\n```text\n[1] NA NA NA\n[1] NA NA NA\n```\n\n参考修正使用专门的检测函数。\n\n\n```r\nx <- c(2, NA, 4)\nprint(is.na(x))\nprint(x[!is.na(x)])\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] FALSE  TRUE FALSE\n[1] 2 4\n```\n\n该修正用于识别缺失的位置，是否删除或填补仍需具体任务的处理规则。实际缺失机制也需要额外资料支持。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "十项模拟测量以毫克为单位，包含教学设计的四个非有限值。要求保留原始向量，按仅使用有限值的规则创建`clean`，报告总项数、保留数、排除数和均值，再解释全缺失均值的输出。\n\n提示用`is.finite()`形成统一掩码，排除数可用`sum(!keep)`核对。全缺失测试另用一个短向量完成。\n\n独立脚本见[K06_exercise.R](/content/code/K06_exercise.R)。\n\n```r\nmeasurement <- c(20, 22, NA, Inf, 24, NaN, 26, -Inf, 28, 30)\nkeep <- is.finite(measurement)\nclean <- measurement[keep]\nprint(c(total = length(measurement), kept = sum(keep), excluded = sum(!keep)))\nprint(clean)\nprint(mean(clean))\nprint(mean(c(NA_real_, NA_real_), na.rm = TRUE))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n   total     kept excluded \n      10        6        4 \n[1] 20 22 24 26 28 30\n[1] 25\n[1] NaN\n```\n\n评分共10分，原始值保留得2分，掩码与清理结果得3分，数量记录得2分，均值和全缺失解释得3分。常见错误是认为`na.rm`会删除无穷值，或把`is.na`与`is.nan`计数直接相加。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测均值、原向量长度及三个检测结果。\n\n\n```r\nx <- c(NA_real_, NA_real_)\nprint(mean(x, na.rm = TRUE))\nprint(length(x))\nprint(c(is.na(NaN), is.nan(NA_real_), is.na(Inf)))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] NaN\n[1] 2\n[1]  TRUE FALSE FALSE\n```\n\n答案依次为`NaN`、2和`TRUE FALSE FALSE`。汇总参数只作用于该次计算，原向量长度仍为2。\n\n2. `!is.infinite(x)`能否直接作为只保留有限值的条件？答案为否。对`NA`和`NaN`还需要处理，直接使用`is.finite()`更符合本题要求。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 11、73。\n- 课程来源为S4《R数据科学_译本.pdf》第15章 PDF 233–234。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"NA\", package = \"base\")`、`help(\"is.finite\", package = \"base\")`、`help(\"mean\", package = \"base\")`、`help(\"Arithmetic\", package = \"base\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K06_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K06_validation.txt](/content/code/K06_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求分别观察只含正无穷和正负无穷时的均值。",
+    "易错点请求解释缺失检测计数为何重叠。",
+    "练习请求为空清理结果补充明确的报告说明。",
+    "相关知识继续学习K28的缺失与异常处理记录。"
+   ],
+   "assets": [
+    "code/K06_example_01.R",
+    "code/K06_example_02.R",
+    "code/K06_exercise.R",
+    "code/K06_validation.txt",
+    "code/K06_visual_01.R",
+    "images/K06_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K06.md",
+   "sha256": "fbe9d798276f9bfcf635e82b7ffece156a3b0c1a65aea5fb8aec58b2c004e9b4"
+  },
+  "K07": {
+   "id": "K07",
+   "title": "普通因子与有序因子",
+   "unit": "类型与缺失",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K04"
+   ],
+   "related": [
+    "K04",
+    "K14",
+    "K15",
+    "K30"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用显式水平和标签创建普通因子与有序因子。\n- 能够按约定顺序汇总问卷等级，并定位未识别类别。\n- 能够解释内部编码与显示值的关系，正确处理数值标签的转换。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. 因子的`typeof()`通常返回什么？预期回答为`integer`，其`class()`还保存类别信息。\n2. `\"low\"`这样的输入属于什么形式？预期回答为字符值，可用来表示原始类别。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "问卷等级有固定选项，常常还约定从低到高的顺序。因子把这些选项保存为水平，观测通过整数编码指向某个水平。`labels`可以设置展示名称，`ordered = TRUE`进一步保存等级关系。显式约定允许的原始值与顺序，能让排序和汇总遵循问卷设计，也方便发现拼写错误或超出选项的输入。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么显式指定`levels`？默认生成水平时可能受字符排序规则影响。指定顺序能让结果对应课程约定或问卷设计。\n2. 为什么还要设置`labels`？原始编码和展示名称可以有不同用途，标签按`levels`给出的顺序对应，长度和对应关系都要核对。\n3. 为什么直接`as.numeric(f)`会得到1、2等数？函数读取因子的内部编码。要恢复数值标签，应先取得字符标签并确认标签能够解释为数值。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "把三条等级记录转为有序因子，原始选项为`low`、`mid`和`high`，展示名称使用首字母大写。\n\n独立脚本见[K07_example_01.R](/content/code/K07_example_01.R)。\n\n```r\nf <- factor(c(\"low\", \"high\", \"mid\"),\n            levels = c(\"low\", \"mid\", \"high\"),\n            labels = c(\"Low\", \"Mid\", \"High\"), ordered = TRUE)\nprint(f)\nprint(levels(f))\nprint(as.integer(f))\nprint(f > \"Low\")\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] Low  High Mid \nLevels: Low < Mid < High\n[1] \"Low\"  \"Mid\"  \"High\"\n[1] 1 3 2\n[1] FALSE  TRUE  TRUE\n```\n\n### 逐步讲解\n\n1. `levels`规定允许的原始值及从低到高的顺序。\n2. `labels`按同一顺序映射为展示名称。\n3. 内部编码随观测位置为1、3、2。\n4. 有序比较检验每项是否高于`Low`。普通因子主要保存类别，等级比较需要有序信息。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "整理十二条原创模拟满意度回答。`other`为故意加入的未识别选项，另有一项原始缺失。任务是按低、中、高顺序汇总，并单独找出未识别文本。\n\n独立脚本见[K07_example_02.R](/content/code/K07_example_02.R)。\n\n```r\nraw <- c(\"high\", \"low\", \"mid\", \"high\", \"mid\", \"low\", \"high\", \"mid\", \"other\", \"high\", NA, \"mid\")\nsatisfaction <- factor(raw, levels = c(\"low\", \"mid\", \"high\"),\n                       labels = c(\"Low\", \"Mid\", \"High\"), ordered = TRUE)\ninvalid <- !is.na(raw) & is.na(satisfaction)\nprint(satisfaction)\nprint(table(satisfaction, useNA = \"ifany\"))\nprint(raw[invalid])\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n [1] High Low  Mid  High Mid  Low  High Mid  <NA> High <NA> Mid \nLevels: Low < Mid < High\nsatisfaction\n Low  Mid High <NA> \n   2    4    4    2 \n[1] \"other\"\n```\n\n### 逐步讲解\n\n1. 保留`raw`，再依据问卷允许选项创建有序因子。\n2. 未列入`levels`的`other`转为缺失，原有缺失也保留。\n3. `invalid`只标记转换新增的缺失，便于区分原始空缺与未识别类别。\n4. `table(..., useNA = \"ifany\")`显示各水平人数及缺失数，结果为2、4、4和2。\n\n这里的等级次数描述模拟问卷分布。等级间的数值距离需要独立的量表依据，编码1、2、3本身只记录水平位置。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“因子水平、标签和内部编码”，采用数据结构映射图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![三行映射。原始值low、mid、high按显式levels依次对应显示标签Low、Mid、High和内部编码1、2、3。有序因子的次序为Low小于Mid小于High。](/content/images/K07_visual_01.svg)\n\n生成代码见[K07_visual_01.R](/content/code/K07_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K07_visual_01.R ../images\n```\n\n每行把原始值、展示标签和编码对应起来，再用明确的大小关系表示有序信息。学生可以沿映射回查结果，理解更换水平顺序为什么会改变编码及等级关系。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "希望恢复标签10和20，却直接对因子使用数值转换。\n\n\n```r\nf <- factor(c(\"10\", \"20\", \"10\"), levels = c(\"10\", \"20\"))\nprint(as.numeric(f))\n```\n\n### 实际错误或异常结果\n\n```text\n[1] 1 2 1\n```\n\n代码正常执行，结果为内部编码。参考修正先恢复字符标签。\n\n\n```r\nf <- factor(c(\"10\", \"20\", \"10\"), levels = c(\"10\", \"20\"))\nprint(as.numeric(as.character(f)))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 10 20 10\n```\n\n这个恢复方法适用于标签本身可解释为数值的场景。对于满意度文字标签，需要按问卷规则另行定义分值映射。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "十项实验剂量等级使用字符标签`10`、`20`、`30`，本练习约定单位为毫克。最后一项`unknown`为教学设计的未知选项。创建有序因子，报告各水平数量、未知文本、内部编码与恢复后的剂量数值。\n\n提示先保存原始文本，再定义允许水平。用转换前后缺失状态的变化找出未知项。\n\n独立脚本见[K07_exercise.R](/content/code/K07_exercise.R)。\n\n```r\nraw <- c(\"10\", \"20\", \"30\", \"10\", \"20\", \"30\", \"20\", \"10\", \"30\", \"unknown\")\nf <- factor(raw, levels = c(\"10\", \"20\", \"30\"), ordered = TRUE)\ninvalid <- !is.na(raw) & is.na(f)\nvalues <- as.numeric(as.character(f))\nprint(table(f, useNA = \"ifany\"))\nprint(raw[invalid])\nprint(as.integer(f))\nprint(values)\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\nf\n  10   20   30 <NA> \n   3    3    3    1 \n[1] \"unknown\"\n [1]  1  2  3  1  2  3  2  1  3 NA\n [1] 10 20 30 10 20 30 20 10 30 NA\n```\n\n评分共10分，水平顺序得2分，频数及缺失记录得2分，未知项定位得2分，编码和数值恢复各2分。常见错误是直接把内部编码当剂量，或把未知选项静默并入某个已有类别。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测内部编码与水平顺序。\n\n\n```r\nf <- factor(c(\"a\", \"b\", \"a\"), levels = c(\"b\", \"a\"))\nprint(as.integer(f))\nprint(levels(f))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] 2 1 2\n[1] \"b\" \"a\"\n```\n\n答案为`2 1 2`与`\"b\" \"a\"`。编码跟随显式给定的水平位置。\n\n2. 给`factor()`设置`ordered = TRUE`会自动把等级间隔定义为相等吗？答案为否。该设置保存类别次序，间隔解释需要额外依据。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 15–19。\n- 课程来源为S4《R数据科学_译本.pdf》第11章 PDF 183–188。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"factor\", package = \"base\")`、`help(\"ordered\", package = \"base\")`、`help(\"numeric\", package = \"base\")`、`help(\"table\", package = \"base\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K07_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K07_validation.txt](/content/code/K07_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求修改水平顺序并观察编码变化。",
+    "易错点请求解释未知文本与原始缺失的区别。",
+    "练习请求增加一个合法等级并重新汇总。",
+    "相关知识继续学习K15的区间分组与标签。"
+   ],
+   "assets": [
+    "code/K07_example_01.R",
+    "code/K07_example_02.R",
+    "code/K07_exercise.R",
+    "code/K07_validation.txt",
+    "code/K07_visual_01.R",
+    "images/K07_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K07.md",
+   "sha256": "0299ec5dd32d6bf1a45a477f007de0445fcb33b7985b864fdc80b6f6f05461fc"
+  },
+  "K08": {
+   "id": "K08",
+   "title": "日期、时间与格式",
+   "unit": "类型与缺失",
+   "difficulty": "核心",
+   "prerequisites": [
+    "K04"
+   ],
+   "related": [
+    "K04",
+    "K38",
+    "K43"
+   ],
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用与输入相符的格式解析日期和时间字符串。\n- 能够计算实验间隔、提取月份，并区分日期对象与展示文本。\n- 能够解释`Date`、`POSIXct`、`POSIXlt`的基本用途和时区假设。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `\"2026/11/01\"`刚写入向量时属于什么类型？预期回答为字符。\n2. 转换后怎样检查对象类别？预期回答为使用`class()`。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "日期文本的外观并不能自动确定其含义，解析需要对应的年、月、日格式。`Date`适合保存日历日期，`POSIXct`适合保存具体时间点，`POSIXlt`便于按时间成分访问。把时间点按某个时区显示时，日期也可能变化。计算间隔、提取月份和制作报告前，先明确数据表示日期还是时间点，并说明时区。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么格式符要匹配输入？解析函数需要知道年月日的位置与分隔符。`%m`表示月份，`%M`表示分钟，大小写改变会影响解释。\n2. 为什么`format()`之后要留意类型？它生成用于显示的字符文本。日期运算应继续使用原来的日期或时间对象。\n3. 为什么按月统计还要声明时区？同一时间点在不同时区可能落在不同日历日期，月初附近尤其需要统一解释规则。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "把两次实验日期解析为`Date`，计算间隔并提取月份。日期均为原创教学设定，间隔单位为天。\n\n独立脚本见[K08_example_01.R](/content/code/K08_example_01.R)。\n\n```r\ndates <- as.Date(c(\"2026/11/01\", \"2026/11/11\"), format = \"%Y/%m/%d\")\nprint(dates)\nprint(class(dates))\nprint(as.numeric(difftime(dates[2], dates[1], units = \"days\")))\nprint(format(dates, \"%m\"))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"2026-11-01\" \"2026-11-11\"\n[1] \"Date\"\n[1] 10\n[1] \"11\" \"11\"\n```\n\n### 逐步讲解\n\n1. `%Y/%m/%d`依次读取四位年、月和日。\n2. 查看解析后的日期和类别，确认转换成功。\n3. `difftime()`指定间隔单位，`as.numeric()`提取数值10。\n4. `format(..., \"%m\")`提取月份显示文本，结果为两个`\"11\"`。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "十条模拟实验时间戳都按上海当地时间记录。要求按上海时区汇总月份，计算前两次实验间隔，并查看时间成分和UTC显示。\n\n独立脚本见[K08_example_02.R](/content/code/K08_example_02.R)。\n\n```r\nraw_time <- c(\"2026-10-31 23:30:00\", \"2026-11-01 00:30:00\",\n              \"2026-11-01 08:00:00\", \"2026-11-02 08:00:00\",\n              \"2026-11-03 08:00:00\", \"2026-11-04 08:00:00\",\n              \"2026-11-05 08:00:00\", \"2026-11-06 08:00:00\",\n              \"2026-11-07 08:00:00\", \"2026-11-08 08:00:00\")\ntimes <- as.POSIXct(raw_time, format = \"%Y-%m-%d %H:%M:%S\", tz = \"Asia/Shanghai\")\nprint(table(format(times, \"%Y-%m\", tz = \"Asia/Shanghai\")))\nprint(format(times[1], \"%Y-%m-%d %H:%M\", tz = \"UTC\"))\nprint(as.numeric(difftime(times[2], times[1], units = \"hours\")))\nparts <- as.POSIXlt(times, tz = \"Asia/Shanghai\")\nprint(parts$mon + 1L)\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n\n2026-10 2026-11 \n      1       9 \n[1] \"2026-10-31 15:30\"\n[1] 1\n [1] 10 11 11 11 11 11 11 11 11 11\n```\n\n### 逐步讲解\n\n1. `as.POSIXct()`同时指定格式和输入时区，建立时间点。\n2. 按上海时区生成月份键，统计得到十月1条、十一月9条。\n3. 首项换成UTC显示为当日15时30分，计算前两项间隔得到1小时。\n4. `as.POSIXlt()`提供成分访问，`mon`从0开始，因此加1得到通常使用的月份编号。\n\n这些结果依赖输入确为上海当地时间的约定。原始时间若来自其他时区，应先核实来源再解释。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“解析、日期运算与时区显示”，采用日期与时间对应图，使用独立R代码生成SVG。图片中文字与标签共同表达关系。\n\n![四层映射。字符串2026/11/01用年、月、日格式解析成Date，日期到11月11日相差10天。上海时间11月1日00时30分对应UTC的10月31日16时30分，同一时间点可跨显示日期。](/content/images/K08_visual_01.svg)\n\n生成代码见[K08_visual_01.R](/content/code/K08_visual_01.R)。在`content_assets/code`目录执行以下命令，可将图解生成到相邻图片目录。\n\n```sh\nRscript --vanilla K08_visual_01.R ../images\n```\n\n图上半部分展示字符解析和日期间隔，下半部分用应用例题的第二个时间点演示上海与UTC之间的跨日显示。两组对应关系帮助学生区分日历日期与具体时间点。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "输入使用斜杠，格式却要求短横线。\n\n\n```r\nprint(as.Date(\"2026/11/05\", format = \"%Y-%m-%d\"))\n```\n\n### 实际错误或异常结果\n\n```text\n[1] NA\n```\n\n本例匹配失败得到`NA`。参考修正让格式与已知输入对应。\n\n\n```r\nprint(as.Date(\"2026/11/05\", format = \"%Y/%m/%d\"))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"2026-11-05\"\n```\n\n实际混合格式数据还需要先识别各输入约定。一次成功解析也应结合原始文本核对，特别留意年月日顺序、附加文本和时区信息。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "输入为十条模拟实验日期，按年/月/日记录，其中`bad`为故意设置的异常文本，另有一项原始缺失。保留原始向量，解析日期，定位新增解析失败项，统计总缺失数，计算相对2026年11月1日的持续天数并提取月份。\n\n提示`which()`返回逻辑条件为真的位置，便于回查输入。原始缺失与解析失败要分别识别，持续时间统一使用天。\n\n独立脚本见[K08_exercise.R](/content/code/K08_exercise.R)。\n\n```r\nraw <- c(\"2026/11/01\", \"2026/11/03\", \"2026/11/05\", \"2026/11/07\", \"bad\",\n         \"2026/11/11\", \"2026/11/13\", NA, \"2026/11/17\", \"2026/11/19\")\ndates <- as.Date(raw, format = \"%Y/%m/%d\")\ninvalid <- !is.na(raw) & is.na(dates)\nbaseline <- as.Date(\"2026-11-01\")\ndays <- as.numeric(difftime(dates, baseline, units = \"days\"))\nprint(dates)\nprint(which(invalid))\nprint(sum(is.na(dates)))\nprint(days)\nprint(format(dates, \"%m\"))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n [1] \"2026-11-01\" \"2026-11-03\" \"2026-11-05\" \"2026-11-07\" NA          \n [6] \"2026-11-11\" \"2026-11-13\" NA           \"2026-11-17\" \"2026-11-19\"\n[1] 5\n[1] 2\n [1]  0  2  4  6 NA 10 12 NA 16 18\n [1] \"11\" \"11\" \"11\" \"11\" NA   \"11\" \"11\" NA   \"11\" \"11\"\n```\n\n评分共10分，原始数据和正确格式得2分，失败项与缺失记录得3分，持续天数得3分，月份及单位说明得2分。常见错误是混淆`%m`与`%M`、对格式化后的文本直接作日期运算，或省略时间戳的时区假设。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测结果类别与间隔数值。\n\n\n```r\nd <- as.Date(\"2026-11-01\")\nprint(class(format(d, \"%Y/%m/%d\")))\nprint(as.numeric(difftime(d + 2, d, units = \"days\")))\n```\n\n### 预期输出（本次R 4.6.1实际运行记录）\n\n```text\n[1] \"character\"\n[1] 2\n```\n\n答案依次为`character`和2。对`Date`加2表示向后移动两天，格式化生成展示文本。\n\n2. 看到一条没有时区的时间戳，能否直接确认它对应的全球时间点？答案为否。还需要数据来源的时区约定。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 20–27。\n- 课程来源为S4《R数据科学_译本.pdf》第12章 PDF 189–204。\n- 补充来源为本机R 4.6.1官方帮助主题`help(\"as.Date\", package = \"base\")`、`help(\"as.POSIXct\", package = \"base\")`、`help(\"strptime\", package = \"base\")`、`help(\"difftime\", package = \"base\")`、`help(\"DateTimeClasses\", package = \"base\")`。\n- R版本为4.6.1，平台为Windows x64，`base`、`stats`、`utils`、`tools`均为4.6.1。\n- 验证环境采用进程级`LC_ALL=C`与`LANGUAGE=en`，时区为`Asia/Shanghai`，输出宽度为80。\n- 图解脚本在字符区域缺少UTF-8支持时，为当前R进程设置Windows英文UTF-8字符区域，以正确写入中文标签。\n- 验证命令为在代码目录运行`Rscript --vanilla --encoding=UTF-8 K08_example_01.R`，应用例题和练习使用各自同名前缀脚本。\n- 验证记录见[K08_validation.txt](/content/code/K08_validation.txt)，包含各段代码、实际输出、退出状态、边界断言及文件摘要。\n- 代码验证结果为通过，包括基础例题、应用例题、参考修正、练习答案和自测预测。易错代码按预期产生错误或异常结果，详见记录。\n- 本文输出为离线脚本实测记录。版本、会话信息和警告语言随验证环境变化，复核时应同时保存环境。\n- 图解通过浏览器桌面与390像素窄屏核对，文字边界、连接关系和替代文本检查通过。\n- 核验日期为2026年11月15日，核验人为Codex，核验方式为自动运行及内容审阅，课程适配由整合成员复核。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求比较月初时间点在上海与UTC的月份。",
+    "易错点请求解释格式符大小写和分隔符的影响。",
+    "练习请求分别报告原始缺失与新增解析失败。",
+    "相关知识继续学习K43的时间成分提取与取整。"
+   ],
+   "assets": [
+    "code/K08_example_01.R",
+    "code/K08_example_02.R",
+    "code/K08_exercise.R",
+    "code/K08_validation.txt",
+    "code/K08_visual_01.R",
+    "images/K08_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K08.md",
+   "sha256": "746e5e37a2d4c25536446fb7ecf7b132c3e4f10a0120a47765f4ffd9facb8733"
+  }
+ }
+}
