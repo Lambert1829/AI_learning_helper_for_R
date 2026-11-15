@@ -41,6 +41,8 @@ FastAPI交互文档：[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)�
 
 这些地址是同一网页内的视图，不是新增后端接口。问答和纠错共用记录，保留旧版浏览器记录格式；没有新增账号或云端保存。浏览器前进、后退及刷新均支持。页面遵循系统“减少动画”设置，可用 Tab、Enter、Escape 操作导航和弹窗。
 
+顶部导航采用浮动磨砂玻璃样式，搜索、输入、模型回答、“更多”菜单与设置弹窗复用同一套半透明材质。问答内容可滚动经过导航与输入栏下方，底部留白随输入栏高度调整。知识地图使用贯穿全屏的深色背景与深色玻璃导航。问答与纠错工作区铺满可用屏幕宽度，纠错页采用整页滚动。
+
 ## 本地.R文件与知识地图
 
 - 仅接受单个 `.R` / `.r` 普通UTF-8文本文件，最大100KB；空白文件、无效UTF-8、空字符或明显二进制内容会被拒绝。目录不读取。
@@ -98,6 +100,7 @@ FastAPI交互文档：[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)�
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 open http://127.0.0.1:8000
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 run-code --filename "成员三/ai_tutor/tests/browser_check.js"
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 run-code --filename "成员三/ai_tutor/tests/browser_map_files.js"
+npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-v3 run-code --filename "成员三/ai_tutor/tests/browser_glass_ui.js"
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-mobile-map open http://127.0.0.1:8000/#/knowledge --device "Pixel 7"
 npx.cmd --yes --package @playwright/cli playwright-cli -s=r-tutor-mobile-map run-code --filename "成员三/ai_tutor/tests/browser_mobile_map.js"
 ```

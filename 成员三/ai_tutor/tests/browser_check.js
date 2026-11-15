@@ -103,7 +103,7 @@ async (page) => {
         fullWidth:Math.abs(map.left-view.left)<1&&Math.abs(map.right-view.right)<1,
         fullHeight:Math.abs(map.top-view.top)<1&&Math.abs(map.bottom-view.bottom)<1,
         frameless:style.borderTopWidth==='0px'&&style.borderRadius==='0px'&&style.boxShadow==='none',
-        controlsAtTop:controls.top-view.top<=24&&getComputedStyle(document.querySelector('#map-controls')).position==='absolute',
+        controlsAtTop:Math.abs(controls.top-view.top-parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header'))-12)<2&&getComputedStyle(document.querySelector('#map-controls')).position==='absolute',
       };
     });
     check(immersiveLayout.fullWidth&&immersiveLayout.fullHeight&&immersiveLayout.frameless,'knowledge ocean fills frameless view');

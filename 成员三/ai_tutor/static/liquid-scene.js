@@ -560,6 +560,10 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     if(!this.sceneReady)return;
     const width=Math.max(1,this.viewport.clientWidth),height=Math.max(1,this.viewport.clientHeight);
     this.renderer.setSize(width,height,false);
+    const headerHeight=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header'));
+    const framingHeight=this.narrow.matches?Math.max(1,height-headerHeight):height;
+    // Preserve the mobile horizontal field of view when the scene extends under the navigation.
+    this.camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(CONFIG.camera.fov/2))*height/framingHeight));
     this.camera.aspect=width/height;this.camera.updateProjectionMatrix();
     const size=this.renderer.getDrawingBufferSize(new THREE.Vector2());
     this.refractionTarget.setSize(size.x,size.y);

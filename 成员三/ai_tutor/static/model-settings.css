@@ -1,16 +1,16 @@
-#model-dialog { width:min(560px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); padding:28px; overflow-y:auto; border:0; border-radius:24px; color:#1d1d1f; background:#fff; box-shadow:0 24px 80px #0003; }
-#model-dialog::backdrop { background:#15202c66; backdrop-filter:blur(5px); }
+#model-dialog { width:min(560px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); padding:28px; overflow-y:auto; border:1px solid var(--glass-line); border-radius:26px; color:#1d1d1f; background:var(--glass-surface-strong); box-shadow:0 28px 90px rgba(15,20,32,.28),inset 0 1px 0 rgba(255,255,255,.78); backdrop-filter:blur(30px) saturate(155%); -webkit-backdrop-filter:blur(30px) saturate(155%); }
+#model-dialog::backdrop { background:rgba(22,28,38,.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
 #model-dialog .dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 #model-dialog h2 { margin:0; font-size:24px; letter-spacing:-.03em; }
 #model-form { display:grid; gap:16px; margin-top:24px; }
 #model-form label { display:grid; gap:7px; font-size:14px; font-weight:600; }
-#model-form input:not([type=checkbox]), #model-form select { width:100%; box-sizing:border-box; min-height:44px; padding:10px 12px; border:1px solid #d2d2d7; border-radius:10px; background:#fafafa; font:inherit; color:inherit; }
+#model-form input:not([type=checkbox]), #model-form select { width:100%; box-sizing:border-box; min-height:44px; padding:10px 12px; border:1px solid rgba(255,255,255,.78); border-radius:14px; background:rgba(255,255,255,.56); box-shadow:inset 0 1px 0 rgba(255,255,255,.72); font:inherit; color:inherit; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
 #model-cloud-fields, #model-qwen-fields { display:grid; gap:16px; }
 #model-dialog [hidden] { display:none !important; }
 .model-key-row { display:flex; gap:8px; }
 .model-key-row input { min-width:0; flex:1 1 0; }
 .model-key-row button { flex:none; white-space:nowrap; }
-#model-dialog button { min-height:44px; padding:9px 15px; border-radius:12px; border:1px solid #d2d2d7; background:#f5f5f7; font:inherit; cursor:pointer; }
+#model-dialog button { min-height:44px; padding:9px 15px; border-radius:14px; border:1px solid rgba(255,255,255,.78); background:rgba(255,255,255,.52); box-shadow:inset 0 1px 0 rgba(255,255,255,.7); font:inherit; cursor:pointer; }
 #model-dialog button.primary { background:#0071e3; color:white; border-color:#0071e3; }
 #model-dialog button:disabled { opacity:.5; cursor:wait; }
 #model-dialog .model-consent { display:flex; align-items:flex-start; gap:10px; font-weight:400; line-height:1.6; }

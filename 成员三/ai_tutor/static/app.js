@@ -1,5 +1,5 @@
 'use strict';
-import {markdownFragment} from './answer-markdown.js?v=20261115.8';
+import {markdownFragment} from './answer-markdown.js?v=20261115.10';
 const $ = id => document.getElementById(id);
 const STORE = 'r-tutor-mock-v1';
 const UNITS = ['环境与自助学习','类型与缺失','向量与字符串','矩阵与数组','数据框','列表与批量处理','函数与控制','综合与包扩展'];
@@ -134,7 +134,7 @@ function liveAnswer(question, review) {
   return {
     remove: () => card.remove(),
     update(event, data) {
-      const scroll = $('conversation-scroll');
+      const scroll = currentView === 'review' ? document.scrollingElement : $('conversation-scroll');
       const follow = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 100;
       if (event === 'status') {
         label.textContent = ({searching:'正在检索网络来源…',preparing:'正在准备…',generating:'生成中 · 待校验',validating:'正在校验回答和引用…',repairing:'正在修复回答结构…'})[data.stage] || '生成中 · 待校验';
@@ -331,8 +331,14 @@ function renderRecords() {
 }
 function scrollToLatest() {
   const card = [...$('messages').children].filter(n => currentView !== 'review' || n.classList.contains('review-message')).at(-1);
-  if (card && mobile.matches && currentView === 'review') {card.scrollIntoView({block:'start',behavior:'instant'});return;}
-  if (card) $('conversation-scroll').scrollTop += card.getBoundingClientRect().top - $('conversation-scroll').getBoundingClientRect().top - 16;
+  if (!card) return;
+  if (currentView === 'review') {
+    card.scrollIntoView({block:'start',behavior:'instant'});
+    return;
+  }
+  const scroll = $('conversation-scroll');
+  const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header'));
+  scroll.scrollTop += card.getBoundingClientRect().top - scroll.getBoundingClientRect().top - headerHeight - 20;
 }
 async function send(question, options = {}) {
   if (busy) return;
@@ -433,6 +439,10 @@ function route(focus = true) {
     if (typeof mapUI.setActive === 'function') mapUI.setActive(view === 'knowledge');
     document.body.classList.toggle('learning', learning);
     document.body.classList.toggle('review-mode', view === 'review');
+    document.body.dataset.view = view;
+    const toolbar = document.querySelector('.conversation-toolbar');
+    if (view === 'chat') $('conversation-scroll').prepend(toolbar);
+    else $('workspace').insertBefore(toolbar, $('conversation-scroll'));
     $('home-view').hidden = view !== 'home';
     $('knowledge-view').hidden = view !== 'knowledge';
     $('history-view').hidden = view !== 'history';
@@ -489,6 +499,12 @@ function renderHistory() {
 }
 const modelSettings = new window.ModelSettings(status);
 const fileInput = new window.RFileInput();
+const composer = document.querySelector('.composer-dock');
+new ResizeObserver(() => {
+  if (currentView === 'chat') {
+    $('workspace').style.setProperty('--composer-height', `${composer.getBoundingClientRect().height}px`);
+  }
+}).observe(composer);
 const mapUI = new window.KnowledgeMap({api, codeBlock, units:UNITS,
   explain: id => explainKnowledge(id),
   exercise: id => { if(busy)return; navigate('chat');setCode(false);send('给我练习',{knowledgeId:id,useComposer:false,taskType:'exercise',displayQuestion:'练习'}); }

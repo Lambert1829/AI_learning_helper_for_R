@@ -78,9 +78,13 @@ async (page) => {
     await page.locator('#send').click();
     await page.waitForFunction(() => document.querySelector('.streaming-message .answer-body')?.textContent.includes('含NA'));
     check(await page.locator('#send').isDisabled(), 'ordered markdown visible during streaming');
+    check(await page.locator('.streaming-message .assistant-answer').evaluate(node => getComputedStyle(node).backdropFilter.includes('blur')),
+      'streaming model response uses glass dialog');
     const streamedOrder = await page.locator('.streaming-message .answer-body').evaluate(node => [...node.children].map(item => item.tagName).join(','));
     await page.waitForFunction(() => !document.querySelector('#send').disabled);
     const ordered = page.locator('.message').last();
+    check(await ordered.locator('.assistant-answer').evaluate(node => getComputedStyle(node).backdropFilter.includes('blur')),
+      'completed model response retains glass dialog');
     check(await ordered.locator('.answer-body').evaluate(node => [...node.children].map(item => item.tagName).join(',')) === streamedOrder, 'stream and final answer share body order');
     check(await ordered.locator('.answer-body > ol > li').count() === 4, 'all parallel points stay in one list');
     check(await ordered.locator('.answer-body .code-wrap').count() === 2, 'multiple inline code blocks');
@@ -155,6 +159,8 @@ async (page) => {
     await page.locator('#code').fill('x <- c(1, NA, 3)\nx[x == NA]');
     await submit('NA筛选为什么不对');
     check((await page.locator('.message').last().textContent()).includes('!is.na'), 'AI review corrected code');
+    await page.waitForTimeout(400);
+    await page.screenshot({path:'output/playwright/glass-repair-ai-review-desktop.png'});
     await openSettings();
     check(await page.locator('#model-limit').inputValue() === '16384', 'custom output budget restored');
     await setConfig('openai', 'search');
