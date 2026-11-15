@@ -78,7 +78,15 @@
   pointer-events:none;
   overscroll-behavior:contain;
 }
-.learning:not(.review-mode) #ask-form { pointer-events:auto; }
+.learning:not(.review-mode) #ask-form {
+  max-width:840px;
+  pointer-events:auto;
+  background:rgba(250,251,253,.97);
+  backdrop-filter:blur(48px) saturate(125%);
+  -webkit-backdrop-filter:blur(48px) saturate(125%);
+}
+.learning:not(.review-mode) #question { color:#1d1d1f; }
+.learning:not(.review-mode) #question::placeholder { color:#60646e; opacity:1; }
 .learning:not(.review-mode) .message { scroll-margin-top:calc(var(--header) + 20px); }
 .review-mode .message { scroll-margin-top:calc(var(--header) + 24px); }
 .review-mode #code-panel label,
@@ -178,6 +186,7 @@
   .assistant-answer { padding:20px 18px; border-radius:22px; }
   .learning:not(.review-mode) #conversation-scroll { padding-left:16px; padding-right:16px; }
   .learning:not(.review-mode) .conversation-toolbar { padding-top:calc(var(--header) + 16px); padding-bottom:20px; }
+  .learning:not(.review-mode) .composer-dock { padding-left:24px; padding-right:24px; }
   .map-detail-sheet-open #knowledge-view { padding-bottom:65dvh; }
   .review-mode #review-empty:not([hidden]) { padding:30px 0; }
   #review-empty h2 { font-size:30px; }
@@ -207,7 +216,12 @@
  * Palette: #030813 scene, cold-white particles, restrained unit tints.
  * Rhythm: one immersive scene with controls above and details beside/below.
  */
-body[data-view="knowledge"] { background:#030813; }
+body[data-view="knowledge"] {
+  background:#030813;
+  --nav-active-surface:rgba(126,174,232,.18);
+  --nav-active-line:rgba(196,221,255,.18);
+  --nav-active-ink:#b5d9ff;
+}
 body[data-view="knowledge"] .nav-shell {
   color:#edf5ff;
   background:rgba(19,30,46,.72);
@@ -218,9 +232,9 @@ body[data-view="knowledge"] .brand,
 body[data-view="knowledge"] #main-nav a { color:#bdcbdc; }
 body[data-view="knowledge"] #main-nav a:hover { background:rgba(255,255,255,.06); }
 body[data-view="knowledge"] #main-nav a[aria-current="page"] {
-  color:#b5d9ff;
-  background:rgba(126,174,232,.14);
-  box-shadow:inset 0 0 0 1px rgba(196,221,255,.1);
+  color:var(--nav-active-ink);
+  background:var(--nav-active-surface);
+  box-shadow:inset 0 0 0 1px var(--nav-active-line);
 }
 body[data-view="knowledge"] .mock-tag { color:#b7c8dc; background:#ffffff08; border-color:#ffffff20; }
 body[data-view="knowledge"] #more-toggle:hover,

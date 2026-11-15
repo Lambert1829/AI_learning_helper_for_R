@@ -1,6 +1,11 @@
 'use strict';
-import {markdownFragment} from './answer-markdown.js?v=20261115.10';
+import {markdownFragment} from './answer-markdown.js?v=20261115.12';
 const $ = id => document.getElementById(id);
+function syncViewportWidth() {
+  document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
+}
+syncViewportWidth();
+window.addEventListener('resize', syncViewportWidth, {passive:true});
 const STORE = 'r-tutor-mock-v1';
 const UNITS = ['环境与自助学习','类型与缺失','向量与字符串','矩阵与数组','数据框','列表与批量处理','函数与控制','综合与包扩展'];
 const mobile = matchMedia('(max-width:760px)');

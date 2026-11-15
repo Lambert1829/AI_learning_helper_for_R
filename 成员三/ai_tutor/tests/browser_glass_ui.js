@@ -20,6 +20,7 @@ async (page) => {
     await page.goto('http://127.0.0.1:8000/#/chat');
     await page.evaluate(() => localStorage.removeItem('r-tutor-mock-v1'));
     await page.reload();
+    await page.waitForFunction(() => document.body.dataset.view === 'chat');
 
     const nav = await page.locator('.nav-shell').evaluate(node => {
       const box = node.getBoundingClientRect(), style = getComputedStyle(node);
@@ -41,6 +42,13 @@ async (page) => {
     check(chat.layoutLeft === 0 && Math.abs(chat.layoutWidth - 1440) <= 1, 'chat layout is full bleed');
     check(Math.abs(chat.workspaceWidth - 1440) <= 1, 'chat workspace has no centered canvas boundary');
     check(chat.formBlur.includes('blur') && chat.formRadius >= 20 && chat.formShadow !== 'none', 'chat composer uses glass material');
+    const composerReadability = await page.locator('#ask-form').evaluate(node => {
+      const style = getComputedStyle(node);
+      return {blur:Number(style.backdropFilter.match(/blur\(([\d.]+)px\)/)?.[1]),
+        opacity:Number(style.backgroundColor.match(/[\d.]+/g).at(-1))};
+    });
+    check(composerReadability.blur >= 48 && composerReadability.opacity >= .96,
+      'chat composer strongly blurs and masks underlying answer text');
 
     const response = await page.request.post('http://127.0.0.1:8000/api/chat', {data:{question:'mean中的na.rm怎么用？'}});
     const answer = await response.json();
@@ -60,6 +68,12 @@ async (page) => {
     });
     check(answerGlass.blur.includes('blur') && answerGlass.background !== 'rgba(0, 0, 0, 0)' && answerGlass.radius >= 20,
       'restored model answer renders in a glass dialog');
+    const desktopWidths = await page.evaluate(() => ({
+      composer:document.querySelector('#ask-form').getBoundingClientRect().width,
+      answer:document.querySelector('.assistant-answer').getBoundingClientRect().width,
+    }));
+    check(desktopWidths.composer === 840 && desktopWidths.answer === 980,
+      'desktop input is narrower than answer dialog');
     const scrollBounds = await page.locator('#conversation-scroll').boundingBox();
     check(scrollBounds.y === 0 && scrollBounds.height === 1000, 'chat scroll extends behind top and bottom controls');
     await page.locator('.assistant-answer').evaluate(node => {
@@ -73,6 +87,8 @@ async (page) => {
       return answer.top < nav.bottom && answer.bottom > composer.top;
     });
     check(overlap, 'model response scrolls beneath navigation and composer');
+    await page.locator('#question').fill('计算均值时如何处理 NA？');
+    await page.screenshot({path:'output/playwright/nav-fixed-chat-composer.png'});
     await page.locator('#conversation-scroll').evaluate(node => { node.scrollTop = node.scrollHeight; });
     const endIsReadable = await page.locator('.message .followups').last().evaluate(node =>
       node.getBoundingClientRect().bottom <= document.querySelector('#ask-form').getBoundingClientRect().top);
@@ -132,7 +148,31 @@ async (page) => {
     for (const view of ['home','knowledge','history','chat','review']) {
       await route(view);
       await noOverflow(`desktop ${view} has no horizontal overflow`);
+      const bounds = await page.locator('.nav-shell').boundingBox();
+      check(Math.abs(bounds.x - nav.left) < .5 && bounds.y === 14 && bounds.width === nav.width,
+        `desktop ${view} keeps navigation coordinates`);
+      check(await page.locator('#main-nav a[aria-current="page"]').evaluate(node => {
+        const style = getComputedStyle(node);
+        return parseFloat(style.borderRadius) >= 999 && style.boxShadow.includes('inset') && style.backgroundColor !== 'rgba(0, 0, 0, 0)';
+      }), `desktop ${view} has selected capsule highlight`);
     }
+    const gutterBounds = [];
+    for (const gutter of ['stable','auto']) {
+      await page.evaluate(value => { document.documentElement.style.scrollbarGutter = value; }, gutter);
+      gutterBounds.push(await page.locator('.nav-shell').boundingBox());
+    }
+    check(gutterBounds.every(box => Math.abs(box.x - nav.left) < .5 && box.width === nav.width),
+      'scrollbar reservation does not shift navigation');
+    await page.evaluate(() => { document.documentElement.style.scrollbarGutter = ''; });
+    const modePositions = [];
+    const previousMode = await page.locator('#runtime-mode').textContent();
+    for (const mode of ['模拟版','真实AI','搜索已开启']) {
+      await page.locator('#runtime-mode').evaluate((node, text) => { node.textContent = text; }, mode);
+      modePositions.push(await page.locator('#main-nav').boundingBox());
+    }
+    check(modePositions.every(box => box.x === modePositions[0].x && box.width === modePositions[0].width),
+      'mode label length does not shift navigation links');
+    await page.locator('#runtime-mode').evaluate((node, text) => { node.textContent = text; }, previousMode);
 
     await page.locator('#more-toggle').click();
     const menuGlass = await page.locator('#more-panel').evaluate(node => {
@@ -163,6 +203,19 @@ async (page) => {
       return {left:box.left, right:box.right, radius:parseFloat(style.borderRadius), blur:style.backdropFilter || style.webkitBackdropFilter};
     });
     check(mobileNav.left >= 8 && mobileNav.right <= 382 && mobileNav.radius >= 18 && mobileNav.blur.includes('blur'), 'mobile navigation remains floating glass');
+    for (const view of ['home','knowledge','history','chat','review']) {
+      await route(view);
+      const bounds = await page.locator('.nav-shell').boundingBox();
+      check(Math.abs(bounds.x - mobileNav.left) < .5 && bounds.y === 10 && bounds.width === mobileNav.right - mobileNav.left,
+        `mobile ${view} keeps navigation coordinates`);
+      await page.locator('#nav-toggle').click();
+      check(await page.locator('#main-nav a[aria-current="page"]').evaluate(node => {
+        const style = getComputedStyle(node);
+        return parseFloat(style.borderRadius) >= 999 && style.boxShadow.includes('inset');
+      }), `mobile ${view} has selected capsule highlight`);
+      await page.locator('#nav-toggle').click();
+    }
+    await route('chat');
     await page.locator('#nav-toggle').click();
     const mobileMenu = await page.locator('#main-nav').evaluate(node => {
       const style = getComputedStyle(node), rgba = style.backgroundColor.match(/[\d.]+/g).map(Number);
@@ -172,6 +225,8 @@ async (page) => {
     await page.locator('#nav-toggle').click();
     const composer = await page.locator('#ask-form').boundingBox();
     check(composer.x >= 8 && composer.x + composer.width <= 382, 'mobile glass composer stays inside viewport');
+    check(composer.width < (await page.locator('.assistant-answer').boundingBox()).width,
+      'mobile input is narrower than answer dialog');
     await noOverflow('mobile chat has no horizontal overflow');
     await route('review');
     await noOverflow('mobile review has no horizontal overflow');

@@ -13,6 +13,9 @@
   --glass-line:rgba(255,255,255,.78);
   --glass-shadow:0 18px 54px rgba(36,44,62,.14),inset 0 1px 0 rgba(255,255,255,.72);
   --glass-blur:blur(24px) saturate(150%);
+  --nav-active-surface:rgba(0,113,227,.11);
+  --nav-active-line:rgba(0,113,227,.18);
+  --nav-active-ink:#005bb5;
   --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
 }
 html {
@@ -156,7 +159,8 @@ summary:hover {
 .app-header {
   height:var(--header);
   position:fixed;
-  width:100%;
+  width:var(--viewport-width,100vw);
+  left:0;
   top:0;
   z-index:30;
   padding:14px 16px 16px;
@@ -217,11 +221,13 @@ summary:hover {
 }
 #main-nav a:hover { background:rgba(255,255,255,.58); text-decoration:none; }
 #main-nav a[aria-current=page] {
-  color:var(--blue);
-  background:rgba(255,255,255,.72);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.62);
+  color:var(--nav-active-ink);
+  background:var(--nav-active-surface);
+  box-shadow:inset 0 0 0 1px var(--nav-active-line);
 }
 .mock-tag {
+  flex:0 0 84px;
+  text-align:center;
   font-size:12px;
   color:#595961;
   border:1px solid rgba(255,255,255,.8);
@@ -1092,6 +1098,7 @@ dialog .muted {
     font-size:14px;
   }
   .mock-tag {
+    flex-basis:64px;
     font-size:10px;
     padding:1px 5px;
   }
