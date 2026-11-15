@@ -24,6 +24,14 @@ body {
 body.learning {
   overflow:hidden;
 }
+#main-content { view-transition-name:main-view; }
+::view-transition-old(root),::view-transition-new(root) { animation:none; }
+::view-transition-group(main-view) { animation:none; }
+::view-transition-old(main-view) { animation:main-view-fade-out .14s ease-in both; }
+::view-transition-new(main-view) { animation:main-view-fade-in .22s cubic-bezier(.22,.75,.25,1) both; }
+@keyframes main-view-fade-out { to { opacity:0; } }
+@keyframes main-view-fade-in { from { opacity:0; } to { opacity:1; } }
+.view-enter { animation:main-view-fade-in .22s cubic-bezier(.22,.75,.25,1) both; }
 button,input,textarea {
   font:inherit;
 }
@@ -1307,6 +1315,10 @@ dialog .muted {
 @media(prefers-reduced-motion:reduce) {
   html {
     scroll-behavior:auto;
+  }
+  ::view-transition-old(root),::view-transition-new(root),
+  ::view-transition-old(main-view),::view-transition-new(main-view) {
+    animation:none!important;
   }
   *,*::before,*::after {
     animation:none!important;

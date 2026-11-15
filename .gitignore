@@ -1,0 +1,47 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# JavaScript dependencies and generated output
+node_modules/
+dist/
+build/
+coverage/
+
+# R session state and local libraries
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+renv/library/
+renv/staging/
+
+# Office lock files and operating system files
+~$*
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs and machine-local tool settings
+*.log
+.codex/
+.aws/
+.tmp/
+.runtime/
+.playwright-cli/
+output/playwright/

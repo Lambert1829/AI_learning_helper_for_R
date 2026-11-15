@@ -6,7 +6,10 @@ async (page) => {
   page.on('request',requestListener); page.on('pageerror',errorListener);
   const route = async view => {
     await page.evaluate(view => { location.hash = '/' + view; },view);
-    await page.waitForFunction(view => document.querySelector('#main-nav a[aria-current="page"]')?.hash === '#/' + view, view);
+    await page.waitForFunction(view => {
+      const target=view==='chat'||view==='review'?document.querySelector('#layout'):document.querySelector('#'+view+'-view');
+      return document.querySelector('#main-nav a[aria-current="page"]')?.hash === '#/' + view&&!target.hidden;
+    }, view);
   };
   const ready = async () => page.waitForFunction(() => !document.querySelector('#send').disabled);
   const responseAfter = async action => {
@@ -21,24 +24,27 @@ async (page) => {
   try {
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.setViewportSize({width:1440,height:1000});
-    await page.goto('http://127.0.0.1:8000');
+    await page.goto('http://127.0.0.1:8000/?test='+Date.now());
     await page.evaluate(() => localStorage.removeItem('r-tutor-mock-v1'));
     await page.reload();
-    await page.waitForFunction(() => document.querySelectorAll('.knowledge-item').length === 43);
+    await page.waitForFunction(() => document.querySelectorAll('.knowledge-orb').length === 43);
+    await page.evaluate(() => {
+      window.__viewTransitionCalls=0;
+      if(typeof document.startViewTransition==='function'){
+        const original=document.startViewTransition.bind(document);
+        document.startViewTransition=callback=>{window.__viewTransitionCalls++;return original(callback);};
+      }
+    });
     check(await page.locator('#home-view').isVisible(),'default home');
     check((await page.locator('.hero h1').textContent()) === 'R语言学习，从一个问题开始','hero title');
     await noOverflow('desktop home width');
     await page.locator('.reveal').first().evaluate(async n => { await Promise.all(n.getAnimations().map(a => a.finished)); });
-    await page.screenshot({path:'output/playwright/v2-desktop-home.png',fullPage:true});
+    await page.screenshot({path:'output/playwright/v3-desktop-home.png',fullPage:true});
     await page.locator('.hero-actions a').first().click();
     await page.waitForFunction(() => !document.querySelector('#layout').hidden);
+    check(await page.evaluate(() => typeof document.startViewTransition!=='function'||window.__viewTransitionCalls===1),'main views crossfade');
     check(await page.locator('#welcome').isVisible(),'first visit examples');
-    await page.locator('#catalog-toggle').click();
-    check(await page.locator('#layout').evaluate(n => n.classList.contains('sidebar-collapsed')),'desktop collapse');
-    await page.locator('#catalog-toggle').click();
-    await page.locator('#catalog .unit').nth(1).locator('summary').click();
-    await page.waitForFunction(() => document.querySelectorAll('#catalog .unit[open]').length === 1);
-    check(await page.locator('#catalog .unit').nth(1).evaluate(n => n.open),'single expanded unit');
+    check(await page.locator('#sidebar,#catalog,#catalog-toggle').count() === 0,'chat has no course sidebar');
     await responseAfter(() => page.getByRole('button',{name:'缺失值与均值',exact:true}).click());
     check(await page.locator('#welcome').isHidden(),'hide examples after response');
     check((await page.locator('.message').last().textContent()).includes('na.rm'),'course answer');
@@ -66,7 +72,8 @@ async (page) => {
     await page.locator('.message').last().locator('.copy').last().click();
     check((await page.locator('#status').textContent()).includes('复制失败'),'copy failure feedback');
     await page.evaluate(() => { navigator.clipboard.writeText = window.__clipboard; delete window.__clipboard; });
-    await page.locator('#code-toggle').click();
+    check(await page.locator('#sidebar,#catalog,#catalog-toggle').count() === 0,'review has no course sidebar');
+    await route('chat'); await page.locator('#code-toggle').click(); await page.locator('#code-toggle').click();
     check(await page.locator('#code-panel').isHidden(),'collapse code');
     await submit('mean中的na.rm怎么用？');
     check(requests.at(-1).body.code === '' && requests.at(-1).body.error_message === '' && requests.at(-1).url.endsWith('/api/chat'),'hidden code not submitted');
@@ -81,13 +88,77 @@ async (page) => {
     const output = page.locator('.message').last().locator('.reference-output');
     check(await output.count() === 1 && await output.evaluate(n => !n.open),'reference output collapsed');
     await output.locator('summary').click();
-    await page.screenshot({path:'output/playwright/v2-desktop-chat.png',fullPage:true});
+    await page.screenshot({path:'output/playwright/v3-desktop-chat.png',fullPage:true});
     await route('knowledge');
-    check(await page.locator('.map-unit').count() === 8,'eight map units');
+    check(await page.locator('.knowledge-orb').count() === 43,'43 knowledge orbs');
+    check(await page.evaluate(() => !!window.LIQUID_KNOWLEDGE_CONFIG?.clusterRing),'unit groups use ring layout');
+    check(await page.locator('#map-viewport').getAttribute('data-connection-mode') === 'focus-only','overview hides connection lines');
+    const immersiveLayout = await page.evaluate(() => {
+      const view=document.querySelector('#knowledge-view').getBoundingClientRect();
+      const map=document.querySelector('#map-viewport').getBoundingClientRect();
+      const controls=document.querySelector('#map-controls').getBoundingClientRect();
+      const style=getComputedStyle(document.querySelector('#map-viewport'));
+      return {
+        fullWidth:Math.abs(map.left-view.left)<1&&Math.abs(map.right-view.right)<1,
+        fullHeight:Math.abs(map.top-view.top)<1&&Math.abs(map.bottom-view.bottom)<1,
+        frameless:style.borderTopWidth==='0px'&&style.borderRadius==='0px'&&style.boxShadow==='none',
+        controlsAtTop:controls.top-view.top<=24&&getComputedStyle(document.querySelector('#map-controls')).position==='absolute',
+      };
+    });
+    check(immersiveLayout.fullWidth&&immersiveLayout.fullHeight&&immersiveLayout.frameless,'knowledge ocean fills frameless view');
+    check(immersiveLayout.controlsAtTop,'map controls float at top');
+    const unitToggle=page.locator('#map-unit-toggle');
+    const unitStyle=await page.evaluate(()=>{
+      const search=getComputedStyle(document.querySelector('#map-search'));
+      const toggle=getComputedStyle(document.querySelector('#map-unit-toggle'));
+      return search.backgroundColor===toggle.backgroundColor&&search.borderColor===toggle.borderColor;
+    });
+    check(unitStyle,'unit selector matches map controls');
+    await unitToggle.focus();await page.keyboard.press('ArrowDown');
+    await page.waitForFunction(()=>!document.querySelector('#map-unit-menu').hidden&&document.activeElement?.getAttribute('role')==='option');
+    await page.keyboard.press('ArrowDown');await page.keyboard.press('Escape');
+    check(await page.locator('#map-unit-menu').isHidden()&&await unitToggle.evaluate(node=>node===document.activeElement),'unit menu keyboard close');
+    await unitToggle.click();
+    check(await page.locator('#map-unit-menu').isVisible()&&await page.getByRole('option').count()===9,'custom unit menu opens');
+    await page.getByRole('option',{name:'类型与缺失',exact:true}).click();
+    check(await page.locator('#map-unit').inputValue()==='类型与缺失'&&(await page.locator('#map-unit-label').textContent())==='类型与缺失','custom unit selection');
+    await page.locator('#map-reset').click();
+    check(await page.locator('#map-unit').inputValue()===''&&(await page.locator('#map-unit-label').textContent())==='全部单元','custom unit reset');
+    const labelOverlaps = await page.evaluate(() => {
+      const labels=[...document.querySelectorAll('.scene-orb-label')].filter(node=>!node.hidden&&Number(getComputedStyle(node).opacity)>.01);
+      const rects=labels.map(node=>({id:node.dataset.id,box:node.getBoundingClientRect()}));
+      const overlaps=[];
+      for(let i=0;i<rects.length;i++)for(let j=i+1;j<rects.length;j++){
+        const a=rects[i].box,b=rects[j].box;
+        if(a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1)overlaps.push(`${rects[i].id}/${rects[j].id}`);
+      }
+      return overlaps;
+    });
+    check(labelOverlaps.length === 0,'map labels avoid overlap');
+    const scene = await page.locator('#map-viewport').boundingBox();
+    const beforeDrag = await page.locator('.scene-orb-label[data-id="K06"]').boundingBox();
+    await page.mouse.move(scene.x+scene.width*.5,scene.y+scene.height*.18);
+    await page.mouse.down();await page.mouse.move(scene.x+scene.width*.62,scene.y+scene.height*.24,{steps:8});await page.mouse.up();
+    const afterDrag = await page.locator('.scene-orb-label[data-id="K06"]').boundingBox();
+    await page.waitForTimeout(700);
+    const afterRelease = await page.locator('.scene-orb-label[data-id="K06"]').boundingBox();
+    check(Math.hypot(afterDrag.x-beforeDrag.x,afterDrag.y-beforeDrag.y)>8,'hold left button rotates view');
+    check(Math.hypot(afterRelease.x-afterDrag.x,afterRelease.y-afterDrag.y)<1,'release fixes current view');
+    await page.locator('#map-reset').click();
     await page.locator('#map-search').fill('K06');
-    check(await page.locator('.knowledge-item').count() === 1,'map search');
-    check((await page.locator('.knowledge-item').textContent()).includes('K04'),'real prerequisite');
-    await responseAfter(() => page.locator('.knowledge-title').click());
+    check(await page.locator('.search-hit').count() === 1,'map search');
+    await page.locator('.scene-orb-label[data-id="K06"]').click();
+    await page.waitForFunction(() => document.querySelector('#detail-body .detail-actions'));
+    check((await page.locator('#detail-body').textContent()).includes('K04'),'real prerequisite');
+    const desktopDetail = await page.evaluate(() => {
+      const panel=document.querySelector('#map-detail');
+      const box=panel.getBoundingClientRect();
+      const rgb=getComputedStyle(panel).backgroundColor.match(/[\d.]+/g).map(Number);
+      const luminance=(rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722)/255;
+      return {dark:luminance<.2,large:box.width/innerWidth>=.4,tall:box.height/(innerHeight-document.querySelector('.app-header').offsetHeight)>.95};
+    });
+    check(desktopDetail.dark&&desktopDetail.large&&desktopDetail.tall,'desktop detail is large dark panel');
+    await responseAfter(() => page.getByRole('button',{name:'在AI问答中讲解',exact:true}).click());
     check(page.url().endsWith('#/chat'),'map topic starts chat');
     await page.locator('#question').fill('保留问题草稿');
     await page.locator('#code-toggle').click();
@@ -104,7 +175,7 @@ async (page) => {
     await route('history');
     const downloadPromise = page.waitForEvent('download');
     await page.locator('#history-export').click();
-    const download = await downloadPromise; await download.saveAs('output/playwright/v2-records.json');
+    const download = await downloadPromise; await download.saveAs('output/playwright/v3-records.json');
     check(download.suggestedFilename().endsWith('.json'),'export JSON');
     await more('当前版本说明');
     check(await page.locator('#version-dialog').isVisible(),'version dialog');
@@ -147,7 +218,7 @@ async (page) => {
 
     for (const view of ['home','knowledge','history','chat','review']) {
       await route(view); await noOverflow('mobile '+view+' layout');
-      await page.screenshot({path:'output/playwright/v2-mobile-'+view+'.png',fullPage:true});
+      await page.screenshot({path:'output/playwright/v3-mobile-'+view+'.png',fullPage:true});
     }
     await route('chat');
     await page.locator('#nav-toggle').click();
@@ -157,16 +228,14 @@ async (page) => {
     check(!(await page.locator('#main-nav').isVisible()),'mobile nav closes after selection');
     await page.locator('#nav-toggle').click(); await page.keyboard.press('Escape');
     check(await page.locator('#nav-toggle').evaluate(n => n === document.activeElement),'mobile nav Escape focus');
-    await route('chat'); await page.locator('#catalog-toggle').click();
-    check(await page.locator('#sidebar').getAttribute('aria-modal') === 'true','mobile drawer');
-    await page.locator('#sidebar-close').focus(); await page.keyboard.press('Shift+Tab');
-    check(await page.evaluate(() => document.querySelector('#sidebar').contains(document.activeElement)),'drawer focus trap');
-    await page.keyboard.press('Escape');
-    check(await page.locator('#catalog-toggle').evaluate(n => n === document.activeElement),'drawer restores focus');
-    check(await page.locator('#catalog-toggle').evaluate(n => getComputedStyle(n).outlineStyle !== 'none'),'visible keyboard focus');
+    await route('chat'); await page.locator('#question').focus(); await page.keyboard.press('Tab');
+    check(await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle !== 'none'),'visible keyboard focus');
     const targets = await page.locator('button:visible, #main-nav a:visible, .primary:visible').evaluateAll(nodes => nodes.filter(n => n.getBoundingClientRect().height < 44 || n.getBoundingClientRect().width < 44).map(n => n.textContent));
     check(targets.length === 0,'mobile touch targets');
-    await page.emulateMedia({reducedMotion:'reduce'}); await route('home');
+    await page.emulateMedia({reducedMotion:'reduce'});
+    const transitionCount=await page.evaluate(()=>window.__viewTransitionCalls);
+    await route('home');
+    check(await page.evaluate(count=>window.__viewTransitionCalls===count,transitionCount),'reduced motion skips view transition');
     check(await page.locator('.reveal').first().evaluate(n => getComputedStyle(n).animationName === 'none'),'reduced motion');
     await route('history'); await page.locator('#history-clear').click(); await page.reload();
     check(await page.locator('.message').count() === 0 && await page.locator('.history-row').count() === 0,'clear persists');

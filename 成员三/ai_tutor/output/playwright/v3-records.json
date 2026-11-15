@@ -1,0 +1,1094 @@
+{
+  "mode": "mock",
+  "records": [
+    {
+      "time": "2026-11-14T15:19:27.829Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "mean中的na.rm怎么用？",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": null,
+        "teaching_mode": "hint",
+        "history": []
+      },
+      "response": {
+        "request_id": "f06c7de3-b26e-48f6-9ccc-919a6822b3cb",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "function",
+        "answer": {
+          "summary": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+          "steps": [
+            "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+            "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+            "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+          "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K03",
+            "source_id": "S1",
+            "file": "CH11R语言安装.pdf",
+            "locator": "PDF 28–42",
+            "raw": "S1 PDF 28–42"
+          },
+          {
+            "knowledge_id": "K13",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 34",
+            "raw": "S3 PDF 34；S4 第3章 汇总"
+          },
+          {
+            "knowledge_id": "K13",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第3章 汇总",
+            "raw": "S3 PDF 34；S4 第3章 汇总"
+          },
+          {
+            "knowledge_id": "K35",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第14章 PDF 214–229",
+            "raw": "S4 第14章 PDF 214–229"
+          }
+        ],
+        "related_knowledge": [
+          "K06",
+          "K03",
+          "K13",
+          "K35"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      }
+    },
+    {
+      "time": "2026-11-14T15:19:27.851Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "举个例子",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "5ccffae2-bbfe-474b-9c96-defbc952c3f2",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "concept",
+        "answer": {
+          "summary": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+          "steps": [
+            "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+            "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+            "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+          "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          }
+        ],
+        "related_knowledge": [
+          "K06"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      },
+      "display_question": "例题"
+    },
+    {
+      "time": "2026-11-14T15:19:27.872Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "有什么易错点",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "举个例子"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "a4728740-ea06-4b1e-8ff2-44066e1c352a",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "concept",
+        "answer": {
+          "summary": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。",
+          "steps": [
+            "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+            "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+            "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+          "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          }
+        ],
+        "related_knowledge": [
+          "K06"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      },
+      "display_question": "易错点"
+    },
+    {
+      "time": "2026-11-14T15:19:27.894Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "给我练习",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "举个例子"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "有什么易错点"
+          },
+          {
+            "role": "assistant",
+            "content": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "e430c5b4-f580-4b26-a224-a248269a6aee",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "exercise",
+        "answer": {
+          "summary": "对c(NA,NA)求均值，解释为什么不是0。",
+          "steps": [
+            "先明确输入类型和期望输出。",
+            "复习：缺失、NaN与无穷值",
+            "提示：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "",
+          "expected_output": "",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          }
+        ],
+        "related_knowledge": [
+          "K06"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      },
+      "display_question": "练习"
+    },
+    {
+      "time": "2026-11-14T15:19:27.931Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "factor中的levels有什么作用？",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "举个例子"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "有什么易错点"
+          },
+          {
+            "role": "assistant",
+            "content": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          },
+          {
+            "role": "user",
+            "content": "给我练习"
+          },
+          {
+            "role": "assistant",
+            "content": "对c(NA,NA)求均值，解释为什么不是0。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "f6513b20-1a5c-4c99-914b-8d03aae6d5a9",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "concept",
+        "answer": {
+          "summary": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。",
+          "steps": [
+            "语法：factor(x, levels, labels, ordered=FALSE)",
+            "参数：levels是允许的原始取值及顺序；labels是显示标签；ordered是否有序。",
+            "易错提醒：直接as.numeric(factor)得到内部编码；不在levels中的取值变成NA。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "f <- factor(c(\"low\",\"high\"),levels=c(\"low\",\"mid\",\"high\"),ordered=TRUE)\nprint(f)\ng <- factor(c(\"10\",\"20\"))\nprint(as.numeric(as.character(g)))",
+          "expected_output": "[1] low  high\nLevels: low < mid < high\n[1] 10 20",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K07",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 15–19",
+            "raw": "S3 PDF 15–19；S4 第11章 PDF 183–188"
+          },
+          {
+            "knowledge_id": "K07",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第11章 PDF 183–188",
+            "raw": "S3 PDF 15–19；S4 第11章 PDF 183–188"
+          }
+        ],
+        "related_knowledge": [
+          "K07"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      }
+    },
+    {
+      "time": "2026-11-14T15:19:27.969Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "为什么不能用x == NA判断缺失？",
+        "task_type": "debug",
+        "code": "x <- c(1, NA, 3)\nx[x == NA]",
+        "error_message": "NA",
+        "knowledge_id": "K07",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "举个例子"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "有什么易错点"
+          },
+          {
+            "role": "assistant",
+            "content": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          },
+          {
+            "role": "user",
+            "content": "给我练习"
+          },
+          {
+            "role": "assistant",
+            "content": "对c(NA,NA)求均值，解释为什么不是0。"
+          },
+          {
+            "role": "user",
+            "content": "factor中的levels有什么作用？"
+          },
+          {
+            "role": "assistant",
+            "content": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "6db9d468-fdce-4f44-8ee7-b4b58dfc30d4",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "debug",
+        "answer": {
+          "summary": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。",
+          "steps": [
+            "与NA比较得到NA，而不是可靠的TRUE/FALSE；这是结果错误，不一定报错。",
+            "参考案例的变量和数据可能与你不同，请按任务含义调整。"
+          ],
+          "issues": [
+            {
+              "kind": "logic",
+              "line": 2,
+              "reason": "与NA比较得到NA，而不是可靠的TRUE/FALSE；这是结果错误，不一定报错。"
+            }
+          ],
+          "corrected_code": "x <- c(1,NA,3)\nprint(x[!is.na(x)])",
+          "example_code": "",
+          "expected_output": "[1] 1 3",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          }
+        ],
+        "related_knowledge": [
+          "K06"
+        ],
+        "matched_case_id": "E04",
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      }
+    },
+    {
+      "time": "2026-11-14T15:19:28.048Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "mean中的na.rm怎么用？",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "举个例子"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "有什么易错点"
+          },
+          {
+            "role": "assistant",
+            "content": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          },
+          {
+            "role": "user",
+            "content": "给我练习"
+          },
+          {
+            "role": "assistant",
+            "content": "对c(NA,NA)求均值，解释为什么不是0。"
+          },
+          {
+            "role": "user",
+            "content": "factor中的levels有什么作用？"
+          },
+          {
+            "role": "assistant",
+            "content": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。"
+          },
+          {
+            "role": "user",
+            "content": "为什么不能用x == NA判断缺失？"
+          },
+          {
+            "role": "assistant",
+            "content": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "e2084057-b9de-4bbc-bd45-17ecb31549f8",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "function",
+        "answer": {
+          "summary": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+          "steps": [
+            "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+            "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+            "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+          "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K03",
+            "source_id": "S1",
+            "file": "CH11R语言安装.pdf",
+            "locator": "PDF 28–42",
+            "raw": "S1 PDF 28–42"
+          },
+          {
+            "knowledge_id": "K13",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 34",
+            "raw": "S3 PDF 34；S4 第3章 汇总"
+          },
+          {
+            "knowledge_id": "K13",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第3章 汇总",
+            "raw": "S3 PDF 34；S4 第3章 汇总"
+          },
+          {
+            "knowledge_id": "K35",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第14章 PDF 214–229",
+            "raw": "S4 第14章 PDF 214–229"
+          }
+        ],
+        "related_knowledge": [
+          "K06",
+          "K03",
+          "K13",
+          "K35"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      }
+    },
+    {
+      "time": "2026-11-14T15:19:28.078Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "讲解这个知识点",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "举个例子"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "有什么易错点"
+          },
+          {
+            "role": "assistant",
+            "content": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          },
+          {
+            "role": "user",
+            "content": "给我练习"
+          },
+          {
+            "role": "assistant",
+            "content": "对c(NA,NA)求均值，解释为什么不是0。"
+          },
+          {
+            "role": "user",
+            "content": "factor中的levels有什么作用？"
+          },
+          {
+            "role": "assistant",
+            "content": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。"
+          },
+          {
+            "role": "user",
+            "content": "为什么不能用x == NA判断缺失？"
+          },
+          {
+            "role": "assistant",
+            "content": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。"
+          },
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "374c2719-ee51-4c2e-a1e9-bb23a16d91e3",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "concept",
+        "answer": {
+          "summary": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+          "steps": [
+            "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+            "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+            "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+          "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          }
+        ],
+        "related_knowledge": [
+          "K06"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      },
+      "display_question": "讲解 K06 · 缺失、NaN与无穷值"
+    },
+    {
+      "time": "2026-11-14T15:19:28.103Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "电影数据清洗综合练习",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "有什么易错点"
+          },
+          {
+            "role": "assistant",
+            "content": "x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          },
+          {
+            "role": "user",
+            "content": "给我练习"
+          },
+          {
+            "role": "assistant",
+            "content": "对c(NA,NA)求均值，解释为什么不是0。"
+          },
+          {
+            "role": "user",
+            "content": "factor中的levels有什么作用？"
+          },
+          {
+            "role": "assistant",
+            "content": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。"
+          },
+          {
+            "role": "user",
+            "content": "为什么不能用x == NA判断缺失？"
+          },
+          {
+            "role": "assistant",
+            "content": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。"
+          },
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "讲解这个知识点"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "56bfb6bd-f2ab-44cb-af7b-aa391dd0f7db",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "exercise",
+        "answer": {
+          "summary": "增加一个全缺失类别，明确其均值应如何展示。",
+          "steps": [
+            "先明确输入类型和期望输出。",
+            "复习：综合任务：模拟电影数据清洗",
+            "提示：不能把模拟结果当真实电影结论；报告应列出有效样本数、缺失数与单位。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "",
+          "expected_output": "",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K39",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 3–8、66–82",
+            "raw": "S3 PDF 3–8、66–82；本任务为原创模拟"
+          }
+        ],
+        "related_knowledge": [
+          "K39"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      }
+    },
+    {
+      "time": "2026-11-14T15:19:28.125Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "电影数据清洗综合练习",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K39",
+        "teaching_mode": "solution",
+        "history": [
+          {
+            "role": "user",
+            "content": "给我练习"
+          },
+          {
+            "role": "assistant",
+            "content": "对c(NA,NA)求均值，解释为什么不是0。"
+          },
+          {
+            "role": "user",
+            "content": "factor中的levels有什么作用？"
+          },
+          {
+            "role": "assistant",
+            "content": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。"
+          },
+          {
+            "role": "user",
+            "content": "为什么不能用x == NA判断缺失？"
+          },
+          {
+            "role": "assistant",
+            "content": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。"
+          },
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "讲解这个知识点"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "电影数据清洗综合练习"
+          },
+          {
+            "role": "assistant",
+            "content": "增加一个全缺失类别，明确其均值应如何展示。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "ffda1bb8-349b-425e-8151-fb18f861dbbd",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "exercise",
+        "answer": {
+          "summary": "该知识点未收录此练习的专门参考答案；下面展示相关教学示例。",
+          "steps": [
+            "先明确输入类型和期望输出。",
+            "复习：综合任务：模拟电影数据清洗",
+            "提示：不能把模拟结果当真实电影结论；报告应列出有效样本数、缺失数与单位。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "d <- data.frame(id=1:5,name=c(\"Film A\",\"Film B\",\"Film C\",\"Film D\",\"Film E\"),type=c(\"comedy\",\"drama\",\"comedy\",\"drama\",\"comedy\"),date=c(\"2026-01-01\",\"2026-01-02\",\"2026-01-03\",\"2026-01-04\",\"2026-01-05\"),score=c(8,NA,6,9,7),boxoffice=c(100,200,150,120,80))\n       d$date <- as.Date(d$date)\n       keep <- d[!is.na(d$score) & d$score>=7,]\n       keep <- keep[order(keep$score,decreasing=TRUE),]\n       print(keep[,c(\"id\",\"name\",\"score\")])\n       print(aggregate(d$score,list(type=d$type),mean,na.rm=TRUE))",
+          "expected_output": "id   name score\n4  4 Film D     9\n1  1 Film A     8\n5  5 Film E     7\n    type x\n1 comedy 7\n2  drama 9",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K39",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 3–8、66–82",
+            "raw": "S3 PDF 3–8、66–82；本任务为原创模拟"
+          }
+        ],
+        "related_knowledge": [
+          "K39"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      },
+      "display_question": "参考答案"
+    },
+    {
+      "time": "2026-11-14T15:19:29.048Z",
+      "request": {
+        "session_id": "local-browser",
+        "question": "讲解这个知识点",
+        "task_type": "auto",
+        "code": "",
+        "error_message": "",
+        "knowledge_id": "K06",
+        "teaching_mode": "hint",
+        "history": [
+          {
+            "role": "user",
+            "content": "factor中的levels有什么作用？"
+          },
+          {
+            "role": "assistant",
+            "content": "因子保存有限类别；有序因子还保存类别之间的次序。用levels明确类别顺序。"
+          },
+          {
+            "role": "user",
+            "content": "为什么不能用x == NA判断缺失？"
+          },
+          {
+            "role": "assistant",
+            "content": "匹配课程错误案例：用==NA筛选。以下为参考分析，不是执行结果。"
+          },
+          {
+            "role": "user",
+            "content": "mean中的na.rm怎么用？"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "讲解这个知识点"
+          },
+          {
+            "role": "assistant",
+            "content": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。"
+          },
+          {
+            "role": "user",
+            "content": "电影数据清洗综合练习"
+          },
+          {
+            "role": "assistant",
+            "content": "增加一个全缺失类别，明确其均值应如何展示。"
+          },
+          {
+            "role": "user",
+            "content": "电影数据清洗综合练习"
+          },
+          {
+            "role": "assistant",
+            "content": "该知识点未收录此练习的专门参考答案；下面展示相关教学示例。"
+          }
+        ]
+      },
+      "response": {
+        "request_id": "a48053ad-d77a-4fa7-aa63-64b4b62ca8ae",
+        "status": "ok",
+        "mode": "mock",
+        "task_type": "concept",
+        "answer": {
+          "summary": "NA表示缺失；NaN是未定义的数值计算结果；Inf表示无穷。检查缺失用is.na，检查有限数用is.finite。",
+          "steps": [
+            "语法：is.na(x); is.nan(x); is.finite(x); mean(x, na.rm=FALSE)",
+            "参数：na.rm=TRUE在汇总时移除缺失项，不会修改原向量。",
+            "易错提醒：x==NA得不到有效缺失筛选；全缺失时mean(...,na.rm=TRUE)得到NaN。"
+          ],
+          "issues": [],
+          "corrected_code": "",
+          "example_code": "x <- c(2,NA,4)\nprint(mean(x,na.rm=TRUE))\nprint(is.na(c(NA,NaN,Inf)))\nprint(is.finite(c(NA,NaN,Inf,2)))",
+          "expected_output": "[1] 3\n[1]  TRUE  TRUE FALSE\n[1] FALSE FALSE FALSE  TRUE",
+          "execution_status": "not_executed",
+          "code_kind": "reference_example",
+          "follow_ups": [
+            "举个例子",
+            "有什么易错点",
+            "给我练习"
+          ]
+        },
+        "citations": [
+          {
+            "knowledge_id": "K06",
+            "source_id": "S3",
+            "file": "CH2R语言数据操作课件.pdf",
+            "locator": "PDF 11、73",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          },
+          {
+            "knowledge_id": "K06",
+            "source_id": "S4",
+            "file": "R数据科学_译本.pdf",
+            "locator": "第15章 PDF 233–234",
+            "raw": "S3 PDF 11、73；S4 第15章 PDF 233–234"
+          }
+        ],
+        "related_knowledge": [
+          "K06"
+        ],
+        "matched_case_id": null,
+        "prompt_version": "mock-rules-v1",
+        "knowledge_version": "916ec03645ae"
+      },
+      "display_question": "讲解 K06 · 缺失、NaN与无穷值"
+    }
+  ]
+}

@@ -23,7 +23,7 @@ class ErrorResponse(BaseModel):
     error: ErrorDetail
 
 
-app = FastAPI(title='R语言AI助教 本地模拟版', version='1.0.0', description='真实HTTP接口；课程资料和规则驱动；不调用模型、不执行R代码。',
+app = FastAPI(title='R语言AI助教 本地模拟版', version='1.1.0', description='真实HTTP接口；课程资料和规则驱动；不调用模型、不执行R代码。',
               responses={404:{'model':ErrorResponse,'description':'资源或知识点不存在'},
                          422:{'model':ErrorResponse,'description':'参数校验失败'},
                          500:{'model':ErrorResponse,'description':'内部错误；测试中通过故障注入验证'}})
@@ -125,7 +125,7 @@ async def http_error(request, exc):
 
 @app.get('/api/health')
 def health():
-    return {'status':'ok','mode':'mock','version':'1.0.0','knowledge_version':DATA['version'],
+    return {'status':'ok','mode':'mock','version':'1.1.0','knowledge_version':DATA['version'],
             'counts':{k:len(DATA[k]) for k in ['knowledge','questions','errors','relations']}}
 
 
