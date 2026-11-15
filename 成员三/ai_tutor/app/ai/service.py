@@ -69,6 +69,8 @@ def course_context(req, review):
         if not extra:
             continue
         notes = {s['title']: s['markdown'] for s in extra['sections'] if s['title'] in wanted}
+        if notes and not extra.get('verified', True):
+            notes['验证状态'] = '待R实测：其中的输出是编写者的预期结果，尚未在R中运行核对。'
         size = len(json.dumps(notes, ensure_ascii=False))
         if notes and total + size <= 20000:
             record['teaching_notes'] = notes

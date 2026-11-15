@@ -246,15 +246,15 @@ function renderTeachingBody(node, answer, sources = []) {
   }
   codeBlock(node, answer.corrected_code || answer.example_code, answer.corrected_code ? '参考修正' : '代码讲解', true);
 }
-// Course supplements: outputs in these drafts come from offline R runs, so no "未运行验证" tag.
-function renderCourseMarkdown(node, text) {
+// Course supplements: verified drafts carry offline R output, so they skip the "未运行验证" tag.
+function renderCourseMarkdown(node, text, verified = true) {
   node.append(markdownFragment(text, {localContent:true}));
   for (const pre of [...node.querySelectorAll('pre')]) {
     const code = pre.querySelector('code');
     const language = (code?.className.match(/\blanguage-([\w+-]+)/)?.[1] || '').toLowerCase();
     const label = {r:'R代码', text:'运行输出', sh:'终端命令'}[language] || '代码';
     const holder = el('div');
-    codeBlock(holder, (code || pre).textContent.replace(/\n$/, ''), label);
+    codeBlock(holder, (code || pre).textContent.replace(/\n$/, ''), label, !verified);
     pre.replaceWith(...holder.childNodes);
   }
   return node;

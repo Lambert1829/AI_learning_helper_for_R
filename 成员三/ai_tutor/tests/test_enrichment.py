@@ -126,3 +126,25 @@ def test_ai_context_carries_teaching_notes():
     k06 = next(r for r in records if r['id'] == 'K06')
     assert records[0]['id'] == 'K06' and '易错案例' in k06['teaching_notes']
     assert len(json.dumps(records, ensure_ascii=False)) <= 21000
+
+
+def test_bracket_in_image_description_is_reported(tmp_path):
+    broken = MINIMAL.replace('## 易错案例', '![区间(0,60]示意](../ai_tutor/content_assets/images/K01_visual_01.svg)\n\n## 易错案例')
+    _, problems = write_draft(tmp_path, broken)
+    assert any('方括号' in p for p in problems)
+
+
+def test_verification_status_is_read_from_basic_info(tmp_path):
+    data, _ = write_draft(tmp_path, MINIMAL.replace('- 前置知识为无。', '- 前置知识为无。\n- 验证状态为待R实测。'))
+    assert data['items']['K01']['verified'] is False
+    shipped = json.loads((ROOT/'data/enrichment.json').read_text(encoding='utf-8'))['items']
+    assert shipped['K06']['verified'] is True and shipped['K09']['verified'] is False
+
+
+def test_ai_context_marks_unverified_notes():
+    pytest.importorskip('fastapi')
+    from app.main import ChatRequest
+    from app.ai.service import course_context
+    _, records = course_context(ChatRequest(question='cut分组的区间边界', knowledge_id='K15'), False)
+    k15 = next(r for r in records if r['id'] == 'K15')
+    assert '待R实测' in k15['teaching_notes']['验证状态']

@@ -54,7 +54,7 @@ def split_sections(text):
 
 def metadata(basic):
     meta = {}
-    for key, pattern in {'unit': r'所属单元为(.+?)。', 'difficulty': r'难度为(.+?)。',
+    for key, pattern in {'unit': r'所属单元为(.+?)。', 'difficulty': r'难度为(.+?)。', 'verification': r'验证状态为(.+?)。',
                          'prerequisites': r'前置知识为(.+?)。', 'related': r'关联知识为(.+?)。'}.items():
         m = re.search(pattern, basic)
         if m:
@@ -94,11 +94,18 @@ def load_draft(path, known_ids):
     unknown = [n for n in names if n not in DISPLAY and n not in HIDDEN]
     if unknown:
         problems.append(f'{kid}: 无法识别的章节 {unknown}')
+    stray = re.findall(r'\]\(\.\./ai_tutor/content_assets/[^)]*\)', text)
+    if len(stray) != len(ASSET_LINK.findall(text)):
+        problems.append(f'{kid}: 有资源链接无法识别，检查链接文字或图片描述中是否含有方括号')
     by_name = {s['title']: s['markdown'] for s in sections}
     shown = [{'title': n, 'markdown': rewrite_links(by_name[n], kid, used, problems)}
              for n in DISPLAY if by_name.get(n)]
+    meta = metadata(by_name.get('基本信息', ''))
+    # Drafts state 验证状态为待R实测/已实测; older drafts only record the result under 来源与验证.
+    verified = (meta['verification'].startswith('已') if 'verification' in meta
+                else '代码验证结果为通过' in by_name.get('来源与验证', ''))
     record = {'id': kid, 'title': title[len(kid):].strip() if title else '',
-              **metadata(by_name.get('基本信息', '')),
+              **meta, 'verified': verified,
               'sections': shown,
               'follow_ups': re.findall(r'^- (.+)$', by_name.get('追问建议', ''), re.M),
               'assets': sorted(used),

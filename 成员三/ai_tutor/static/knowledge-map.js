@@ -198,12 +198,13 @@ class KnowledgeMap {
     if(!extra || !extra.sections?.length || !this.markdown)return;
     const part=this.node('section',undefined,'supplement');
     part.append(this.node('h3','深入学习'));
-    part.append(this.node('p','分层例题、图解、易错案例和练习。代码与输出为离线R实测记录'+(extra.difficulty?' · 难度：'+extra.difficulty:'')+'。','supplement-note'));
+    const status=extra.verified===false?'代码与预期输出尚待R实测，请以本机运行结果为准':'代码与输出为离线R实测记录';
+    part.append(this.node('p','分层例题、图解、易错案例和练习。'+status+(extra.difficulty?' · 难度：'+extra.difficulty:'')+'。','supplement-note'));
     const open=new Set(['学习目标','直观理解']);
     extra.sections.forEach(s=>{
       const fold=this.node('details',undefined,'supplement-part');fold.open=open.has(s.title);
       fold.append(this.node('summary',s.title));
-      const body=this.node('div',undefined,'supplement-body');this.markdown(body,s.markdown);fold.append(body);part.append(fold);
+      const body=this.node('div',undefined,'supplement-body');this.markdown(body,s.markdown,extra.verified!==false);fold.append(body);part.append(fold);
     });
     root.append(part);
   }
