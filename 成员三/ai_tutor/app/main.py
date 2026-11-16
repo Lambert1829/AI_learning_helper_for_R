@@ -258,4 +258,17 @@ def index():
     return FileResponse(ROOT/'static/index.html')
 
 
+@app.get('/sw.js', include_in_schema=False)
+def service_worker():
+    return FileResponse(ROOT/'static/service-worker.js', media_type='application/javascript',
+                        headers={'Service-Worker-Allowed': '/',
+                                 'Cache-Control': 'no-cache, no-store, must-revalidate'})
+
+
+@app.get('/offline-course.json', include_in_schema=False)
+def offline_course():
+    return FileResponse(ROOT/'data/course.json', media_type='application/json',
+                        headers={'Cache-Control': 'no-cache, no-store, must-revalidate'})
+
+
 app.mount('/static', StaticFiles(directory=ROOT/'static'), name='static')
