@@ -1,6 +1,6 @@
 {
  "version": "1.0.0",
- "count": 18,
+ "count": 24,
  "items": {
   "K01": {
    "id": "K01",
@@ -1397,6 +1397,466 @@
    ],
    "source_file": "知识库补充草稿/K18.md",
    "sha256": "13bde28468f977d2af7017ae21d30516eea9c684b3e22092903949e8ac547e5d"
+  },
+  "K19": {
+   "id": "K19",
+   "title": "创建矩阵与保留维度",
+   "unit": "矩阵与数组",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K09",
+    "K10"
+   ],
+   "related": [
+    "K20",
+    "K21",
+    "K24",
+    "K25"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`matrix()`创建矩阵，并预测默认按列填充与`byrow = TRUE`按行填充的差异。\n- 能够用`[行, 列]`、行名和列名取值，并用`drop = FALSE`保留矩阵结构。\n- 能够解释矩阵中所有元素必须同类型，混入字符会让整个矩阵变成字符型。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `1:6`有几个元素？预期回答为6个。\n2. `x[c(1, 3)]`表示什么？预期回答为取出第1和第3个元素。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "矩阵就是一个向量，加上了“几行几列”的维度信息。R默认先把第1列从上到下填满，再填第2列，这叫按列填充；如果原始数据是一行一行抄下来的，就加`byrow = TRUE`。取值时用`[行, 列]`，逗号一侧留空表示这一维全要。只取一行或一列时，R会自动把结果降成普通向量，想保留行列结构就写`drop = FALSE`。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`matrix(1:6, nrow = 2)`第一行是`1 3 5`？默认按列填充，1、2先填满第1列，3、4填第2列，所以第一行依次是1、3、5。\n2. 为什么取单行后`dim()`返回`NULL`？单行结果被降为向量，失去了维度属性。后续代码如果需要`nrow()`或继续按矩阵取值，就会出错。\n3. 为什么矩阵不能像表格一样同时放学号和成绩？基础矩阵只能有一种类型，学号这类文字更适合作为行名，或者改用K25的数据框。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "用同一组数字比较按列和按行填充，并查看维度和单个元素。\n\n独立脚本见[K19_example_01.R](/content/code/K19_example_01.R)。\n\n```r\nm <- matrix(1:6, nrow = 2)\nprint(m)\nm2 <- matrix(1:6, nrow = 2, byrow = TRUE)\nprint(m2)\nprint(dim(m))\nprint(m[2, 3])\n```\n\n### 预期输出（待R实测）\n\n```text\n     [,1] [,2] [,3]\n[1,]    1    3    5\n[2,]    2    4    6\n     [,1] [,2] [,3]\n[1,]    1    2    3\n[2,]    4    5    6\n[1] 2 3\n[1] 6\n```\n\n### 逐步讲解\n\n1. 只给了行数2，R自动算出需要3列。\n2. 默认按列填充，第一行是1、3、5。\n3. `byrow = TRUE`按行填充，第一行是1、2、3。\n4. `dim()`先给行数、再给列数。\n5. `m[2, 3]`取第2行第3列，值为6。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "三名学生的期中和期末成绩放在一个带行名、列名的矩阵里。需要查询Ben的成绩，并在筛选期末80分以上的学生时保持矩阵结构。\n\n独立脚本见[K19_example_02.R](/content/code/K19_example_02.R)。\n\n```r\nscore <- matrix(c(78, 92, 65, 88, 95, 70), nrow = 3,\n                dimnames = list(c(\"Ann\", \"Ben\", \"Cai\"), c(\"mid\", \"final\")))\nprint(score)\nprint(score[\"Ben\", ])\none <- score[\"Ben\", , drop = FALSE]\nprint(one)\nprint(dim(one))\nhigh <- score[score[, \"final\"] >= 80, , drop = FALSE]\nprint(nrow(high))\n```\n\n### 预期输出（待R实测）\n\n```text\n    mid final\nAnn  78    88\nBen  92    95\nCai  65    70\n  mid final \n   92    95 \n    mid final\nBen  92    95\n[1] 1 2\n[1] 2\n```\n\n### 逐步讲解\n\n1. `dimnames`接收一个列表，依次是行名和列名。\n2. `score[\"Ben\", ]`只取一行，结果降为带名称的向量。\n3. 加上`drop = FALSE`后仍是1行2列的矩阵，`dim()`返回`1 2`。\n4. 筛选条件写在行的位置，列的位置留空表示保留所有列。\n5. 筛选结果有2行，`nrow()`能正常工作。\n\n如果某次筛选恰好只剩一名学生，不写`drop = FALSE`时结果会变成向量，`nrow()`返回`NULL`。因此在不确定结果行数的代码中，应始终保留这个参数。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“按列填充与按行填充”，采用填充顺序图，以SVG手绘。左右两个2行3列的网格分别标出1到6的填入顺序，箭头表示先竖着填还是先横着填，下方说明`drop = FALSE`对取单行的影响。\n\n![左侧网格为默认按列填充，箭头先向下再换列，第一行为1、3、5；右侧网格为byrow=TRUE按行填充，箭头先向右再换行，第一行为1、2、3。下方说明只取第一行时结果降为向量，加上drop = FALSE后仍是1行3列的矩阵。](/content/images/K19_visual_01.svg)\n\n图让学生在写`matrix()`前先确认原始数据是按行还是按列排列的，避免把成绩表填错位置。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "想把学号放进成绩矩阵的第一格，结果整个矩阵变成字符型，后续加分时报错。\n\n```r\nm <- matrix(c(1, 2, 85, 90), nrow = 2)\nm[1, 1] <- \"S01\"\nprint(m)\nprint(m[, 2] + 5)\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n     [,1]  [,2]\n[1,] \"S01\" \"85\"\n[2,] \"2\"   \"90\"\nError in m[, 2] + 5 : non-numeric argument to binary operator\n```\n\n参考修正把学号作为行名，矩阵中只保留数值。\n\n```r\nm <- matrix(c(85, 90), nrow = 2, dimnames = list(c(\"S01\", \"S02\"), \"score\"))\nprint(m[, \"score\"] + 5)\n```\n\n### 预期输出（待R实测）\n\n```text\nS01 S02 \n 90  95 \n```\n\n报错发生在加分这一步，但真正的问题出在赋值那一步。打印时如果看到数字带着引号，就说明矩阵已经变成了字符型，应该回头检查数据来源。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "三个区域四个季度的销售额（万元）是按区域一行一行记录的。要求按行填充创建矩阵并命名，取出第二季度这一列并保留矩阵结构，查询South区域第四季度的值，最后报告矩阵的行数和列数。\n\n提示原始数据是按行记录的，需要`byrow = TRUE`。\n\n独立脚本见[K19_exercise.R](/content/code/K19_exercise.R)。\n\n```r\nsales <- matrix(c(12, 15, 11, 14,\n                  20, 18, 22, 25,\n                   9, 10, 12, 11), nrow = 3, byrow = TRUE,\n                dimnames = list(c(\"North\", \"South\", \"West\"), c(\"Q1\", \"Q2\", \"Q3\", \"Q4\")))\nprint(sales)\nprint(sales[, \"Q2\", drop = FALSE])\nprint(sales[\"South\", \"Q4\"])\nprint(c(rows = nrow(sales), cols = ncol(sales)))\n```\n\n### 预期输出（待R实测）\n\n```text\n      Q1 Q2 Q3 Q4\nNorth 12 15 11 14\nSouth 20 18 22 25\nWest   9 10 12 11\n      Q2\nNorth 15\nSouth 18\nWest  10\n[1] 25\nrows cols \n   3    4 \n```\n\n评分共10分，按行填充与命名正确得4分，保留结构取列得2分，单值查询得2分，维度报告得2分。常见错误是漏写`byrow = TRUE`，导致North一行变成12、14、10、22这类错位数据；仔细核对第一行就能发现。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面三行的输出。\n\n```r\nm <- matrix(1:6, ncol = 2)\nprint(dim(m))\nprint(m[3, 1])\nprint(m[, 2])\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 3 2\n[1] 3\n[1] 4 5 6\n```\n\n只给列数2时，R算出需要3行；按列填充后第1列是1到3，第2列是4到6。\n\n2. `matrix(1:5, nrow = 2)`会出现什么情况？答案为R发出警告，5个数不能整除2行，R会循环补齐，用第1个数填满最后一格。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 48–52。\n- 补充来源为R官方帮助主题`help(\"matrix\")`、`help(\"[\")`、`help(\"dimnames\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果，基础例题第一个矩阵与课程资料中已实测的输出一致。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K19`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`rownames()`和`colnames()`给已有矩阵补上名称。",
+    "易错点请求解释`drop = FALSE`在函数内部为什么特别重要。",
+    "练习请求计算每个区域全年的销售总额，衔接K24的`apply()`。",
+    "相关知识继续学习K20，用`rbind()`给矩阵增加新的区域。"
+   ],
+   "assets": [
+    "code/K19_example_01.R",
+    "code/K19_example_02.R",
+    "code/K19_exercise.R",
+    "images/K19_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K19.md",
+   "sha256": "cec22af3bbd2f7ef5454b080cd3b86f80518bc2f54759eb2b944c1d2b018ffa1"
+  },
+  "K20": {
+   "id": "K20",
+   "title": "矩阵绑定、命名与转置",
+   "unit": "矩阵与数组",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K19"
+   ],
+   "related": [
+    "K12",
+    "K21",
+    "K27"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`rbind()`追加行、`cbind()`追加列，并在绑定前检查另一维的长度是否相容。\n- 能够用`rownames()`、`colnames()`命名矩阵，用`t()`转置并说出转置后的维度。\n- 能够识别按位置绑定造成的错配，在绑定前按名称对齐。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `matrix(1:6, nrow = 2)`有几列？预期回答为3列。\n2. `match(c(\"b\", \"a\"), c(\"a\", \"b\"))`的结果是什么？预期回答为`2 1`。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "`rbind()`像在表格底部再接一行，所以新行的格子数必须和原来的列数一样；`cbind()`像在右边再贴一列，新列的长度必须和行数一样。绑定只看位置，第1行接第1行，它不知道这一行属于哪个学生。转置`t()`把表格沿对角线翻过来，行变列、列变行，2行3列变成3行2列。`diag()`给一个向量时，会生成对角线上放着这些数、其余为0的方阵。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`cbind()`可以给新列起名字？写成`cbind(m, extra = c(5, 6))`时，参数名会成为新列的列名。\n2. 为什么两张成绩表直接`cbind()`可能出错却不报错？只要行数相同，R就逐行拼接。两张表的学生顺序不同时，每一行就会把不同学生的成绩拼在一起。\n3. 为什么转置常用于报告？有时人们习惯把季度放在行、区域放在列，转置不改变数据，只改变阅读方向。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "用一个2行2列矩阵演示追加行、追加命名列、转置和构造对角矩阵。\n\n独立脚本见[K20_example_01.R](/content/code/K20_example_01.R)。\n\n```r\nm <- matrix(1:4, 2)\ncolnames(m) <- c(\"a\", \"b\")\nprint(rbind(m, m))\nprint(cbind(m, extra = c(5, 6)))\nprint(t(m))\nprint(diag(c(2, 3)))\n```\n\n### 预期输出（待R实测）\n\n```text\n     a b\n[1,] 1 3\n[2,] 2 4\n[3,] 1 3\n[4,] 2 4\n     a b extra\n[1,] 1 3     5\n[2,] 2 4     6\n  [,1] [,2]\na    1    2\nb    3    4\n     [,1] [,2]\n[1,]    2    0\n[2,]    0    3\n```\n\n### 逐步讲解\n\n1. `rbind(m, m)`在下方再接两行，列名保留。\n2. `cbind()`追加一列，参数名`extra`成为列名。\n3. 转置后原来的列名`a`、`b`变成了行名。\n4. `diag(c(2, 3))`生成2行2列的对角矩阵。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "两个区域两个季度的销售额（万元）已有记录，现在需要追加West区域，增加一列合计，再转置成“季度在行、区域在列”的报告格式。\n\n独立脚本见[K20_example_02.R](/content/code/K20_example_02.R)。\n\n```r\nq <- matrix(c(120, 135, 98, 110), nrow = 2,\n            dimnames = list(c(\"North\", \"South\"), c(\"Q1\", \"Q2\")))\nq <- rbind(q, West = c(105, 99))\nq <- cbind(q, total = q[, \"Q1\"] + q[, \"Q2\"])\nprint(q)\nprint(t(q))\nprint(dim(t(q)))\n```\n\n### 预期输出（待R实测）\n\n```text\n       Q1  Q2 total\nNorth 120  98   218\nSouth 135 110   245\nWest  105  99   204\n      North South West\nQ1      120   135  105\nQ2       98   110   99\ntotal   218   245  204\n[1] 3 3\n```\n\n### 逐步讲解\n\n1. `rbind()`中的参数名`West`成为新行的行名，新行有2个数，与列数一致。\n2. 合计列由两列逐元素相加得到，长度为3，与行数一致。\n3. 转置后季度和合计成为行，区域成为列。\n4. 3行3列的矩阵转置后维度仍为`3 3`。\n\n追加的West必须按Q1、Q2的顺序给值，`rbind()`不会检查数字属于哪个季度。合计列是计算结果，原始数据更新后需要重新计算，不能手工修改。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“绑定方向与转置”，采用示意图，以SVG手绘。左侧展示`rbind()`在下方接行、`cbind()`在右侧接列，并标出各自要求相同的维度；右侧展示2行3列矩阵转置为3行2列。\n\n![左上为rbind，原矩阵下方追加一行，要求列数相同；左下为cbind，原矩阵右侧追加一列，要求行数相同；右侧为转置，2行3列的网格沿对角线翻转成3行2列。](/content/images/K20_visual_01.svg)\n\n图把“要求相同的那一维”用颜色标出，提醒学生绑定前先核对这一维的长度。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "数学成绩表和英语成绩表的学生顺序不同，直接按列拼接后，Ann拿到了Ben的英语成绩。\n\n```r\na <- matrix(c(80, 90), ncol = 1, dimnames = list(c(\"Ann\", \"Ben\"), \"math\"))\nb <- matrix(c(70, 85), ncol = 1, dimnames = list(c(\"Ben\", \"Ann\"), \"eng\"))\nprint(cbind(a, b))\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n    math eng\nAnn   80  70\nBen   90  85\n```\n\n参考修正先按`a`的行名重新排列`b`，再拼接。\n\n```r\na <- matrix(c(80, 90), ncol = 1, dimnames = list(c(\"Ann\", \"Ben\"), \"math\"))\nb <- matrix(c(70, 85), ncol = 1, dimnames = list(c(\"Ben\", \"Ann\"), \"eng\"))\nprint(cbind(a, b[rownames(a), , drop = FALSE]))\n```\n\n### 预期输出（待R实测）\n\n```text\n    math eng\nAnn   80  85\nBen   90  70\n```\n\n错误版本没有任何警告，结果只保留第一个矩阵的行名，看起来很正常。如果两张表的学生名单可能不完全相同，应使用K27的数据框合并，未匹配的学生会被明确标出。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "创建一个2行3列、带行名和列名的矩阵，追加一行各列合计，转置后打印，并用一个小矩阵对比转置前后的维度。\n\n提示`colSums()`可以得到每列的合计，结果是带列名的向量，可以直接作为新行。\n\n独立脚本见[K20_exercise.R](/content/code/K20_exercise.R)。\n\n```r\nm <- matrix(1:6, nrow = 2, dimnames = list(c(\"r1\", \"r2\"), c(\"x\", \"y\", \"z\")))\nm3 <- rbind(m, r3 = colSums(m))\nprint(m3)\nprint(t(m3))\nprint(rbind(before = dim(m), after = dim(t(m))))\n```\n\n### 预期输出（待R实测）\n\n```text\n   x y  z\nr1 1 3  5\nr2 2 4  6\nr3 3 7 11\n  r1 r2 r3\nx  1  2  3\ny  3  4  7\nz  5  6 11\n       [,1] [,2]\nbefore    2    3\nafter     3    2\n```\n\n评分共10分，命名与合计行正确得4分，转置结果正确得3分，维度对比得3分。常见错误是把合计写成`rowSums()`，得到的长度为2，与列数3不相容，R会循环补齐或警告。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面三行的输出。\n\n```r\na <- matrix(0, nrow = 2, ncol = 3)\nprint(dim(rbind(a, a)))\nprint(dim(cbind(a, 1:2)))\nprint(dim(t(a)))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 4 3\n[1] 2 4\n[1] 3 2\n```\n\n`rbind`使行数相加，`cbind`追加一列，转置交换行数和列数。\n\n2. `rbind(matrix(0, 2, 3), c(1, 2))`会怎样？答案为长度2的向量被循环补齐到3列，并给出警告，这通常意味着数据准备有误。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 51–55。\n- 补充来源为R官方帮助主题`help(\"cbind\")`、`help(\"t\")`、`help(\"diag\")`、`help(\"colSums\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果，基础例题与课程资料中已实测的输出一致。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K20`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求给矩阵追加一行平均值，并保留两位小数。",
+    "易错点请求说明`rbind()`对数据框和矩阵的行为有什么不同。",
+    "练习请求把转置后的报告按合计从高到低排序。",
+    "相关知识继续学习K21，区分转置后的矩阵乘法与逐元素乘法。"
+   ],
+   "assets": [
+    "code/K20_example_01.R",
+    "code/K20_example_02.R",
+    "code/K20_exercise.R",
+    "images/K20_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K20.md",
+   "sha256": "bff26a1a8988ce2320e8c828919776b4da251565ac30a37707b2461c6a48ee32"
+  },
+  "K21": {
+   "id": "K21",
+   "title": "矩阵乘法与线性方程",
+   "unit": "矩阵与数组",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K19",
+    "K20"
+   ],
+   "related": [
+    "K11",
+    "K20",
+    "K22"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够区分逐元素乘法`*`与矩阵乘法`%*%`，并预测结果的维度。\n- 能够用`solve(A, b)`求解线性方程组，并把解代回原方程验证。\n- 能够在维度不相容报错时，通过检查`dim()`找到需要转置的一方。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `c(1, 2) * c(3, 4)`的结果是什么？预期回答为`3 8`，逐元素相乘。\n2. 2行3列的矩阵转置后是几行几列？预期回答为3行2列。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "`*`把两个同样大小的矩阵对应位置的数相乘，和向量运算一样。`%*%`是线性代数里的矩阵乘法：结果第i行第j列的数，等于左矩阵第i行与右矩阵第j列逐项相乘再求和。所以它要求左边的列数等于右边的行数，结果的行数来自左边、列数来自右边。线性方程组`Ax = b`就是在问：哪个`x`经过`A`的矩阵乘法后正好得到`b`。`solve(A, b)`直接给出答案。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`A %*% B`一般不等于`B %*% A`？矩阵乘法先取左边的行、再取右边的列，交换顺序后参与配对的行和列完全不同。\n2. 为什么推荐用`solve(A, b)`而不是先求逆再相乘？直接求解更稳定，计算量也更小。求逆矩阵只在确实需要逆矩阵本身时使用。\n3. 为什么验证解时要用`all.equal()`而不是`==`？计算过程有浮点误差，`all.equal()`允许极小的差异。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "用同一对矩阵比较逐元素乘法与矩阵乘法。右边的矩阵`B`恰好起到“交换两列”的作用。\n\n独立脚本见[K21_example_01.R](/content/code/K21_example_01.R)。\n\n```r\nA <- matrix(c(1, 3, 2, 4), nrow = 2)\nB <- matrix(c(0, 1, 1, 0), nrow = 2)\nprint(A)\nprint(A * B)\nprint(A %*% B)\n```\n\n### 预期输出（待R实测）\n\n```text\n     [,1] [,2]\n[1,]    1    2\n[2,]    3    4\n     [,1] [,2]\n[1,]    0    2\n[2,]    3    0\n     [,1] [,2]\n[1,]    2    1\n[2,]    4    3\n```\n\n### 逐步讲解\n\n1. 按列填充后，`A`的第一行是1、2，第二行是3、4。\n2. `A * B`只保留`B`中为1的位置，其他位置变成0。\n3. `A %*% B`第1行第1列为`1×0 + 2×1 = 2`，第1行第2列为`1×1 + 2×0 = 1`。\n4. 结果正好是`A`交换两列，这是逐元素乘法做不到的。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "两种套餐的价格未知：3份甲加2份乙共18元，1份甲加4份乙共16元。用矩阵表示方程组并求解单价，再代回验证。\n\n独立脚本见[K21_example_02.R](/content/code/K21_example_02.R)。\n\n```r\nA <- matrix(c(3, 1, 2, 4), nrow = 2)\nb <- c(18, 16)\nx <- solve(A, b)\nprint(x)\nprint(A %*% x)\nprint(all.equal(as.vector(A %*% x), b))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 4 3\n     [,1]\n[1,]   18\n[2,]   16\n[1] TRUE\n```\n\n### 逐步讲解\n\n1. `A`的每一行对应一个方程，每一列对应一个未知数的份数。\n2. `solve(A, b)`给出甲4元、乙3元。\n3. 把解代回，`A %*% x`得到一个2行1列的矩阵，正好是18和16。\n4. `as.vector()`去掉维度后，再用`all.equal()`与`b`比较。\n\n这个结论只对这两个方程成立。如果两种购买组合成比例，例如第二行是第一行的两倍，方程组就没有唯一解，`solve()`会报告矩阵奇异。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“矩阵乘法的行乘列”，采用计算过程图，以SVG手绘。左矩阵高亮第1行，右矩阵高亮第1列，箭头指向结果矩阵的第1行第1列，旁边写出逐项相乘再求和的算式，下方标出维度相容规则。\n\n![左矩阵A为1、2和3、4，高亮第一行1、2；右矩阵B为0、1和1、0，高亮第一列0、1；结果第一行第一列为1乘0加2乘1等于2。下方写着2×2乘2×2得2×2，左矩阵的列数必须等于右矩阵的行数。](/content/images/K21_visual_01.svg)\n\n图把维度规则写成“内侧两个数相同，外侧两个数决定结果”，学生可以在动手前先判断能否相乘。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "两个2行3列的矩阵直接做矩阵乘法，维度不相容导致报错。\n\n```r\nA <- matrix(1:6, nrow = 2)\nB <- matrix(1:6, nrow = 2)\nprint(A %*% B)\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\nError in A %*% B : non-conformable arguments\n```\n\n参考修正先检查维度，把右侧矩阵转置成3行2列。\n\n```r\nA <- matrix(1:6, nrow = 2)\nB <- matrix(1:6, nrow = 2)\nprint(dim(A))\nprint(dim(t(B)))\nprint(A %*% t(B))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2 3\n[1] 3 2\n     [,1] [,2]\n[1,]   35   44\n[2,]   44   56\n```\n\n转置能让运算成立，但是否应该转置要看计算的含义。如果本意是逐元素相乘，应改用`A * B`，结果仍是2行3列。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "一个投资组合由股票和债券组成，权重分别为60%和40%。已知三天中两种资产的日收益率，要求用矩阵乘法计算组合每天的收益率，保留四位小数，检查权重之和为1，并计算三天的平均收益率。\n\n提示收益率矩阵每行是一天、每列是一种资产，权重向量的顺序必须与列的顺序一致。\n\n独立脚本见[K21_exercise.R](/content/code/K21_exercise.R)。\n\n```r\nR <- matrix(c(0.010, -0.020,  0.015,\n              0.005,  0.010, -0.010), nrow = 3,\n            dimnames = list(c(\"Mon\", \"Tue\", \"Wed\"), c(\"stock\", \"bond\")))\nw <- c(stock = 0.6, bond = 0.4)\nport <- R %*% w\nprint(round(port, 4))\nprint(sum(w))\nprint(round(mean(port), 4))\n```\n\n### 预期输出（待R实测）\n\n```text\n      [,1]\nMon  0.008\nTue -0.008\nWed  0.005\n[1] 1\n[1] 0.0017\n```\n\n评分共10分，矩阵与权重构造正确得3分，矩阵乘法得3分，权重检查得2分，平均收益率得2分。常见错误是把收益率按行填写却没有加`byrow = TRUE`，导致每天的数据错位；或者权重顺序与列顺序相反。此结果只是模拟数据的计算练习，不构成投资判断。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测两个结果的维度。\n\n```r\nA <- matrix(1:6, nrow = 3)\nB <- matrix(1:4, nrow = 2)\nprint(dim(A %*% B))\nprint(dim(crossprod(A)))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 3 2\n[1] 2 2\n```\n\n`A`是3行2列，`B`是2行2列，内侧维度都是2，结果为3行2列。`crossprod(A)`等于`t(A) %*% A`，结果为2行2列。\n\n2. `solve(matrix(c(1, 2, 2, 4), 2), c(1, 2))`能得到唯一解吗？答案为不能。第二列是第一列的两倍，矩阵奇异，R会报错。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 53–56。\n- 补充来源为R官方帮助主题`help(\"matmult\")`、`help(\"solve\")`、`help(\"crossprod\")`、`help(\"all.equal\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果，组合收益率已用Python独立计算核对。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K21`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`solve(A)`求逆矩阵，并验证`A %*% solve(A)`是单位矩阵。",
+    "易错点请求解释“奇异矩阵”在实际数据中意味着什么。",
+    "练习请求把组合权重改为50%和50%，比较收益率的变化。",
+    "相关知识继续学习K22，用特征分解进一步理解矩阵的结构。"
+   ],
+   "assets": [
+    "code/K21_example_01.R",
+    "code/K21_example_02.R",
+    "code/K21_exercise.R",
+    "images/K21_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K21.md",
+   "sha256": "f842cfbb845948b75663168f3e2c8bc747ea9ccd97c57415e7be7ab0634cef30"
+  },
+  "K22": {
+   "id": "K22",
+   "title": "特征分解与SVD",
+   "unit": "矩阵与数组",
+   "difficulty": "扩展",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K21"
+   ],
+   "related": [
+    "K21",
+    "K23"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`eigen()`求方阵的特征值和特征向量，并用矩阵乘法验证`Av = λv`。\n- 能够用`svd()`分解长方形矩阵，说出U、D、V各部分的维度，并计算各成分的占比。\n- 能够在比较分解结果时使用容差，理解特征向量的正负号可以整体翻转。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `A %*% x`要求什么条件？预期回答为`A`的列数等于`x`的长度或行数。\n2. `all.equal(0.1 + 0.2, 0.3)`的结果是什么？预期回答为`TRUE`，它允许极小的浮点误差。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "矩阵乘法通常会同时改变一个向量的方向和长度，但总有一些特殊方向，乘完以后方向不变，只是被拉长或缩短，这些方向就是特征向量，拉伸的倍数就是特征值。特征分解只适用于方阵。奇异值分解（SVD）适用于任何长方形矩阵，它把矩阵拆成“几种主要模式”，每种模式的强度由奇异值表示，最大的几个奇异值通常就能概括数据的主要结构。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么只看几个最大的奇异值就够？奇异值平方的占比表示每种模式解释了多少变化，前一两个占绝大部分时，其余模式主要是细节或噪声。\n2. 为什么不能直接把特征向量与参考答案逐个比较？一个特征向量乘以-1仍满足`Av = λv`，不同软件或版本可能返回相反的符号，应验证方程本身。\n3. 为什么用`symmetric = TRUE`要谨慎？它让R按对称矩阵的方法计算，矩阵并不对称时结果是错的，而且不会报错。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "对一个2阶对称矩阵求特征值和奇异值，用分解结果重建原矩阵，并验证第一个特征向量满足特征方程。\n\n独立脚本见[K22_example_01.R](/content/code/K22_example_01.R)。\n\n```r\nA <- matrix(c(2, 1, 1, 2), 2)\ne <- eigen(A, symmetric = TRUE)\nprint(e$values)\ns <- svd(A)\nprint(s$d)\nprint(s$u %*% diag(s$d) %*% t(s$v))\nv1 <- e$vectors[, 1]\nprint(all.equal(as.vector(A %*% v1), e$values[1] * v1))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 3 1\n[1] 3 1\n     [,1] [,2]\n[1,]    2    1\n[2,]    1    2\n[1] TRUE\n```\n\n### 逐步讲解\n\n1. 对称矩阵`A`的特征值为3和1，从大到小排列。\n2. 对称且正定的矩阵，奇异值与特征值相同。\n3. `U × D × t(V)`重建出原矩阵，说明分解没有丢失信息。\n4. `A %*% v1`与`3 × v1`在容差内相等，验证了特征方程。这样检查不依赖特征向量的正负号。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "四名学生对三门课的兴趣评分（1到5分）组成4行3列的矩阵。用SVD查看分解后各部分的维度，并计算每个成分解释的比例。\n\n独立脚本见[K22_example_02.R](/content/code/K22_example_02.R)。\n\n```r\nX <- matrix(c(5, 4, 1, 1,\n              4, 5, 1, 2,\n              1, 1, 5, 4), nrow = 4)\ns <- svd(X)\nprint(c(dim(s$u), length(s$d), dim(s$v)))\nprint(round(s$d, 3))\nshare <- s$d^2 / sum(s$d^2)\nprint(round(share, 3))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 4 3 3 3 3\n[1] 10.065  5.421  1.143\n[1] 0.767 0.223 0.010\n```\n\n### 逐步讲解\n\n1. 按列填充后，每一列是一门课，每一行是一名学生。\n2. `U`为4行3列，`D`有3个奇异值，`V`为3行3列。\n3. 奇异值从大到小排列。\n4. 第一个成分解释约76.7%的平方和，前两个合计约99%。\n\n前两门课的评分高度相似，第三门与它们相反，所以两个成分就能概括大部分结构。这是对4个模拟样本的描述，不能推广为真实课程偏好的结论。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“SVD的三部分”，采用分解示意图，以SVG手绘。左边是4行3列的X，等号右边依次是U（4行3列）、D（对角线上的奇异值）和V的转置（3行3列），下方的横条按占比画出三个成分的长度。\n\n![X等于U乘D乘V的转置。X为4行3列，U为4行3列，D为3个奇异值10.065、5.421、1.143组成的对角矩阵，V转置为3行3列。下方三段横条表示占比76.7%、22.3%和1.0%。](/content/images/K22_visual_01.svg)\n\n图把维度写在每个方块上，学生可以核对“内侧维度相同”的乘法规则，横条直观显示前两个成分占了绝大部分。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "对一个2行3列的矩阵使用`eigen()`，特征分解要求方阵，因此报错。\n\n```r\nX <- matrix(1:6, nrow = 2)\ne <- eigen(X)\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\nError in eigen(X) : non-square matrix in 'eigen'\n```\n\n参考修正对长方形矩阵改用SVD，并检查各部分的维度。\n\n```r\nX <- matrix(1:6, nrow = 2)\ns <- svd(X)\nprint(length(s$d))\nprint(dim(s$u))\nprint(dim(s$v))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2\n[1] 2 2\n[1] 3 2\n```\n\n2行3列的矩阵最多有2个奇异值，所以默认的`U`是2行2列、`V`是3行2列。如果分析的是协方差矩阵这类本身就对称的方阵，特征分解才是合适的选择。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "对3阶对称矩阵求特征值并保留三位小数，验证特征值之和等于矩阵的迹（对角线之和）、乘积等于行列式，并检查所有特征向量都满足特征方程。\n\n提示`diag(A)`取出对角线，`det(A)`计算行列式，比较时使用`all.equal()`或容差。\n\n独立脚本见[K22_exercise.R](/content/code/K22_exercise.R)。\n\n```r\nA <- matrix(c(4, 1, 0,\n              1, 3, 0,\n              0, 0, 2), nrow = 3)\ne <- eigen(A, symmetric = TRUE)\nprint(round(e$values, 3))\nprint(all.equal(sum(e$values), sum(diag(A))))\nprint(all.equal(prod(e$values), det(A)))\nresid <- A %*% e$vectors - e$vectors %*% diag(e$values)\nprint(max(abs(resid)) < 1e-10)\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 4.618 2.382 2.000\n[1] TRUE\n[1] TRUE\n[1] TRUE\n```\n\n评分共10分，特征值正确得3分，迹与行列式验证各得2分，特征方程的整体验证得3分。常见错误是用`==`比较乘积与行列式，浮点误差会让结果变成`FALSE`；或者把残差写成`A %*% e$vectors - e$values * e$vectors`，循环补齐的方向不对。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测对角矩阵的奇异值和特征值。\n\n```r\nD <- diag(c(3, 5))\nprint(svd(D)$d)\nprint(eigen(D)$values)\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 5 3\n[1] 5 3\n```\n\n两者都按从大到小排列，所以5在前。\n\n2. 一个4行3列的矩阵最多有几个非零奇异值？答案为3个，不会超过行数和列数中较小的那个。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 54–57。\n- 补充来源为R官方帮助主题`help(\"eigen\")`、`help(\"svd\")`、`help(\"det\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题前三项与课程资料中已实测的输出一致，奇异值、占比与特征值已用Python（NumPy）独立计算核对。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K22`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求只保留第一个成分重建评分矩阵，比较与原矩阵的差异。",
+    "易错点请求解释为什么不同电脑上特征向量的正负号可能不同。",
+    "练习请求把对称矩阵改为非对称矩阵，观察`symmetric = TRUE`带来的问题。",
+    "相关知识继续学习K23，了解大规模稀疏矩阵的存储方式。"
+   ],
+   "assets": [
+    "code/K22_example_01.R",
+    "code/K22_example_02.R",
+    "code/K22_exercise.R",
+    "images/K22_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K22.md",
+   "sha256": "b7e1bedd277f66c4877de406374e69d3790271250887e1816c108592c2c4ada8"
+  },
+  "K23": {
+   "id": "K23",
+   "title": "稀疏矩阵",
+   "unit": "矩阵与数组",
+   "difficulty": "扩展",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K19",
+    "K21"
+   ],
+   "related": [
+    "K19",
+    "K21",
+    "K22"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`Matrix::sparseMatrix()`根据非零值的行号、列号和数值创建稀疏矩阵。\n- 能够计算非零元素个数和密度，判断数据是否适合用稀疏格式存储。\n- 能够正确调用Matrix包的函数，并说明转换为普通矩阵会失去存储优势。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `matrix(0, 3, 3)`有几个元素？预期回答为9个，全部为0。\n2. 怎样计算一个向量中非零值的个数？预期回答为`sum(x != 0)`。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "购物记录里，每位顾客只买了几样商品，如果把“顾客×商品”画成一张大表，绝大部分格子都是0。稀疏矩阵不存这些0，只记下“第几行、第几列、值是多少”的清单，打印时用点号表示0。数据越大、0越多，节省的空间越明显。R自带的Matrix包提供稀疏矩阵，使用时写`Matrix::函数名`，不必先加载整个包。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么创建时要给`dims`？只给非零位置时，R不知道矩阵最后一行或最后一列之后是否还有全为0的部分，`dims`明确了完整大小。\n2. 为什么要用`Matrix::colSums()`而不是只写`colSums()`？Matrix包为稀疏矩阵提供了专门的版本，写明包名能确保调用正确，也让读者知道函数来自哪里。\n3. 为什么稀疏格式不总是更快？逐个修改元素、转为普通矩阵或者数据并不稀疏时，额外的结构反而带来开销。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "在3行3列的矩阵中只放两个非零值，比较稀疏格式与普通矩阵的打印效果。\n\n独立脚本见[K23_example_01.R](/content/code/K23_example_01.R)。\n\n```r\ns <- Matrix::sparseMatrix(i = c(1, 3), j = c(1, 2), x = c(5, 7), dims = c(3, 3))\nprint(s)\nprint(as.matrix(s))\nprint(Matrix::nnzero(s))\n```\n\n### 预期输出（待R实测）\n\n```text\n3 x 3 sparse Matrix of class \"dgCMatrix\"\n[1,] 5 . .\n[2,] . . .\n[3,] . 7 .\n     [,1] [,2] [,3]\n[1,]    5    0    0\n[2,]    0    0    0\n[3,]    0    7    0\n[1] 2\n```\n\n### 逐步讲解\n\n1. `i`和`j`给出非零值的位置，即第1行第1列和第3行第2列。\n2. `x`给出这两个位置上的数值，`dims`规定完整大小为3行3列。\n3. 打印稀疏矩阵时用点号表示0，第一行说明了大小和存储类型。\n4. `as.matrix()`转成普通矩阵，0被完整写出。\n5. `nnzero()`统计非零元素个数为2。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "5位顾客、6种商品的购买记录只有7条。用稀疏矩阵表示购买关系，计算密度，统计每种商品被几位顾客购买，并找出最受欢迎的商品。\n\n独立脚本见[K23_example_02.R](/content/code/K23_example_02.R)。\n\n```r\nitems <- c(\"milk\", \"bread\", \"egg\", \"tea\", \"rice\", \"salt\")\nbasket <- Matrix::sparseMatrix(i = c(1, 1, 2, 3, 4, 5, 5), j = c(1, 2, 1, 4, 2, 1, 6),\n                               x = 1, dims = c(5, 6),\n                               dimnames = list(paste0(\"C\", 1:5), items))\nprint(Matrix::nnzero(basket))\nprint(round(Matrix::nnzero(basket) / prod(dim(basket)), 3))\nbuyers <- Matrix::colSums(basket)\nprint(buyers)\nprint(names(which.max(buyers)))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 7\n[1] 0.233\n milk bread   egg   tea  rice  salt \n    3     2     0     1     0     1 \n[1] \"milk\"\n```\n\n### 逐步讲解\n\n1. 每条购买记录对应一个非零位置，`x = 1`表示“购买过”，长度为1时会循环使用。\n2. 30个格子中只有7个非零，密度约为0.233。\n3. `Matrix::colSums()`按列求和，得到每种商品的购买人数。\n4. milk被3位顾客购买，人数最多。\n\n这里的“受欢迎”只是5位模拟顾客中购买人数最多，不代表销量或利润最高。真实的购物篮数据可能有上万种商品，密度往往远低于1%，稀疏格式的优势会更加明显。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“从清单到稀疏矩阵”，采用对照图，以SVG手绘。左侧是三元组清单（行、列、值），右侧是对应的网格，非零位置以亮色方块显示，其余位置画成点号，下方用一条横条表示密度。\n\n![左侧列出两条记录：第1行第1列值5，第3行第2列值7；右侧3行3列的网格中这两个位置显示5和7，其余7个位置为点号。下方横条显示非零格子占2/9。](/content/images/K23_visual_01.svg)\n\n图把“存储的是清单”与“打印出来的样子”放在一起，帮助学生理解点号并不是缺失值，而是没有存储的0。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "没有指明Matrix包就直接调用`sparseMatrix()`，R找不到这个函数。\n\n```r\ns <- sparseMatrix(i = 1, j = 2, x = 3, dims = c(2, 2))\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\nError in sparseMatrix(...) : \n  could not find function \"sparseMatrix\"\n```\n\n参考修正在函数前写明包名，或者先运行`library(Matrix)`。\n\n```r\ns <- Matrix::sparseMatrix(i = 1, j = 2, x = 3, dims = c(2, 2))\nprint(dim(s))\nprint(Matrix::nnzero(s))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2 2\n[1] 1\n```\n\nMatrix是R自带的推荐包，一般无需另行安装。如果提示`there is no package called 'Matrix'`，说明R的安装不完整，需要用`install.packages(\"Matrix\")`补装。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "3位用户对4部电影的评分只有6条记录。要求用稀疏矩阵保存评分，转为普通矩阵查看，统计每位用户评过几部电影，核对两种格式的非零个数一致，并计算矩阵中空白格子所占的比例。\n\n提示`dense > 0`得到逻辑矩阵，`rowSums()`可以按行统计`TRUE`的个数。\n\n独立脚本见[K23_exercise.R](/content/code/K23_exercise.R)。\n\n```r\nuser <- c(1, 1, 2, 3, 3, 3)\nitem <- c(2, 4, 1, 1, 3, 4)\nrating <- c(5, 3, 4, 2, 5, 4)\nR <- Matrix::sparseMatrix(i = user, j = item, x = rating, dims = c(3, 4))\ndense <- as.matrix(R)\nprint(dense)\nprint(rowSums(dense > 0))\nprint(Matrix::nnzero(R) == sum(dense != 0))\nprint(round(1 - Matrix::nnzero(R) / length(dense), 2))\n```\n\n### 预期输出（待R实测）\n\n```text\n     [,1] [,2] [,3] [,4]\n[1,]    0    5    0    3\n[2,]    4    0    0    0\n[3,]    2    0    5    4\n[1] 2 1 3\n[1] TRUE\n[1] 0.5\n```\n\n评分共10分，稀疏矩阵构造正确得3分，转换与打印得2分，每位用户的评分数量得2分，一致性核对得1分，空白比例得2分。常见错误是漏写`dims`，最后一列或最后一行全为0时矩阵会被缩小；还有人把未评分的0当作“打了0分”计入平均分，实际上它表示没有记录。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测单位矩阵中0的个数与比例。\n\n```r\nm <- diag(3)\nprint(sum(m == 0))\nprint(round(sum(m == 0) / length(m), 2))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 6\n[1] 0.67\n```\n\n3阶单位矩阵只有对角线上的3个1，其余6个位置为0。\n\n2. 稀疏矩阵打印出的点号是缺失值`NA`吗？答案为不是，点号表示没有存储的0。缺失值在稀疏矩阵中仍会显示为`NA`。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 58–62。\n- 补充来源为R官方帮助主题`help(\"sparseMatrix\", package = \"Matrix\")`、`help(\"nnzero\", package = \"Matrix\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题前两项与课程资料中已实测的输出一致；稀疏矩阵的打印格式随Matrix包版本可能略有差异，核对时以实际输出为准。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K23`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`Matrix::Matrix(m, sparse = TRUE)`把已有的普通矩阵转换为稀疏格式。",
+    "易错点请求说明把稀疏矩阵转为普通矩阵时内存会怎样变化。",
+    "练习请求计算每部电影的平均评分，并且只统计有评分的用户。",
+    "相关知识回到K21，比较稀疏矩阵与普通矩阵的乘法结果。"
+   ],
+   "assets": [
+    "code/K23_example_01.R",
+    "code/K23_example_02.R",
+    "code/K23_exercise.R",
+    "images/K23_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K23.md",
+   "sha256": "cf30ce59bff6c0426b38293a56c3fb34ecbfdc4744eae9e71b3f0c8a2ec6cc09"
+  },
+  "K24": {
+   "id": "K24",
+   "title": "数组与apply",
+   "unit": "矩阵与数组",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K19"
+   ],
+   "related": [
+    "K13",
+    "K19",
+    "K30",
+    "K32"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`array()`创建三维数组，并用`[i, j, k]`取出元素和切片。\n- 能够用`apply()`沿指定维度汇总，说出`MARGIN`为1、2、3和`c(1, 3)`时保留的是哪些维度。\n- 能够区分`apply(m, 1, ...)`按行与`apply(m, 2, ...)`按列，避免汇总方向错误。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `matrix(1:6, nrow = 2)[, 2]`的结果是什么？预期回答为`3 4`。\n2. `mean(c(20, 22, 21, 23))`等于多少？预期回答为21.5。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "矩阵是一张表，数组可以看成一摞同样大小的表，例如“门店×月份”的销售表按商品摞成两层，第三个下标就是层号。`apply()`的`MARGIN`指“要保留哪一维作为分组”：保留第1维，就对每个门店把其余所有格子汇总成一个数；保留第3维，就对每一层汇总；保留`c(1, 3)`，就得到“门店×商品”的小表。没有被保留的维度都会被汇总掉。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么数组的填充顺序是第1维变化最快？数组和矩阵一样按列存储，先填满第1维，再推进第2维，最后推进第3维。\n2. 为什么`apply(m, 1, mean)`得到的是每行的平均值？`MARGIN = 1`表示保留行，对每一行的所有列求平均。\n3. 为什么数据框不适合直接用`apply()`？`apply()`会先把数据框转换为矩阵，混合类型的列会被统一成字符，数值计算就会出错，这时应使用K32的`lapply()`或`sapply()`。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "创建2行3列2层的数组，查看维度，取出第2层和单个元素，并按层求和。\n\n独立脚本见[K24_example_01.R](/content/code/K24_example_01.R)。\n\n```r\na <- array(1:12, dim = c(2, 3, 2))\nprint(dim(a))\nprint(a[, , 2])\nprint(a[2, 3, 1])\nprint(apply(a, 3, sum))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2 3 2\n     [,1] [,2] [,3]\n[1,]    7    9   11\n[2,]    8   10   12\n[1] 6\n[1] 21 57\n```\n\n### 逐步讲解\n\n1. `dim`依次为行数、列数和层数。\n2. 第1层放1到6，第2层放7到12，每层内部仍按列填充。\n3. `a[2, 3, 1]`取第1层第2行第3列，值为6。\n4. `apply(a, 3, sum)`对每一层求和，1到6之和为21，7到12之和为57。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "两家门店三个月的销售量按商品分为两层（tea和cake）。需要查看tea层的明细，计算每家门店的总销量、每种商品的总销量，以及“门店×商品”的汇总表。\n\n独立脚本见[K24_example_02.R](/content/code/K24_example_02.R)。\n\n```r\nsales <- array(c(10, 12, 11, 15, 9, 14,\n                 5, 6, 7, 6, 8, 9),\n               dim = c(2, 3, 2),\n               dimnames = list(c(\"A\", \"B\"), c(\"Jan\", \"Feb\", \"Mar\"), c(\"tea\", \"cake\")))\nprint(sales[, , \"tea\"])\nprint(apply(sales, 1, sum))\nprint(apply(sales, 3, sum))\nprint(apply(sales, c(1, 3), sum))\n```\n\n### 预期输出（待R实测）\n\n```text\n  Jan Feb Mar\nA  10  11   9\nB  12  15  14\n A  B \n50 62 \n tea cake \n  71   41 \n  tea cake\nA  30   20\nB  41   21\n```\n\n### 逐步讲解\n\n1. `dimnames`依次给门店、月份和商品命名，可以按名称取出tea层。\n2. 保留第1维，把每家门店所有月份、所有商品的销量加总。\n3. 保留第3维，把每种商品所有门店、所有月份的销量加总。\n4. 保留第1维和第3维，只把月份加总，得到2行2列的汇总表。\n\n汇总表中A店tea为30，是10、11、9三个月之和。两种商品的单位相同时，按门店汇总的总销量才有意义；如果一种按杯、一种按块计数，就应分开报告。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“MARGIN保留哪一维”，采用立体示意图，以SVG手绘。中间是两层叠放的2行3列网格，三个分支分别画出`MARGIN = 1`、`MARGIN = 3`和`MARGIN = c(1, 3)`的结果形状，并标出被汇总掉的维度。\n\n![一个两层的立方数组，行是门店A、B，列是三个月，层是tea和cake。MARGIN=1得到长度2的向量，按门店汇总；MARGIN=3得到长度2的向量，按商品汇总；MARGIN=c(1,3)得到2行2列的表，只汇总月份。](/content/images/K24_visual_01.svg)\n\n图的规律是“保留的维度就是结果的形状”，学生可以先画出想要的结果形状，再决定`MARGIN`怎么写。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "想计算每门课的平均分，却写成了`MARGIN = 1`，得到的是每名学生的平均分。\n\n```r\nm <- matrix(c(60, 80, 70, 90, 100, 85), nrow = 2,\n            dimnames = list(c(\"Ann\", \"Ben\"), c(\"math\", \"eng\", \"art\")))\nprint(apply(m, 1, mean))\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n     Ann      Ben \n76.66667 85.00000 \n```\n\n参考修正保留第2维，即按列求平均。\n\n```r\nm <- matrix(c(60, 80, 70, 90, 100, 85), nrow = 2,\n            dimnames = list(c(\"Ann\", \"Ben\"), c(\"math\", \"eng\", \"art\")))\nprint(apply(m, 2, mean))\n```\n\n### 预期输出（待R实测）\n\n```text\nmath  eng  art \n70.0 80.0 92.5 \n```\n\n结果的名称能帮助发现方向错误：想要课程平均分，结果的名称就应该是课程名。对矩阵按行或按列求和、求平均，也可以直接使用`rowMeans()`、`colMeans()`。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "两个城市四天的最高气温（摄氏度）按周分为两层。要求计算每周所有记录的平均气温、每个城市两周的平均气温，以及每个城市每周的最高气温。\n\n提示先确认想要的结果形状，再选择`MARGIN`。\n\n独立脚本见[K24_exercise.R](/content/code/K24_exercise.R)。\n\n```r\ntemp <- array(c(20, 25, 22, 27, 21, 26, 23, 28,\n                19, 24, 21, 25, 20, 26, 22, 27),\n              dim = c(2, 4, 2),\n              dimnames = list(c(\"Xian\", \"Wuhan\"), paste0(\"d\", 1:4), c(\"w1\", \"w2\")))\nprint(apply(temp, 3, mean))\nprint(apply(temp, 1, mean))\nprint(apply(temp, c(1, 3), max))\n```\n\n### 预期输出（待R实测）\n\n```text\nw1 w2 \n24 23 \n Xian Wuhan \n   21    26 \n      w1 w2\nXian  23 22\nWuhan 28 27\n```\n\n评分共10分，三种汇总各得3分，能说明每种结果的形状来自哪些保留维度得1分。常见错误是把每周平均写成`apply(temp, 2, mean)`，得到的是每一天的平均值；或者误以为数组按行填充，导致城市的数据交错。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面三行的输出。\n\n```r\na <- array(1:24, dim = c(2, 3, 4))\nprint(dim(a[, , 1]))\nprint(length(apply(a, 3, sum)))\nprint(a[1, 1, 2])\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2 3\n[1] 4\n[1] 7\n```\n\n每层是2行3列；保留第3维会得到4个结果；第1层占用1到6，所以第2层的第一个元素是7。\n\n2. 对一个含有字符列的数据框使用`apply(df, 1, sum)`会怎样？答案为数据框先被转换成字符矩阵，求和会报错，应改用数值列或K32的函数。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 63–65、82。\n- 补充来源为R官方帮助主题`help(\"array\")`、`help(\"apply\")`、`help(\"colSums\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题的切片与按层求和与课程资料中已实测的输出一致。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K24`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`aperm()`调整数组维度的顺序，并说明结果如何变化。",
+    "易错点请求比较`apply(m, 2, mean)`与`colMeans(m)`的结果和速度。",
+    "练习请求找出每个城市气温最高的是哪一天。",
+    "相关知识继续学习K32，用`sapply()`处理列表和数据框的批量计算。"
+   ],
+   "assets": [
+    "code/K24_example_01.R",
+    "code/K24_example_02.R",
+    "code/K24_exercise.R",
+    "images/K24_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K24.md",
+   "sha256": "2ed5f5e391866e1969a836896788a832d7f273001276cd1d73c42eb9390fb93a"
   }
  }
 }
