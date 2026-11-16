@@ -1,8 +1,10 @@
 /* Keep dependency and application startup order explicit for the local demo. */
 import * as THREE from './vendor/three/three.module.min.js';
+import {registerOffline} from './offline.js?v=learning-v1';
 
 window.THREE = THREE;
-const build = '20261116.3';
+void registerOffline();
+const build = 'learning-v1';
 await import(`./knowledge-map.js?v=${build}`);
 await import(`./liquid-scene.js?v=${build}`);
 await import(`./r-file.js?v=${build}`);
