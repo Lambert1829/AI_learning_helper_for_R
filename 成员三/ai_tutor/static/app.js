@@ -596,6 +596,8 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
 $('ask-form').onsubmit = e => { e.preventDefault(); send(); };
 $('cancel-request').onclick = () => requestController?.abort();
 $('code-toggle').onclick = () => { setCode(!codeOpen); if (codeOpen) $('code').focus(); };
+// Terminal-style code blocks upgrade every .code-wrap pre on the page (purely visual).
+import('./code-terminal.js?v=learning-v1').then(module => module.initTerminal()).catch(() => {});
 // Answer feedback is optional: if the module fails to load, answers render without it.
 import('./answer-feedback.js?v=learning-v1').then(module => {
   feedbackModule = module;

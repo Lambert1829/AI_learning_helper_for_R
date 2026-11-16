@@ -24,6 +24,8 @@ const ASSETS = [
   '/static/answer-feedback.css',
   '/static/demo-mode.js',
   '/static/demo-mode.css',
+  '/static/code-terminal.js',
+  '/static/code-terminal.css',
   '/static/vendor/three/three.module.min.js',
   '/static/vendor/marked/marked.js',
   '/static/vendor/dompurify/purify.js',

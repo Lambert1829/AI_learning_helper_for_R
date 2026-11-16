@@ -1,0 +1,121 @@
+/* Terminal skin for every .code-wrap (chat, review, knowledge detail, learning center). */
+.code-wrap.terminal {
+  --t-bg: #070d18;
+  --t-bar: #0d1626;
+  --t-line: rgba(121, 189, 241, .16);
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .025) 50%, transparent 50%) 0 0 / 100% 4px,
+    radial-gradient(ellipse 80% 100% at 0% 0%, rgba(0, 113, 227, .16), transparent 60%),
+    var(--t-bg) !important;
+  border: 1px solid var(--t-line) !important;
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(4, 12, 28, .28), inset 0 1px 0 rgba(255, 255, 255, .05);
+  color: #dbe7f5;
+  transition: border-color .25s, box-shadow .25s;
+}
+.code-wrap.terminal:hover {
+  border-color: rgba(127, 227, 255, .45) !important;
+  box-shadow: 0 14px 40px rgba(4, 12, 28, .3), 0 0 0 1px rgba(127, 227, 255, .15), 0 0 26px rgba(63, 182, 255, .18);
+}
+.code-wrap.terminal .code-heading {
+  position: relative;
+  padding: 6px 14px 6px 66px !important;
+  background: linear-gradient(90deg, var(--t-bar), rgba(13, 22, 38, .6));
+  border-bottom: 1px solid var(--t-line) !important;
+  color: #9fb3c8 !important;
+  font: 600 12px/1.6 ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: .04em;
+}
+.code-wrap.terminal .code-heading::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 40px;
+  height: 10px;
+  transform: translateY(-50%);
+  background:
+    radial-gradient(circle 5px at 5px 5px, #ff5f57 98%, transparent) 0 0 / 15px 10px no-repeat,
+    radial-gradient(circle 5px at 5px 5px, #febc2e 98%, transparent) 15px 0 / 15px 10px no-repeat,
+    radial-gradient(circle 5px at 5px 5px, #28c840 98%, transparent) 30px 0 / 15px 10px no-repeat;
+  opacity: .9;
+}
+.code-wrap.terminal .unverified {
+  color: #f2b56b !important;
+  border-color: rgba(242, 181, 107, .45) !important;
+  background: rgba(242, 181, 107, .08);
+  font-family: var(--font-ui, system-ui);
+  letter-spacing: 0;
+}
+.code-wrap.terminal .code-heading .copy {
+  color: #7fe3ff !important;
+  font-family: var(--font-ui, system-ui);
+  border-radius: 8px;
+  transition: background .2s, box-shadow .2s;
+}
+.code-wrap.terminal .code-heading .copy:hover { background: rgba(127, 227, 255, .1); box-shadow: 0 0 12px rgba(127, 227, 255, .25); }
+.code-wrap.terminal pre {
+  white-space: pre !important;
+  overflow-wrap: normal !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  color: #e6f0fb !important;
+  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  tab-size: 2;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 227, 255, .35) transparent;
+}
+.code-wrap.terminal pre.numbered { counter-reset: tl; padding-left: 12px; }
+.code-wrap.terminal pre.numbered .tl::before {
+  counter-increment: tl;
+  content: counter(tl);
+  display: inline-block;
+  width: 2.2em;
+  margin-right: 14px;
+  padding-right: 10px;
+  border-right: 1px solid rgba(121, 189, 241, .14);
+  color: #44566e;
+  text-align: right;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.tk-com { color: #6b7f98; font-style: italic; }
+.tk-str { color: #a5e075; }
+.tk-num { color: #ffb86b; }
+.tk-key { color: #ff79c6; font-weight: 600; }
+.tk-const { color: #ffd866; font-weight: 600; }
+.tk-fn { color: #6cd3ff; text-shadow: 0 0 10px rgba(108, 211, 255, .35); }
+.tk-arg { color: #c3a6ff; }
+.tk-op { color: #8fb7dc; }
+
+.code-wrap.terminal-output pre { color: #b6f2d0 !important; }
+.code-wrap.terminal-output .code-heading::after {
+  content: "STDOUT";
+  margin-left: auto;
+  order: 2;
+  padding: 1px 6px;
+  border: 1px solid rgba(182, 242, 208, .3);
+  border-radius: 4px;
+  color: #8fe0b6;
+  font-size: 10px;
+  letter-spacing: .14em;
+}
+.code-wrap.terminal-output .code-heading .copy { order: 3; margin-left: 8px; }
+.out-err { color: #ff7a8a; text-shadow: 0 0 10px rgba(255, 90, 110, .35); }
+.out-warn { color: #ffc46b; }
+
+/* knowledge-map dark panel already uses dark code blocks: keep the same skin there */
+#knowledge-view #map-detail #detail-body .code-wrap.terminal { background-color: var(--t-bg) !important; }
+
+@media (max-width: 760px) {
+  .code-wrap.terminal .code-heading { padding-left: 58px !important; }
+  .code-wrap.terminal pre.numbered .tl::before { width: 1.6em; margin-right: 10px; padding-right: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .code-wrap.terminal { transition: none; }
+}
+@media print {
+  .code-wrap.terminal { background: #fff !important; color: #000; box-shadow: none; }
+  .code-wrap.terminal pre, .code-wrap.terminal [class^="tk-"] { color: #000 !important; text-shadow: none; }
+}
