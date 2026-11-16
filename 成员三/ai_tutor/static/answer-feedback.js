@@ -245,11 +245,14 @@ function buildDialog() {
   dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
   document.body.append(dialog);
 }
-export function openDashboard() {
+/* modal:false keeps the rest of the page interactive (used by the defense demo overlay). */
+export function openDashboard({modal = true} = {}) {
   if (!dialog) buildDialog();
   renderDashboard();
-  dialog.showModal();
+  if (dialog.open) dialog.close();
+  modal ? dialog.showModal() : dialog.show();
 }
+export function closeDashboard() { if (dialog?.open) dialog.close(); }
 
 /* Adds the dashboard entry to the "更多" menu and loads the stylesheet. */
 export function initFeedback({menu = document.getElementById('more-panel'), onOpen} = {}) {

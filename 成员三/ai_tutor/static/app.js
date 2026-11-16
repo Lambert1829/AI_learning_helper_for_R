@@ -602,6 +602,20 @@ import('./answer-feedback.js?v=learning-v1').then(module => {
   module.initFeedback({onOpen:() => setMore(false)});
   if (records.length) renderRecords();
 }).catch(() => {});
+// Defense demo mode drives the real UI through these few entry points.
+import('./demo-mode.js?v=learning-v1').then(module => module.initDemo({
+  navigate,
+  openKnowledge:id => { navigate('knowledge'); setTimeout(() => mapUI.select(id), 120); },
+  ask:async question => { if (busy) return; navigate('chat'); setCode(false); await send(question, {useComposer:false}); },
+  review:async (code, question) => {
+    if (busy) return;
+    navigate('review'); setCode(true); $('code').value = code; fileInput.detach(); fileInput.count(); $('error-message').value = '';
+    await send(question);
+  },
+  openFeedback:options => feedbackModule?.openDashboard(options),
+  closeFeedback:() => feedbackModule?.closeDashboard(),
+  closeMenu:() => setMore(false)
+})).catch(() => {});
 $('more-toggle').onclick = () => setMore($('more-panel').hidden);
 $('more-toggle').onkeydown = e => { if (e.key === 'ArrowDown') { e.preventDefault(); setMore(true,true); } };
 document.addEventListener('click', e => { if (!e.target.closest('.more-wrap')) setMore(false); });

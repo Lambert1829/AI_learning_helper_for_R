@@ -125,6 +125,7 @@
   overflow: hidden;
 }
 .fbq[open] { display: flex; flex-direction: column; animation: fbq-in .35s cubic-bezier(.2, .8, .2, 1); }
+.fbq:not(:modal)[open] { position: fixed; inset: 0; margin: auto; height: fit-content; z-index: 940; }
 .fbq::backdrop { background: rgba(3, 8, 19, .55); backdrop-filter: blur(6px); }
 .fbq-head, .fbq-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 24px; }
 .fbq-head { border-bottom: 1px solid rgba(121, 189, 241, .14); }
