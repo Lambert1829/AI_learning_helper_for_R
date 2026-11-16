@@ -1,8 +1,8 @@
 /* Deterministic 2D knowledge navigation. No physics loop, random positions or HTML injection. */
 'use strict';
 class KnowledgeMap {
-  constructor({api, explain, exercise, codeBlock, units, markdown}) {
-    Object.assign(this, {api, explain, exercise, codeBlock, units, markdown});
+  constructor({api, explain, exercise, codeBlock, units, markdown, visit, enroll, bookmark}) {
+    Object.assign(this, {api, explain, exercise, codeBlock, units, markdown, visit, enroll, bookmark});
     this.items = []; this.edges = []; this.nodes = new Map(); this.cache = new Map();
     this.selected = null; this.sequence = 0; this.ready = false;
     this.$ = id => document.getElementById(id);
@@ -38,12 +38,6 @@ class KnowledgeMap {
     this.narrow.addEventListener('change', () => this.accessibility());
     this.$('map-detail').addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); this.close(); }
-      if (event.key === 'Tab' && this.narrow.matches) {
-        const controls = [...this.$('map-detail').querySelectorAll('button,a,summary')].filter(n => n.checkVisibility() && !n.disabled);
-        const first = controls[0], last = controls.at(-1);
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-      }
     });
     this.viewport.addEventListener('keydown', event => {
       if (event.target !== this.viewport) return;
@@ -179,13 +173,13 @@ class KnowledgeMap {
     });
   }
   accessibility() {
-    const open=!this.$('map-detail').hidden, modal=open && this.narrow.matches;
-    this.$('map-detail').setAttribute('role',modal?'dialog':'complementary');
-    if(modal)this.$('map-detail').setAttribute('aria-modal','true');else this.$('map-detail').removeAttribute('aria-modal');
-    for(const id of ['map-stage','map-controls','map-accessible','map-legend'])this.$(id).inert=modal;
-    document.querySelector('.app-header').inert=modal;
-    document.body.classList.toggle('map-detail-modal',modal);
-    if(modal)this.$('detail-close').focus({preventScroll:true});
+    const open=!this.$('map-detail').hidden, mobileSheet=open && this.narrow.matches;
+    this.$('map-detail').setAttribute('role',mobileSheet?'dialog':'complementary');
+    this.$('map-detail').removeAttribute('aria-modal');
+    for(const id of ['map-stage','map-controls','map-accessible','map-legend'])this.$(id).inert=mobileSheet;
+    document.querySelector('.app-header').inert=false;
+    document.body.classList.toggle('map-detail-sheet-open',mobileSheet);
+    if(mobileSheet)this.$('detail-close').focus({preventScroll:true});
   }
   close(restore=true) {
     const previous=this.selected;const wasMobile=!this.$('map-detail').hidden && this.narrow.matches;this.sequence++;this.selected=null;
@@ -222,6 +216,7 @@ class KnowledgeMap {
     try {
       const k=this.cache.get(id) || await this.api('/api/knowledge/'+encodeURIComponent(id));
       this.cache.set(id,k);if(seq!==this.sequence)return;
+      this.visit?.(id);
       const root=this.$('detail-body');root.replaceChildren();
       root.append(this.node('p',n.k.chapter,'eyebrow'));const title=this.node('h2',k.id+' · '+k.title);title.id='detail-title';root.append(title);
       const fields=k.fields || {};
@@ -239,6 +234,8 @@ class KnowledgeMap {
       const explain=this.action('在AI问答中讲解',()=>{this.close(false);this.explain(id);},'primary');
       const practice=this.action('给我一道练习',()=>{this.close(false);this.exercise(id);});
       explain.dataset.request='true';practice.dataset.request='true';actions.append(explain,practice);root.append(actions);
+      actions.append(this.action('加入复习',async event=>{const target=event.currentTarget;if(await this.enroll?.(id))target.textContent='已加入复习';}),
+        this.action('收藏',async event=>{const target=event.currentTarget;if(await this.bookmark?.(id))target.textContent='已收藏';}));
       root.scrollTop=0;
     } catch(error) {
       if(seq!==this.sequence)return;

@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"><meta name="theme-color" content="#f5f5f7"><title>R语言学习助手</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/static/style.css?v=20261115.8"><link rel="stylesheet" href="/static/learning.css?v=20261115.8"><link rel="stylesheet" href="/static/model-settings.css?v=20261115.8"><script type="module" src="/static/bootstrap.js?v=20261115.8"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"><meta name="theme-color" content="#f5f5f7"><title>R语言学习助手</title><link rel="manifest" href="/static/manifest.webmanifest?v=learning-v1"><link rel="icon" href="/static/icons/icon-192.png?v=learning-v1"><link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png?v=learning-v1"><link rel="stylesheet" href="/static/style.css?v=learning-v1"><link rel="stylesheet" href="/static/learning.css?v=learning-v1"><link rel="stylesheet" href="/static/model-settings.css?v=learning-v1"><link rel="stylesheet" href="/static/learning-center.css?v=learning-v1"><script type="module" src="/static/bootstrap.js?v=learning-v1"></script></head>
 <body>
-<!-- Visual system: system fonts; 72/48/24/16px; blue #0071e3, gray #f5f5f7, ink #1d1d1f. -->
+<!-- Visual system: system fonts; 72/48/24/16px; blue #0071e3; full-bleed workspaces with restrained floating glass controls. -->
 <a class="skip-link" href="#main-content">跳至内容</a>
 <header class="app-header"><div class="nav-shell">
 <a class="brand" href="#/home" aria-label="R语言学习助手首页">R<span> / 学习助手</span></a>
@@ -33,7 +33,15 @@ x &lt;- c(2, NA, 4)
 <aside id="map-detail" aria-labelledby="detail-title" hidden><div class="detail-toolbar"><span>知识详情</span><button id="detail-close" aria-label="关闭知识详情">关闭 ×</button></div><div id="detail-body"></div></aside></div>
 <div id="map-legend" class="sr-only" aria-label="单元颜色图例"></div><nav id="map-accessible" class="sr-only" aria-label="知识点辅助导航"></nav>
 </section>
-<section id="history-view" class="view page-view" hidden aria-labelledby="history-title"><div class="page-heading"><p class="eyebrow">学习回顾</p><h1 id="history-title" tabindex="-1">学习记录</h1><p>保存在当前浏览器，随时返回对话。</p><div class="history-actions"><button id="history-export">导出记录</button><button id="history-clear">清空记录</button></div></div><div id="history-list"></div></section>
+<section id="history-view" class="view page-view" hidden aria-labelledby="history-title">
+<!-- Learning center uses existing system fonts, 40/24/18/16px type, #0071e3, 24px spacing, glass surfaces and plain section headings. -->
+<div class="page-heading"><h1 id="history-title" tabindex="-1">学习记录</h1></div>
+<nav id="learning-tabs" aria-label="学习记录页签"><a href="#/history" data-learning-tab="overview">概览</a><a href="#/history/review" data-learning-tab="review">复习</a><a href="#/history/summary" data-learning-tab="summary">小结</a><a href="#/history/records" data-learning-tab="records">记录</a></nav>
+<p id="learning-feedback" role="status" aria-live="polite"></p>
+<div id="learning-content"><p>正在读取学习档案…</p></div>
+<section id="learning-records" hidden aria-label="对话记录"><div class="history-actions"><button id="history-export">导出记录</button><button id="history-clear">清空记录</button></div><div id="history-list"></div></section>
+<details id="learning-tools"><summary>设置与资料</summary><div id="learning-tools-content"></div></details>
+</section>
 <section id="layout" class="view" hidden aria-label="学习工作区">
 <section id="workspace" aria-label="学习对话"><div class="conversation-toolbar"><h1 id="workspace-title" tabindex="-1">AI问答</h1><span id="topic-chip" hidden><span id="current-topic"></span><button id="topic-clear" aria-label="清除当前知识主题">×</button></span></div>
 <div id="conversation-scroll" tabindex="0" aria-label="对话记录"><div id="welcome"><p class="eyebrow">从课程知识开始</p><h2>理解，从这里开始。</h2><p class="muted">选择例题，或输入学习问题。</p><div id="examples" class="examples"><button data-example="向量和列表有什么区别？">向量与列表 <span aria-hidden="true">↗</span></button><button data-example="mean中的na.rm怎么用？">缺失值与均值 <span aria-hidden="true">↗</span></button><button id="debug-example">缺失值纠错 <span aria-hidden="true">↗</span></button></div></div><div id="review-empty"><p class="eyebrow">课程参考分析</p><h2>读懂原因，<br>再修改代码。</h2><p>输入代码或选择.R文件，查看问题类型、原因与参考修正。</p></div><div id="messages" aria-live="polite" aria-relevant="additions"></div></div>
@@ -41,7 +49,7 @@ x &lt;- c(2, NA, 4)
 </main>
 <dialog id="replace-file-dialog" aria-labelledby="replace-file-title"><h2 id="replace-file-title">替换编辑区内容</h2><p id="replace-file-message"></p><p>当前代码将被覆盖，取消可保留已有编辑。</p><div class="dialog-actions"><button id="replace-file-cancel">取消</button><button id="replace-file-confirm" class="primary">替换代码</button></div></dialog>
 <p id="status" role="status" hidden></p>
-<dialog id="version-dialog" aria-labelledby="version-title"><div class="dialog-heading"><h2 id="version-title">当前版本说明</h2><button id="version-close" aria-label="关闭版本说明">关闭</button></div><p id="version-number">应用 1.2.0</p><ul><li>模拟模式使用课程资料与规则。</li><li>模型设置支持DeepSeek、通义千问和OpenAI。</li><li>搜索状态与来源按本轮实际结果展示。</li><li>代码分析与生成建议均标记未经运行验证。</li></ul><p class="muted">学习记录仅保存在当前浏览器，可通过“更多”导出或清空。</p></dialog>
+<dialog id="version-dialog" aria-labelledby="version-title"><div class="dialog-heading"><h2 id="version-title">当前版本说明</h2><button id="version-close" aria-label="关闭版本说明">关闭</button></div><p id="version-number">应用 1.2.1</p><ul><li>模拟模式使用课程资料与规则。</li><li>模型设置支持DeepSeek、通义千问和OpenAI。</li><li>搜索状态与来源按本轮实际结果展示。</li><li>代码分析与生成建议均标记未经运行验证。</li></ul><p class="muted">学习记录仅保存在当前浏览器，可通过“更多”导出或清空。</p></dialog>
 <dialog id="model-dialog" aria-labelledby="model-title">
 <div class="dialog-heading"><h2 id="model-title">模型设置</h2><button id="model-close" type="button" aria-label="关闭模型设置">关闭</button></div>
 <form id="model-form" autocomplete="off">

@@ -16,7 +16,7 @@ def test_data():
 def test_routes():
     health = client.get('/api/health').json()
     assert health['mode']=='mock'
-    assert health['version']=='1.2.0'
+    assert health['version']=='1.2.1'
     assert len(client.get('/api/knowledge').json()['items'])==43
     assert client.get('/api/knowledge/K06').json()['id']=='K06'
     assert client.get('/').status_code==200

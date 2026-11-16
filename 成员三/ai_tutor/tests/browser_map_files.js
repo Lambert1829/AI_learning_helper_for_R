@@ -1,4 +1,4 @@
-async (page) => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks=[], requests=[],errors=[];
   const check=(ok,name)=>{if(!ok)throw Error(name);checks.push(name);};
   const onRequest=r=>{if(r.method()==='POST')requests.push({url:r.url(),type:r.headers()['content-type'],body:r.postDataJSON()});};
@@ -12,7 +12,7 @@ async (page) => {
   try {
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.goto('http://127.0.0.1:8000/#/knowledge');await page.reload();
+    await page.goto(baseUrl+'/#/knowledge');await page.reload();
     await page.waitForFunction(()=>document.querySelectorAll('.knowledge-orb').length===43);
     check(await page.locator('.knowledge-orb').count()===43,'43 orbs loaded');
     await page.waitForFunction(()=>document.querySelectorAll('.scene-orb-label').length===43);
@@ -105,11 +105,17 @@ async (page) => {
     check(await page.locator('.scene-orb-label').count()===43,'mobile 43 knowledge objects');
     await detail('K06');
     const sheet=await page.locator('#map-detail').boundingBox();
-    check(Math.abs(sheet.y+sheet.height-844)<2 && sheet.width===390 && await page.locator('#map-detail').getAttribute('aria-modal')==='true','mobile bottom drawer');
+    check(Math.abs(sheet.y+sheet.height-844)<2 && sheet.width===390
+      && await page.locator('#map-detail').getAttribute('role')==='dialog'
+      && await page.locator('#map-detail').getAttribute('aria-modal')===null,'mobile non-modal bottom drawer');
     check((await page.locator('#detail-title').textContent()).startsWith('K06'),'mobile selected knowledge details');
     await page.screenshot({path:'output/playwright/v3-mobile-map-detail.png',fullPage:false});
     await page.locator('#detail-close').focus();await page.keyboard.press('Shift+Tab');
-    check(await page.evaluate(()=>document.querySelector('#map-detail').contains(document.activeElement)),'bottom drawer focus trap');
+    check(await page.evaluate(()=>document.querySelector('.app-header').contains(document.activeElement)&&!document.querySelector('.app-header').inert),'bottom drawer allows header focus');
+    await page.locator('#nav-toggle').click();check(await page.locator('#main-nav').isVisible(),'header navigation opens over bottom drawer');
+    await page.locator('#main-nav a[href="#/chat"]').click();await page.waitForFunction(()=>!document.querySelector('#layout').hidden);
+    check(await page.locator('#map-detail').isHidden()&&!await page.evaluate(()=>document.body.classList.contains('map-detail-sheet-open')),'header navigation closes knowledge detail');
+    await route('knowledge');await detail('K06');
     await page.keyboard.press('Escape');check(await page.locator('#map-detail').isHidden(),'bottom drawer Escape');
     await route('review');
     const input=await page.locator('.composer-dock').boundingBox(),output=await page.locator('#conversation-scroll').boundingBox();

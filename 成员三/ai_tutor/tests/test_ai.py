@@ -497,7 +497,7 @@ def test_publish_tool_verifies_then_writes(monkeypatch, tmp_path):
     monkeypatch.setattr(publish_info, 'ROOT', root)
     def fake_urlopen(url, timeout):
         if url.endswith('/api/health'):
-            result = BytesIO(json.dumps({'version':'1.2.0', 'counts':{'knowledge':43}}).encode())
+            result = BytesIO(json.dumps({'version':'1.2.1', 'counts':{'knowledge':43}}).encode())
         else:
             result = BytesIO(b'<dialog id="model-dialog"></dialog>')
         result.geturl = lambda: url

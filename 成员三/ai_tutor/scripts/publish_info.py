@@ -22,7 +22,7 @@ def publish(url):
         if urlsplit(response.geturl()).scheme != 'https':
             raise ValueError('公网健康接口须保持HTTPS')
         health = json.load(response)
-    if health.get('version') != '1.2.0' or health.get('counts', {}).get('knowledge') != 43:
+    if health.get('version') != '1.2.1' or health.get('counts', {}).get('knowledge') != 43:
         raise ValueError('公网服务版本或课程数量不符合本次交付')
     with urlopen(base + '/', timeout=30) as response:
         if urlsplit(response.geturl()).scheme != 'https':
@@ -36,7 +36,7 @@ def publish(url):
     date = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
     note = f'''# 发布信息
 
-应用版本为1.2.0，发布日期为{date}。
+应用版本为1.2.1，发布日期为{date}。
 
 - 公网地址为 [{base}]({base}/)。
 - 二维码文件为 `ai_tutor/output/release/qrcode.svg`。

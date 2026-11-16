@@ -1,4 +1,4 @@
-async (page) => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks = [], requests = [], errors = [];
   const check = (ok, name) => { if (!ok) throw Error(name); checks.push(name); };
   const requestListener = request => { if (request.method() === 'POST' && /\/api\/(chat|review)$/.test(request.url())) requests.push({url:request.url(),body:request.postDataJSON()}); };
@@ -11,7 +11,7 @@ async (page) => {
       return document.querySelector('#main-nav a[aria-current="page"]')?.hash === '#/' + view&&!target.hidden;
     }, view);
   };
-  const ready = async () => page.waitForFunction(() => !document.querySelector('#send').disabled);
+  const ready = async () => page.waitForFunction(() => document.body.dataset.learningReady === 'true' && !document.querySelector('#send').disabled);
   const responseAfter = async action => {
     const count = await page.locator('.message').count();
     await action();
@@ -25,16 +25,14 @@ async (page) => {
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.setViewportSize({width:1440,height:1000});
     await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.goto('http://127.0.0.1:8000/?test='+Date.now());
+    await page.goto(baseUrl+'/?test='+Date.now());
     await page.evaluate(() => localStorage.removeItem('r-tutor-mock-v1'));
-    await page.reload();
+    await page.reload(); await page.waitForFunction(() => document.body.dataset.learningReady === 'true');
     await page.waitForFunction(() => document.querySelectorAll('.knowledge-orb').length === 43);
     await page.evaluate(() => {
-      window.__viewTransitionCalls=0;
-      if(typeof document.startViewTransition==='function'){
-        const original=document.startViewTransition.bind(document);
-        document.startViewTransition=callback=>{window.__viewTransitionCalls++;return original(callback);};
-      }
+      window.__contentFadeCalls=0;
+      const original=document.querySelector('#main-content').animate.bind(document.querySelector('#main-content'));
+      document.querySelector('#main-content').animate=(...args)=>{window.__contentFadeCalls++;return original(...args);};
     });
     check(await page.locator('#home-view').isVisible(),'default home');
     check((await page.locator('.hero h1').textContent()) === 'R语言学习，从一个问题开始','hero title');
@@ -43,7 +41,7 @@ async (page) => {
     await page.screenshot({path:'output/playwright/v3-desktop-home.png',fullPage:true});
     await page.locator('.hero-actions a').first().click();
     await page.waitForFunction(() => !document.querySelector('#layout').hidden);
-    check(await page.evaluate(() => typeof document.startViewTransition!=='function'||window.__viewTransitionCalls===1),'main views crossfade');
+    check(await page.evaluate(() => window.__contentFadeCalls>=2),'main views crossfade');
     check(await page.locator('#welcome').isVisible(),'first visit examples');
     check(await page.locator('#sidebar,#catalog,#catalog-toggle').count() === 0,'chat has no course sidebar');
     await responseAfter(() => page.getByRole('button',{name:'缺失值与均值',exact:true}).click());
@@ -103,7 +101,7 @@ async (page) => {
         fullWidth:Math.abs(map.left-view.left)<1&&Math.abs(map.right-view.right)<1,
         fullHeight:Math.abs(map.top-view.top)<1&&Math.abs(map.bottom-view.bottom)<1,
         frameless:style.borderTopWidth==='0px'&&style.borderRadius==='0px'&&style.boxShadow==='none',
-        controlsAtTop:controls.top-view.top<=24&&getComputedStyle(document.querySelector('#map-controls')).position==='absolute',
+        controlsAtTop:Math.abs(controls.top-view.top-parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header'))-12)<2&&getComputedStyle(document.querySelector('#map-controls')).position==='absolute',
       };
     });
     check(immersiveLayout.fullWidth&&immersiveLayout.fullHeight&&immersiveLayout.frameless,'knowledge ocean fills frameless view');
@@ -166,14 +164,15 @@ async (page) => {
     await page.locator('#code').fill('draft <- 1');
     await route('home'); await route('review');
     check(await page.locator('#question').inputValue() === '保留问题草稿' && await page.locator('#code').inputValue() === 'draft <- 1','route retains drafts');
-    await route('history');
+    await route('history'); await page.locator('[data-learning-tab=records]').click();
     const count = await page.locator('.message').count();
     check(await page.locator('.history-row').count() === count,'history list');
     await page.locator('.history-row').last().click();
+    await page.waitForFunction(() => document.activeElement === document.querySelector('#record-0'));
     check(await page.locator('#record-0').evaluate(n => n === document.activeElement),'history return focus');
-    await page.reload(); await ready();
+    await page.reload(); await page.waitForFunction(() => document.body.dataset.learningReady === 'true'); await ready();
     check(await page.locator('.message').count() === count,'legacy storage restore');
-    await route('history');
+    await route('history'); await page.locator('[data-learning-tab=records]').click();
     const downloadPromise = page.waitForEvent('download');
     await page.locator('#history-export').click();
     const download = await downloadPromise; await download.saveAs('output/playwright/v3-records.json');
@@ -196,7 +195,7 @@ async (page) => {
     check(await page.evaluate(() => !window.__injected && !document.querySelector('#messages img')),'safe input rendering');
     check((await page.locator('.message').last().textContent()).includes('<img'),'literal HTML visible');
     await submit('火星旅行机票价格');
-    check((await page.evaluate(() => JSON.parse(localStorage.getItem('r-tutor-mock-v1')).at(-1).response.status)) === 'no_match','no match normal response');
+    check((await page.evaluate(async () => (await (await import('/static/learning-store.js?v=learning-v1')).learningStore.snapshot()).conversations.at(-1).record.response.status)) === 'no_match','no match normal response');
     const failure = route => route.fulfill({status:422,contentType:'application/json',body:JSON.stringify({error:{message:'测试参数错误'}})});
     await page.route('**/api/chat', failure); await page.locator('#question').fill('mean'); await page.locator('#send').click();
     await page.waitForFunction(() => document.querySelector('#status').textContent.includes('测试参数错误')); await ready();
@@ -234,11 +233,11 @@ async (page) => {
     const targets = await page.locator('button:visible, #main-nav a:visible, .primary:visible').evaluateAll(nodes => nodes.filter(n => n.getBoundingClientRect().height < 44 || n.getBoundingClientRect().width < 44).map(n => n.textContent));
     check(targets.length === 0,'mobile touch targets');
     await page.emulateMedia({reducedMotion:'reduce'});
-    const transitionCount=await page.evaluate(()=>window.__viewTransitionCalls);
+    const transitionCount=await page.evaluate(()=>window.__contentFadeCalls);
     await route('home');
-    check(await page.evaluate(count=>window.__viewTransitionCalls===count,transitionCount),'reduced motion skips view transition');
+    check(await page.evaluate(count=>window.__contentFadeCalls===count,transitionCount),'reduced motion skips view transition');
     check(await page.locator('.reveal').first().evaluate(n => getComputedStyle(n).animationName === 'none'),'reduced motion');
-    await route('history'); await page.locator('#history-clear').click(); await page.reload();
+    await route('history'); await page.locator('[data-learning-tab=records]').click(); await page.locator('#history-clear').click(); await page.waitForFunction(async () => (await (await import('/static/learning-store.js?v=learning-v1')).learningStore.snapshot()).conversations.length === 0); await page.reload(); await page.waitForFunction(() => document.body.dataset.learningReady === 'true');
     check(await page.locator('.message').count() === 0 && await page.locator('.history-row').count() === 0,'clear persists');
     await route('chat'); check(await page.locator('#welcome').isVisible(),'examples return after clear');
     check(errors.length === 0,'no uncaught browser errors ' + JSON.stringify(errors));
