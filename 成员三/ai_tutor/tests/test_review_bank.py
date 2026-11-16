@@ -9,7 +9,7 @@ BANK = json.loads((ROOT / 'static/review-bank.json').read_text(encoding='utf-8')
 
 def test_unique_question_ids_and_complete_coverage():
     items = BANK['items']
-    assert len({item['id'] for item in items}) == len(items) == 94
+    assert len({item['id'] for item in items}) == len(items) == 124
     for topic in COURSE['knowledge']:
         for kind in ('concept', 'application'):
             assert any(item['knowledgeId'] == topic['id'] and item['type'] == kind
@@ -33,7 +33,8 @@ def test_question_sources_and_references_resolve():
                 assert source['file'] and source['locator']
                 if source['file'].endswith('.pdf'):
                     assert source['file'] in source_files
-        if item.get('code') and item['type'] == 'application':
+        # Base application questions quote the course example verbatim; variants use new code on purpose.
+        if item.get('code') and item['type'] == 'application' and not item['variantOf']:
             assert item['code'] == topics[item['knowledgeId']]['fields']['运行示例']
 
 

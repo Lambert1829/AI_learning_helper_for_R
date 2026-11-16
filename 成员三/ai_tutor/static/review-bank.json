@@ -359,6 +359,55 @@
       "variantOf": null
     },
     {
+      "id": "K09-concept-variant-01",
+      "knowledgeId": "K09",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "人数n可能为0时，要生成从1到n的编号，应使用哪种写法？",
+      "hint": "",
+      "reference": "n为0时1:n与seq(1, n)都得到1和0两个数，seq_len(0)才得到空序列integer(0)。",
+      "choices": [
+        "seq_len(n)",
+        "1:n",
+        "seq(1, n)"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K09",
+          "field": "成员三/知识库补充草稿/K09.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K09-concept-01"
+    },
+    {
+      "id": "K09-application-variant-01",
+      "knowledgeId": "K09",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "print(rep(1:2, times = c(3, 1)))",
+      "hint": "",
+      "reference": "times可以是与元素一一对应的次数向量：1重复3次，2重复1次。",
+      "choices": [
+        "1 2 1 2",
+        "1 1 1 2",
+        "1 1 1 2 2"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K09",
+          "field": "成员三/知识库补充草稿/K09.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K09-application-01"
+    },
+    {
       "id": "K10-concept-01",
       "knowledgeId": "K10",
       "type": "concept",
@@ -482,6 +531,55 @@
       "variantOf": null
     },
     {
+      "id": "K12-concept-variant-01",
+      "knowledgeId": "K12",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "想找出“在旧名单中、但不在新名单中”的人，应该写哪一个？",
+      "hint": "",
+      "reference": "setdiff(a, b)表示在a中、不在b中，第一个参数决定要找哪一边独有的人。",
+      "choices": [
+        "setdiff(new, old)",
+        "setdiff(old, new)",
+        "intersect(old, new)"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K12",
+          "field": "成员三/知识库补充草稿/K12.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K12-concept-01"
+    },
+    {
+      "id": "K12-application-variant-01",
+      "knowledgeId": "K12",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "x <- c(3, 1, 3, 2)\nprint(match(3, x))",
+      "hint": "",
+      "reference": "match()只返回第一次出现的位置，第一个3在位置1。",
+      "choices": [
+        "1 3",
+        "3",
+        "1"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K12",
+          "field": "成员三/知识库补充草稿/K12.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K12-application-01"
+    },
+    {
       "id": "K13-concept-01",
       "knowledgeId": "K13",
       "type": "concept",
@@ -517,6 +615,55 @@
         }
       ],
       "variantOf": null
+    },
+    {
+      "id": "K13-concept-variant-01",
+      "knowledgeId": "K13",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "向量含有缺失值时，有效样本数应怎样计算？",
+      "hint": "",
+      "reference": "length()把缺失值也算作元素；!is.na(x)标出有效值，求和得到有效个数。",
+      "choices": [
+        "sum(!is.na(x))",
+        "length(x)",
+        "sum(x, na.rm = TRUE)"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K13",
+          "field": "成员三/知识库补充草稿/K13.md 为什么",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K13-concept-01"
+    },
+    {
+      "id": "K13-application-variant-01",
+      "knowledgeId": "K13",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "x <- c(1, 2, 3, 100)\nprint(median(x))",
+      "hint": "",
+      "reference": "中位数取排序后中间两个数2和3的平均值2.5，不受极端值100影响；均值为26.5。",
+      "choices": [
+        "26.5",
+        "2.5",
+        "3"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K13",
+          "field": "成员三/知识库补充草稿/K13.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K13-application-01"
     },
     {
       "id": "K14-concept-01",
@@ -556,6 +703,55 @@
       "variantOf": null
     },
     {
+      "id": "K14-concept-variant-01",
+      "knowledgeId": "K14",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "想按原来的顺序得到每个人的名次，应使用哪个函数？",
+      "hint": "",
+      "reference": "rank()给出每个原始元素的名次；order()给出排序所需的原位置；sort()返回排好的值。",
+      "choices": [
+        "order()",
+        "sort()",
+        "rank()"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K14",
+          "field": "成员三/知识库补充草稿/K14.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K14-concept-01"
+    },
+    {
+      "id": "K14-application-variant-01",
+      "knowledgeId": "K14",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "x <- c(30, 10, 20)\nprint(order(x))",
+      "hint": "",
+      "reference": "最小值10在位置2，其次20在位置3，最大值30在位置1。3 1 2是rank(x)的结果。",
+      "choices": [
+        "2 3 1",
+        "3 1 2",
+        "10 20 30"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K14",
+          "field": "成员三/知识库补充草稿/K14.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K14-application-01"
+    },
+    {
       "id": "K15-concept-01",
       "knowledgeId": "K15",
       "type": "concept",
@@ -591,6 +787,55 @@
         }
       ],
       "variantOf": null
+    },
+    {
+      "id": "K15-concept-variant-01",
+      "knowledgeId": "K15",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "cut()默认right = TRUE时，区间(0,60]包含哪些端点？",
+      "hint": "",
+      "reference": "圆括号表示不含端点，方括号表示包含。默认左开右闭，最小的0需要include.lowest = TRUE才能纳入。",
+      "choices": [
+        "包含0，不包含60",
+        "包含60，不包含0",
+        "两端都包含"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K15",
+          "field": "成员三/知识库补充草稿/K15.md 直观理解",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K15-concept-01"
+    },
+    {
+      "id": "K15-application-variant-01",
+      "knowledgeId": "K15",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "g <- cut(c(0, 45, 60), breaks = c(0, 60, 100))\nprint(sum(is.na(g)))",
+      "hint": "",
+      "reference": "默认第一段为(0,60]，0不在任何区间中成为NA；45和60都属于(0,60]。",
+      "choices": [
+        "0",
+        "2",
+        "1"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K15",
+          "field": "成员三/知识库补充草稿/K15.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K15-application-01"
     },
     {
       "id": "K16-concept-01",
@@ -630,6 +875,55 @@
       "variantOf": null
     },
     {
+      "id": "K16-concept-variant-01",
+      "knowledgeId": "K16",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "length(\"Data Science\")的结果为什么是1？",
+      "hint": "",
+      "reference": "length()数的是向量中有几个元素，整段文字只是一个元素；统计字符数应使用nchar()，结果为12。",
+      "choices": [
+        "整段文字是一个元素",
+        "空格把文字分成两段后再计数",
+        "length()统计的是单词数"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K16",
+          "field": "成员三/知识库补充草稿/K16.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K16-concept-01"
+    },
+    {
+      "id": "K16-application-variant-01",
+      "knowledgeId": "K16",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "x <- c(\"apple\", \"kiwi\")\nprint(substr(x, 2, 3))",
+      "hint": "",
+      "reference": "substr()对每个元素分别截取第2到第3个字符，两端都包含。",
+      "choices": [
+        "\"ap\" \"ki\"",
+        "\"pp\" \"iw\"",
+        "\"ppl\" \"iwi\""
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K16",
+          "field": "成员三/知识库补充草稿/K16.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K16-application-01"
+    },
+    {
       "id": "K17-concept-01",
       "knowledgeId": "K17",
       "type": "concept",
@@ -665,6 +959,55 @@
         }
       ],
       "variantOf": null
+    },
+    {
+      "id": "K17-concept-variant-01",
+      "knowledgeId": "K17",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "要把c(\"A\", \"B\", \"C\")合成一个字符串\"A+B+C\"，应设置哪个参数？",
+      "hint": "",
+      "reference": "只有一个向量时sep不起作用，collapse才会把整个结果连成一个字符串。",
+      "choices": [
+        "sep = \"+\"",
+        "改用paste0()即可",
+        "collapse = \"+\""
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K17",
+          "field": "成员三/知识库补充草稿/K17.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K17-concept-01"
+    },
+    {
+      "id": "K17-application-variant-01",
+      "knowledgeId": "K17",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "print(paste0(c(\"a\", \"b\"), 1:4))",
+      "hint": "",
+      "reference": "c(\"a\", \"b\")循环补齐到4项，与1:4逐项拼接，结果长度为4。",
+      "choices": [
+        "\"a1\" \"b2\" \"a3\" \"b4\"",
+        "\"a1\" \"b2\"",
+        "\"ab1234\""
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K17",
+          "field": "成员三/知识库补充草稿/K17.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K17-application-01"
     },
     {
       "id": "K18-concept-01",
@@ -704,6 +1047,55 @@
       "variantOf": null
     },
     {
+      "id": "K18-concept-variant-01",
+      "knowledgeId": "K18",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "要在正则中匹配真正的点号（例如扩展名.csv中的点），应写成哪一个？",
+      "hint": "",
+      "reference": "正则中的点表示任意字符，需要用两个反斜杠转义；$保证扩展名位于结尾。",
+      "choices": [
+        "\".csv$\"",
+        "\"\\\\.csv$\"",
+        "\"[csv]$\""
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K18",
+          "field": "成员三/知识库补充草稿/K18.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K18-concept-01"
+    },
+    {
+      "id": "K18-application-variant-01",
+      "knowledgeId": "K18",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "s <- \"a1b22c333\"\nprint(gsub(\"[0-9]+\", \"#\", s))",
+      "hint": "",
+      "reference": "[0-9]+匹配一段连续数字，gsub()把每一段都替换成一个井号；只替换第一段的是sub()。",
+      "choices": [
+        "\"a#b22c333\"",
+        "\"a#b##c###\"",
+        "\"a#b#c#\""
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K18",
+          "field": "成员三/知识库补充草稿/K18.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K18-application-01"
+    },
+    {
       "id": "K19-concept-01",
       "knowledgeId": "K19",
       "type": "concept",
@@ -739,6 +1131,55 @@
         }
       ],
       "variantOf": null
+    },
+    {
+      "id": "K19-concept-variant-01",
+      "knowledgeId": "K19",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "只取矩阵的一行时，想保留矩阵结构，应加什么参数？",
+      "hint": "",
+      "reference": "只取一行或一列时结果默认降为向量，drop = FALSE保留行列维度。",
+      "choices": [
+        "drop = FALSE",
+        "byrow = TRUE",
+        "dim = TRUE"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K19",
+          "field": "成员三/知识库补充草稿/K19.md 为什么",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K19-concept-01"
+    },
+    {
+      "id": "K19-application-variant-01",
+      "knowledgeId": "K19",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "m <- matrix(1:6, ncol = 2)\nprint(m[3, 1])",
+      "hint": "",
+      "reference": "只给列数2时R算出3行，按列填充后第1列是1到3，m[3, 1]为3。",
+      "choices": [
+        "5",
+        "3",
+        "6"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K19",
+          "field": "成员三/知识库补充草稿/K19.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K19-application-01"
     },
     {
       "id": "K20-concept-01",
@@ -778,6 +1219,55 @@
       "variantOf": null
     },
     {
+      "id": "K20-concept-variant-01",
+      "knowledgeId": "K20",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "cbind()把两个矩阵按列拼接时，行是依据什么对齐的？",
+      "hint": "",
+      "reference": "cbind()只按位置逐行拼接，不会按行名对齐；顺序不同时应先按名称重新排列。",
+      "choices": [
+        "行名",
+        "第一列的值",
+        "行的位置"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K20",
+          "field": "成员三/知识库补充草稿/K20.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K20-concept-01"
+    },
+    {
+      "id": "K20-application-variant-01",
+      "knowledgeId": "K20",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "a <- matrix(0, nrow = 2, ncol = 3)\nprint(dim(t(a)))",
+      "hint": "",
+      "reference": "转置交换行数和列数，2行3列变为3行2列。",
+      "choices": [
+        "3 2",
+        "2 3",
+        "6 1"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K20",
+          "field": "成员三/知识库补充草稿/K20.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K20-application-01"
+    },
+    {
       "id": "K21-concept-01",
       "knowledgeId": "K21",
       "type": "concept",
@@ -813,6 +1303,55 @@
         }
       ],
       "variantOf": null
+    },
+    {
+      "id": "K21-concept-variant-01",
+      "knowledgeId": "K21",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "A为2行3列、B为3行4列，A %*% B的结果是几行几列？",
+      "hint": "",
+      "reference": "内侧维度3相同才能相乘，结果的行数取自A、列数取自B。",
+      "choices": [
+        "3行3列",
+        "2行4列",
+        "无法相乘"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K21",
+          "field": "成员三/知识库补充草稿/K21.md 直观理解",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K21-concept-01"
+    },
+    {
+      "id": "K21-application-variant-01",
+      "knowledgeId": "K21",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "A <- matrix(1:6, nrow = 3)\nB <- matrix(1:4, nrow = 2)\nprint(dim(A %*% B))",
+      "hint": "",
+      "reference": "A是3行2列，B是2行2列，内侧维度都是2，结果为3行2列。",
+      "choices": [
+        "2 3",
+        "报错：维度不相容",
+        "3 2"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K21",
+          "field": "成员三/知识库补充草稿/K21.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K21-application-01"
     },
     {
       "id": "K22-concept-01",
@@ -852,6 +1391,55 @@
       "variantOf": null
     },
     {
+      "id": "K22-concept-variant-01",
+      "knowledgeId": "K22",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "为什么不宜把求得的特征向量直接与参考答案逐项比较？",
+      "hint": "",
+      "reference": "应验证A %*% v与λv在容差内相等，而不是比较向量的具体符号。",
+      "choices": [
+        "特征向量乘以-1后仍满足特征方程，符号可能不同",
+        "特征向量每次运行都随机变化",
+        "特征向量只对非对称矩阵有意义"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K22",
+          "field": "成员三/知识库补充草稿/K22.md 为什么",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K22-concept-01"
+    },
+    {
+      "id": "K22-application-variant-01",
+      "knowledgeId": "K22",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "D <- diag(c(3, 5))\nprint(svd(D)$d)",
+      "hint": "",
+      "reference": "奇异值按从大到小排列，对角矩阵的奇异值就是对角线元素的绝对值。",
+      "choices": [
+        "3 5",
+        "5 3",
+        "8"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K22",
+          "field": "成员三/知识库补充草稿/K22.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K22-application-01"
+    },
+    {
       "id": "K23-concept-01",
       "knowledgeId": "K23",
       "type": "concept",
@@ -889,6 +1477,55 @@
       "variantOf": null
     },
     {
+      "id": "K23-concept-variant-01",
+      "knowledgeId": "K23",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "稀疏矩阵打印出的点号表示什么？",
+      "hint": "",
+      "reference": "稀疏格式只保存非零值，打印时用点号表示0；缺失值在稀疏矩阵中仍显示为NA。",
+      "choices": [
+        "缺失值NA",
+        "无法显示的字符",
+        "没有存储的0"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K23",
+          "field": "成员三/知识库补充草稿/K23.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K23-concept-01"
+    },
+    {
+      "id": "K23-application-variant-01",
+      "knowledgeId": "K23",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "m <- diag(3)\nprint(sum(m == 0))",
+      "hint": "",
+      "reference": "3阶单位矩阵共9个元素，对角线上3个为1，其余6个为0。",
+      "choices": [
+        "6",
+        "3",
+        "9"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K23",
+          "field": "成员三/知识库补充草稿/K23.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K23-application-01"
+    },
+    {
       "id": "K24-concept-01",
       "knowledgeId": "K24",
       "type": "concept",
@@ -924,6 +1561,55 @@
         }
       ],
       "variantOf": null
+    },
+    {
+      "id": "K24-concept-variant-01",
+      "knowledgeId": "K24",
+      "type": "concept",
+      "format": "choice",
+      "prompt": "apply(m, 2, mean)对矩阵m计算的是什么？",
+      "hint": "",
+      "reference": "MARGIN = 2表示保留列，对每一列求平均；MARGIN = 1才是按行。",
+      "choices": [
+        "每行的平均值",
+        "每列的平均值",
+        "全部元素的平均值"
+      ],
+      "correctIndex": 1,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K24",
+          "field": "成员三/知识库补充草稿/K24.md 易错案例",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K24-concept-01"
+    },
+    {
+      "id": "K24-application-variant-01",
+      "knowledgeId": "K24",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "a <- array(1:24, dim = c(2, 3, 4))\nprint(a[1, 1, 2])",
+      "hint": "",
+      "reference": "每层是2行3列共6个元素，第1层占用1到6，第2层第一个元素为7。",
+      "choices": [
+        "2",
+        "13",
+        "7"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K24",
+          "field": "成员三/知识库补充草稿/K24.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K24-application-01"
     },
     {
       "id": "K25-concept-01",
@@ -1761,6 +2447,31 @@
       "variantOf": "K10-concept-01"
     },
     {
+      "id": "K10-application-variant-01",
+      "knowledgeId": "K10",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "x <- c(5, 8, 2)\nprint(x[-which(x > 10)])",
+      "hint": "",
+      "reference": "which()没有命中时返回空的位置向量，负号作用于空向量后什么也没选，结果为空。逻辑取反x[!(x > 10)]才会保留全部元素。",
+      "choices": [
+        "5 8 2",
+        "报错：索引为空",
+        "numeric(0)"
+      ],
+      "correctIndex": 2,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K10",
+          "field": "成员三/知识库补充草稿/K10.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K10-application-01"
+    },
+    {
       "id": "K11-concept-variant-01",
       "knowledgeId": "K11",
       "type": "concept",
@@ -1783,6 +2494,31 @@
         }
       ],
       "variantOf": "K11-concept-01"
+    },
+    {
+      "id": "K11-application-variant-01",
+      "knowledgeId": "K11",
+      "type": "application",
+      "format": "choice",
+      "prompt": "执行这段代码后输出什么？",
+      "code": "print(c(1, 2, 3, 4) * c(10, 100))",
+      "hint": "",
+      "reference": "长度4是2的整数倍，c(10, 100)循环补齐为10 100 10 100，逐元素相乘，且不会警告。",
+      "choices": [
+        "10 200 30 400",
+        "10 200 3 4",
+        "报错：长度不同"
+      ],
+      "correctIndex": 0,
+      "sourceRefs": [
+        {
+          "knowledgeId": "K11",
+          "field": "成员三/知识库补充草稿/K11.md 自测题",
+          "locator": "补充讲义；代码输出待R实测",
+          "adapted": true
+        }
+      ],
+      "variantOf": "K11-application-01"
     },
     {
       "id": "K31-concept-variant-01",
