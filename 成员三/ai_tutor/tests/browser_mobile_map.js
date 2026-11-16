@@ -1,11 +1,11 @@
-async page => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks=[],errors=[];
   const check=(ok,name)=>{if(!ok)throw Error(name);checks.push(name);};
   page.on('pageerror',error=>errors.push(error.message));
-  await page.goto('http://127.0.0.1:8000/#/knowledge');
+  await page.goto(baseUrl+'/#/knowledge');
   await page.waitForFunction(()=>document.querySelectorAll('.scene-orb-label').length===43);
   await page.waitForFunction(()=>document.body.dataset.view==='knowledge'&&document.querySelector('#main-content').getAnimations().length===0);
-  await page.locator('#map-reset').click();
+  await page.locator('#map-reset').click(); await page.waitForTimeout(800);
   check(await page.evaluate(()=>matchMedia('(pointer:coarse)').matches),'real coarse pointer context');
   const client=await page.context().newCDPSession(page);
   const touch=async(type,points)=>client.send('Input.dispatchTouchEvent',{type,touchPoints:points});
@@ -32,14 +32,16 @@ async page => {
   check(await page.locator('#map-detail').isHidden(),'drag release does not open detail');
   check(Math.hypot(settled.x-released.x,settled.y-released.y)<1,'touch release fixes current view');
 
-  await page.locator('#map-reset').click();
-  const tapBox=await label.boundingBox();
+  await page.locator('#map-reset').click(); await page.waitForTimeout(800);
+  const tapId=await page.locator('.scene-orb-label').evaluateAll(labels => labels.find(label => {const b=label.getBoundingClientRect();const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return b.top>200 && b.bottom<innerHeight-8 && hit?.closest('.scene-orb-label')===label;})?.dataset.id);
+  check(!!tapId,'unobscured touch target after reset');
+  const tapBox=await page.locator(`.scene-orb-label[data-id="${tapId}"]`).boundingBox();
   const tap={x:tapBox.x+tapBox.width/2,y:tapBox.y+tapBox.height/2};
   await touch('touchStart',[{...tap,id:2}]);
   await touch('touchMove',[{x:tap.x+4,y:tap.y+2,id:2}]);
   check(await page.locator('#map-detail').isHidden(),'small movement waits for release');
   await touch('touchEnd',[]);
-  await page.waitForFunction(id=>!document.querySelector('#map-detail').hidden&&document.querySelector('#detail-title')?.textContent.startsWith(id),targetId);
+  await page.waitForFunction(id=>!document.querySelector('#map-detail').hidden&&document.querySelector('#detail-title')?.textContent.startsWith(id),tapId);
   check(true,'small movement opens selected detail on release');
   check(await page.locator('#map-detail').getAttribute('role')==='dialog'
     && await page.locator('#map-detail').getAttribute('aria-modal')===null,'mobile detail is non-modal dialog');

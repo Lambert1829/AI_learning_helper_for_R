@@ -186,7 +186,7 @@ export async function runBrowserTests(page, baseUrl = 'http://127.0.0.1:8765', b
   first.on('pageerror', error => errors.push(error.message));
   second.on('pageerror', error => errors.push(error.message));
   try {
-    await first.goto(`${baseUrl}/data/course.json`);
+    await first.goto(`${baseUrl}/offline-course.json`);
     const checks = await first.evaluate(async () => {
       const { learningStore: store } = await import('/static/learning-store.js?v=learning-v1');
       window.coreStore = store;
@@ -231,7 +231,7 @@ export async function runBrowserTests(page, baseUrl = 'http://127.0.0.1:8765', b
       check(saved.card.stage === 0, '真实存储按提示后有效评级排程');
       check(stable(await store.saveAttempt({ id: 'attempt-1' })) === stable(saved), '同作答ID返回已保存结果');
       await store.saveSettings({ dailyLimit: 9 });
-      const course = await (await fetch('/data/course.json')).json();
+      const course = await (await fetch('/offline-course.json')).json();
       await store.saveCourse(course);
       const row = (await store.snapshot()).conversations[0];
       await store.saveBookmark({ id: `conversation:${row.id}`, knowledgeId: 'K06', conversationId: row.id, title: '回答', note: '难点', createdAt: at, updatedAt: at });
@@ -316,7 +316,7 @@ export async function runBrowserTests(page, baseUrl = 'http://127.0.0.1:8765', b
       await store.importArchive(archive);
       return checks;
     });
-    await second.goto(`${baseUrl}/data/course.json`);
+    await second.goto(`${baseUrl}/offline-course.json`);
     await second.evaluate(async () => {
       const { learningStore } = await import('/static/learning-store.js?v=learning-v1');
       window.coreStore = learningStore;

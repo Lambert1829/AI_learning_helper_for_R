@@ -1,4 +1,4 @@
-async (page) => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks = [], errors = [], requests = [];
   const check = (value, name) => { if (!value) throw Error(name); checks.push(name); };
   const onError = error => errors.push(error.message);
@@ -24,6 +24,7 @@ async (page) => {
     await page.waitForFunction(() => !document.querySelector('#model-apply').disabled);
   };
   const submit = async text => {
+    await page.waitForFunction(() => document.body.dataset.view === location.hash.slice(2).split('/')[0] && document.querySelector('#main-content').getAnimations().length === 0);
     const count = await page.locator('.message').count();
     await page.locator('#question').fill(text);
     await page.locator('#send').click();
@@ -35,10 +36,10 @@ async (page) => {
     await page.setViewportSize({width:1440,height:1000});
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.request.delete('http://127.0.0.1:8001/api/ai/config');
-    await page.goto('http://127.0.0.1:8001/#/chat');
+    await page.request.delete(baseUrl+'/api/ai/config');
+    await page.goto(baseUrl+'/#/chat');
     await page.evaluate(() => localStorage.removeItem('r-tutor-mock-v1'));
-    await page.reload();
+    await page.reload(); await page.waitForFunction(() => document.body.dataset.learningReady === 'true');
     await openSettings();
     check(await page.locator('#model-mode').inputValue() === 'mock', 'default mock configuration');
     check(await page.locator('#model-limit').inputValue() === '8192', 'default output budget 8192');
@@ -69,7 +70,8 @@ async (page) => {
     await page.waitForFunction(() => !document.querySelector('#model-test').disabled);
     await page.screenshot({path:'output/playwright/ai-desktop-settings.png'});
     await page.keyboard.press('Escape');
-    check(await page.locator('#more-toggle').evaluate(node => node === document.activeElement), 'settings restores keyboard focus');
+    await page.waitForFunction(() => document.activeElement === document.querySelector('#more-toggle'));
+    check(true, 'settings restores keyboard focus');
     await submit('is.na怎么判断缺失？');
     check((await page.locator('.message').last().textContent()).includes('deepseek'), 'AI response provider');
     check((await page.locator('.message').last().textContent()).includes('内容来源'), 'AI course citations');
@@ -113,7 +115,7 @@ async (page) => {
     check((await page.locator('.message').last().textContent()).includes('x[W1]'), 'inline R indexing preserved');
     await submit('NA旧格式四步骤测试');
     check(await page.locator('.message').last().locator('.answer-body > ol > li').count() === 4, 'legacy answer keeps all four steps');
-    await page.reload();
+    await page.reload(); await page.waitForFunction(() => document.body.dataset.learningReady === 'true');
     check(await page.locator('.message').last().locator('.answer-body > ol > li').count() === 4, 'legacy history reload preserves list');
     await submit('NA格式兼容测试');
     check((await page.locator('.message').last().textContent()).includes('使用is.na'), 'flat model answer accepted');
@@ -129,7 +131,7 @@ async (page) => {
     await page.locator('#send').click();
     await page.waitForFunction(() => document.querySelector('.streaming-message .stream-summary')?.textContent.includes('使用'));
     check(await page.locator('#send').isDisabled(), 'streamed text visible before completion');
-    check(await page.evaluate(count => JSON.parse(localStorage.getItem('r-tutor-mock-v1')).length === count, beforeStream), 'draft excluded from saved history');
+    check(await page.evaluate(async count => (await (await import('/static/learning-store.js?v=learning-v1')).learningStore.snapshot()).conversations.length === count, beforeStream), 'draft excluded from saved history');
     await page.waitForFunction(() => !document.querySelector('#send').disabled);
     check(await page.locator('.streaming-message').count() === 0, 'validated answer replaces stream draft');
     const savedBeforeCancel = await page.locator('.message').count();
@@ -149,8 +151,8 @@ async (page) => {
     const longMessage = page.locator('.message').last();
     check((await longMessage.locator('.code-wrap pre').textContent()).endsWith('# 代码结束'), 'long code renders completely');
     check((await longMessage.locator('.answer-body').textContent()).includes('讲解结束'), 'long explanation renders completely');
-    check(await page.evaluate(() => {
-      const answer = JSON.parse(localStorage.getItem('r-tutor-mock-v1')).at(-1).response.answer;
+    check(await page.evaluate(async () => {
+      const answer = (await (await import('/static/learning-store.js?v=learning-v1')).learningStore.snapshot()).conversations.at(-1).record.response.answer;
       return answer.summary.length > 12000 && answer.corrected_code.length > 10000;
     }), 'long answer stored completely');
     for (const text of ['缺失值再解释一下', '缺失值举例', 'mean与NA']) await submit(text);
@@ -218,18 +220,22 @@ async (page) => {
     await page.screenshot({path:'output/playwright/ai-mobile-cleared.png'});
     await page.keyboard.press('Escape');
     await submit('mean中的na.rm怎么用？');
-    check((await page.evaluate(() => JSON.parse(localStorage.getItem('r-tutor-mock-v1')).at(-1).response.mode)) === 'mock', 'mock usable after clearing');
-    await page.evaluate(() => {
-      const template = JSON.parse(localStorage.getItem('r-tutor-mock-v1')).at(-1);
+    check((await page.evaluate(async () => (await (await import('/static/learning-store.js?v=learning-v1')).learningStore.snapshot()).conversations.at(-1).record.response.mode)) === 'mock', 'mock usable after clearing');
+    await page.evaluate(async () => {
+      const {learningStore} = await import('/static/learning-store.js?v=learning-v1');
+      const template = (await learningStore.snapshot()).conversations.at(-1).record;
+      await learningStore.resetLearningData();
       const records = Array.from({length:7}, (_, index) => {
         const item = structuredClone(template);
         item.request.question = 'NA历史' + index;
+        item.response.request_id = 'history-fixture-' + index;
+        item.time = new Date(Date.now() + index).toISOString();
         item.request.code = '# ' + 'x'.repeat(9998);
         return item;
       });
       localStorage.setItem('r-tutor-mock-v1', JSON.stringify(records));
     });
-    await page.reload();
+    await page.reload(); await page.waitForFunction(() => document.body.dataset.learningReady === 'true');
     await submit('mean中的na.rm怎么用？');
     const history = requests.at(-1).history;
     check(history.reduce((sum, item) => sum + item.content.length, 0) <= 24000 && history.length <= 12, 'history stays within budget');
@@ -240,7 +246,7 @@ async (page) => {
     await page.keyboard.press('Escape');
     check(await page.locator('#model-dialog').isHidden(), 'keyboard close under reduced motion');
     check(errors.length === 0, 'no uncaught AI browser errors');
-    return {passed: checks.length, checks, errors, fixture: 'MockTransport only, port 8001'};
+    return {passed: checks.length, checks, errors, fixture: 'MockTransport only, '+baseUrl};
   } finally {
     page.off('pageerror', onError); page.off('request', onRequest);
   }

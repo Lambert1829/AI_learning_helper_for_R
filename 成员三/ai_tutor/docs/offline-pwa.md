@@ -173,3 +173,7 @@ npx.cmd --offline --package @playwright/cli playwright-cli -s=pwa-regression run
 - 核对五个交接文件及26项白名单实际可获取，运行资源依赖清点测试。题库版本、参考答案与课程版本需显示真实下载结果。
 - 在Android Chrome、iOS Safari、macOS Safari/Chrome和Windows Chrome/Edge实际安装，保存后断网关闭并重开，检查知识详情、本地学习、系统图标、standalone显示及联网恢复。
 - 在手机实际局域网HTTP入口检查能力反馈，再在正式HTTPS入口验证安装。检查安装容器内的数据与普通浏览器来源隔离行为、持久化申请结果和通用学习档案迁移。
+
+## 集成验收更新 · 2026-11-16
+
+本分支成果已合并到 `codex/learning-integration`。最终实际代码、完整测试结果、跨浏览器范围、启动地址与真机待验收步骤见 `成员三/测试记录.md` 中本轮集成记录。本文前述单分支测试保留原始范围，跨线程待接线事项已在集成工作树复核。

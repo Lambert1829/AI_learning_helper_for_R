@@ -1,7 +1,7 @@
-async page => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   await page.setViewportSize({width:1440,height:1000});
   await page.emulateMedia({reducedMotion:'no-preference'});
-  await page.goto('http://127.0.0.1:8000/#/knowledge');
+  await page.goto(baseUrl+'/#/knowledge');
   await page.reload();
   await page.waitForFunction(()=>document.querySelectorAll('.scene-orb-label').length===43);
   const viewport=page.locator('#map-viewport');

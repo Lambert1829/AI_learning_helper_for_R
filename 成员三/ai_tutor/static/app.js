@@ -69,11 +69,13 @@ function status(text = '', error = false) {
   $('status').classList.toggle('error', error);
 }
 function save() {
+  if (learningCenter) return true;
   try { localStorage.setItem(STORE, JSON.stringify(records.map(safeRecord))); return true; }
   catch { status('浏览器存储不可用，当前记录仍可导出。', true); return false; }
 }
 async function api(path, body, options = {}) {
   const response = await fetch(path, {
+    cache: 'no-store',
     method: body ? 'POST' : 'GET',
     headers: body ? {'Content-Type': 'application/json'} : {},
     body: body ? JSON.stringify(body) : undefined,
@@ -91,7 +93,7 @@ async function api(path, body, options = {}) {
   return data;
 }
 async function streamApi(path, body, signal, onEvent) {
-  const response = await fetch(path, {method:'POST', credentials:'include',
+  const response = await fetch(path, {method:'POST', credentials:'include', cache:'no-store',
     headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), signal});
   if (!response.ok) {
     const data = await response.json();
@@ -650,6 +652,7 @@ async function startLearning() {
     let legacy=[];
     try {const saved=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(saved))legacy=saved.filter(item=>item?.request && typeof item?.response?.answer?.summary==='string').map(safeRecord);} catch {}
     await learningCenter.start(legacy);
+    try { localStorage.removeItem(STORE); } catch { /* IndexedDB remains usable if legacy storage is denied. */ }
     renderRecords();
   } catch (error) {
     learningCenter=null;
@@ -668,5 +671,6 @@ async function startLearning() {
   if (healthResult.status==='fulfilled') $('version-number').textContent='应用 '+healthResult.value.version+' · 知识版本 '+healthResult.value.knowledge_version;
   selectTopic(activeId);renderRecords();mapUI.load(knowledge,relations);
   learningCenter?.setCatalog(knowledge,relations,cached);
+  document.body.dataset.learningReady = 'true';
 }
 startLearning();

@@ -44,4 +44,4 @@ Desktop.ini
 .tmp/
 .runtime/
 .playwright-cli/
-output/playwright/
+**/output/playwright/

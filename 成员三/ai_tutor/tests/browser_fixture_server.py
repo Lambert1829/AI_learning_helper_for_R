@@ -2,6 +2,7 @@
 import asyncio
 import json
 import sys
+import argparse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -87,4 +88,7 @@ async def fake_upstream(request):
 if __name__ == '__main__':
     app.state.ai_transport = httpx.MockTransport(fake_upstream)
     app.state.sessions = SessionStore(rate=1000)
-    uvicorn.run(app, host='127.0.0.1', port=8001, log_level='warning')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, default=8001)
+    args = parser.parse_args()
+    uvicorn.run(app, host='127.0.0.1', port=args.port, log_level='warning')

@@ -52,7 +52,7 @@ async function committedPackages() {
       const response = await cache.match(COMMIT_PATH);
       if (!response) continue;
       const meta = await response.json();
-      if (meta.schema === 1 && Array.isArray(meta.assets) && meta.assets.length &&
+      if (meta.schema === 1 && Array.isArray(meta.assets) && meta.assets.length === ASSETS.length &&
           meta.assets.every(asset => ALLOWED.has(asset.path) && /^[a-f0-9]{64}$/.test(asset.sha256)) &&
           new Set(meta.assets.map(asset => asset.path)).size === meta.assets.length &&
           meta.assets.some(asset => asset.path === '/offline-course.json')) {
@@ -135,10 +135,15 @@ async function downloadPackage() {
       reportProgress({completed: assets.length, total: ASSETS.length, path});
     }
     if (typeof course?.version !== 'string' || !course.version || !Array.isArray(course.knowledge) ||
-        !course.knowledge.length || !Array.isArray(course.relations) || !Array.isArray(course.questions) ||
+        course.knowledge.length !== 43 || new Set(course.knowledge.map(item => item.id)).size !== 43 ||
+        !course.knowledge.every(item => /^K(0[1-9]|[1-3]\d|4[0-3])$/.test(item.id)) ||
+        !Array.isArray(course.relations) || !Array.isArray(course.questions) ||
         !Array.isArray(course.errors)) throw Error('课程快照结构校验失败');
     if (typeof bank?.version !== 'string' || !Array.isArray(bank.items) || !bank.items.length ||
-        bank.items.some(item => typeof item.reference !== 'string' || !item.reference.trim())) {
+        new Set(bank.items.map(item => item.id)).size !== bank.items.length ||
+        bank.items.some(item => typeof item.reference !== 'string' || !item.reference.trim()) ||
+        !course.knowledge.every(topic => ['concept','application'].every(type =>
+          bank.items.some(item => item.knowledgeId === topic.id && item.type === type && !item.variantOf)))) {
       throw Error('复习题库与参考答案校验失败');
     }
     const meta = {schema: 1, resourceVersion: RESOURCE_VERSION, knowledgeVersion: course.version,

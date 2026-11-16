@@ -1,4 +1,4 @@
-async page => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks = [], errors = [];
   const check = (condition, name) => {
     if (!condition) throw Error(name);
@@ -14,7 +14,7 @@ async page => {
   try {
     await page.setViewportSize({width:1440,height:1000});
     await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.goto('http://127.0.0.1:8000/#/knowledge');
+    await page.goto(baseUrl+'/#/knowledge');
     await page.waitForFunction(() => document.querySelectorAll('.scene-orb-label').length === 43);
     // Capture the existing scene for assertions without adding a production debug API.
     await page.evaluate(() => {

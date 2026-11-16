@@ -1,4 +1,4 @@
-async (page) => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks=[], requests=[],errors=[];
   const check=(ok,name)=>{if(!ok)throw Error(name);checks.push(name);};
   const onRequest=r=>{if(r.method()==='POST')requests.push({url:r.url(),type:r.headers()['content-type'],body:r.postDataJSON()});};
@@ -12,7 +12,7 @@ async (page) => {
   try {
     await page.context().grantPermissions(['clipboard-read','clipboard-write']);
     await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.goto('http://127.0.0.1:8000/#/knowledge');await page.reload();
+    await page.goto(baseUrl+'/#/knowledge');await page.reload();
     await page.waitForFunction(()=>document.querySelectorAll('.knowledge-orb').length===43);
     check(await page.locator('.knowledge-orb').count()===43,'43 orbs loaded');
     await page.waitForFunction(()=>document.querySelectorAll('.scene-orb-label').length===43);

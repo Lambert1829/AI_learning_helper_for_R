@@ -96,7 +96,7 @@ def test_whitelist_and_dependency_inventory():
         if path.suffix not in {'.js', '.css', '.html'} or path.name == 'service-worker.js':
             continue
         content = path.read_text(encoding='utf-8')
-        dependencies = re.findall(r'''(?:from\s*|import\s*\(?)["'`]([^"'`]+)["'`]''', content)
+        dependencies = re.findall(r'''(?:\bfrom\s+|^\s*import\s*(?:\(\s*)?|\bimport\s*\(\s*)["']([^"']+)["']''', content, re.MULTILINE)
         dependencies += re.findall(r'''(?:src|href)=["'](/static/[^"']+)["']''', content)
         dependencies += re.findall(r'''url\(["']?([^\s)'";]+)''', content)
         for dependency in dependencies:

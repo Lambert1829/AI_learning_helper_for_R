@@ -332,7 +332,7 @@ async function main() {
   const page=await context.newPage();
   try {
     const result=await run(page,process.env.BASE_URL||'http://127.0.0.1:8012',outputDir);
-    result.storage=coreDir?'sibling real core modules':'test-only IndexedDB contract double';
+    result.storage=coreDir?'merged real core modules':'test-only IndexedDB contract double';
     result.offline='test-only offline interface double';
     result.browser={version:browser.version(),platform:process.platform,desktop:{width:1440,height:1000},narrow:{width:390,height:844},timezone:'Asia/Shanghai'};
     result.moduleSha256=Object.fromEntries(Object.entries(moduleSources).map(([name,body])=>[name,require('node:crypto').createHash('sha256').update(body).digest('hex')]));

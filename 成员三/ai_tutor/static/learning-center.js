@@ -93,12 +93,17 @@ export class LearningCenter {
     } catch { this.session = null; }
     learningStore.subscribe(() => this.run(async () => {
       this.data = await learningStore.snapshot();
+      const archiveReset = !this.data.events.length && !this.data.cards.length && !this.data.attempts.length;
+      if (archiveReset) {
+        this.session = null;
+        this.persistSession();
+      }
       if (this.data.course) this.course = this.data.course;
       this.onSnapshot(this.data);
       const limit=$('learning-tools-content').querySelector('select');
       if(limit)limit.value=this.data.settings.dailyLimit||6;
       const editing = $('learning-content').contains(document.activeElement) && document.activeElement.matches('textarea,input');
-      if (!this.saving && !editing && document.body.dataset.view === 'history') await this.render();
+      if (!this.saving && (archiveReset || !editing) && document.body.dataset.view === 'history') await this.render();
     }));
     this.route();
     this.renderTools();
@@ -253,7 +258,7 @@ export class LearningCenter {
       const questions = this.bank.filter(q => !q.variantOf && q.knowledgeId === card.knowledgeId && q.type === card.type);
       const previous = this.data.attempts.filter(item => item.cardId === card.id).length;
       const question = questions[previous % questions.length];
-      return question ? {card,reason,questionId:question.id,id:crypto.randomUUID(),answer:'',choice:null,
+      return question ? {card,reason,questionId:question.id,id:crypto.randomUUID(),createdAt:new Date().toISOString(),answer:'',choice:null,
         locked:false,hintUsed:false,answerRevealed:false,showReference:false,variantChoice:null,variantPassed:false,skipped:false} : null;
     }).filter(Boolean);
     if (tasks.length < queue.length) this.feedback(`${queue.length-tasks.length} 项任务缺少对应题目，已保留卡片，更新资料后可重新生成任务。`,true);
@@ -265,9 +270,15 @@ export class LearningCenter {
     intro.append(node('h2','今日复习'),node('span',`每次 ${this.data.settings.dailyLimit || 6} 题`,'muted'));
     root.append(intro);
     if (!this.catalog.length) {root.append(node('p','正在读取课程资料…'));return;}
+    if (this.session?.day !== day(Date.now())) this.session = null;
+    if (this.session?.tasks.length === 0 && this.queue().length) this.session = null;
     if (!this.session) this.createSession();
     const tasks = this.session.tasks;
     const submitted = new Set(this.data.attempts.map(attempt => attempt.id));
+    for (const task of tasks) {
+      if (this.data.attempts.some(attempt => attempt.cardId === task.card.id && attempt.id !== task.id &&
+          Date.parse(attempt.at) >= Date.parse(task.createdAt || task.card.updatedAt))) submitted.add(task.id);
+    }
     const pending = tasks.filter(task => !submitted.has(task.id));
     const task = tasks[this.session.index];
     if (!task || submitted.has(task.id)) {
@@ -287,6 +298,16 @@ export class LearningCenter {
     panel.append(node('p',`${task.card.type === 'concept' ? '概念回忆' : '应用练习'} · ${this.session.index+1} / ${this.session.tasks.length}`,'lc-caption muted'),
       node('p',task.reason,'lc-reason'),node('h3',question.prompt));
     if (question.code) this.codeBlock(panel,question.code,'题目代码',true);
+    if (task.submission) {
+      panel.append(node('p',task.submission.answerText || '本次未填写答案。'),
+        node('p',`待保存评级 · ${GRADES[task.submission.grade]}`),
+        node('p','重试将沿用本次答案、评级、时间和编号。','muted'));
+      const retry = action('重试保存本次评级',() => this.submit(task,question,task.submission.grade),'primary');
+      retry.disabled = this.saving;
+      panel.append(retry);
+      root.append(panel);
+      return;
+    }
     let input;
     if (question.format === 'choice') {
       input = node('fieldset',undefined,'lc-choices'); input.append(node('legend','选择你的答案'));
@@ -355,10 +376,12 @@ export class LearningCenter {
     document.querySelectorAll('.lc-question button').forEach(b => {b.disabled=true;});
     try {
       const evidence = task.evidence || task;
-      const result = await learningStore.saveAttempt({id:task.id,cardId:task.card.id,questionId:question.id,
+      if (!task.submission) task.submission = {id:task.id,cardId:task.card.id,questionId:question.id,
         at:task.submittedAt || (task.submittedAt=new Date().toISOString()),timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,
         grade,answerText:task.answer,hintUsed:evidence.hintUsed,answerRevealed:evidence.answerRevealed,
-        variantPassed:task.variantPassed,assessmentSource:question.format === 'choice' ? 'objective' : 'self'});
+        variantPassed:task.variantPassed,assessmentSource:question.format === 'choice' ? 'objective' : 'self'};
+      this.persistSession();
+      const result = await learningStore.saveAttempt(task.submission);
       this.data = await learningStore.snapshot();
       this.session.index++;
       this.persistSession();
@@ -557,7 +580,7 @@ export class LearningCenter {
         this.course=result.course;
         state.textContent=`版本 ${result.knowledgeVersion} · ${result.assetCount} 项 · ${new Date(result.downloadedAt).toLocaleString('zh-CN')} · ${persisted?'已获持久存储':'浏览器常规存储'}`;
         download.textContent='更新离线资料';
-        this.feedback('离线资料已保存。');
+        this.feedback('离线资料已保存。刷新页面以加载已保存版本。');
       } catch (error) {
         const previous = await getOfflineStatus().catch(() => null);
         state.textContent = previous?.ready

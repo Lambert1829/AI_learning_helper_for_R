@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const http = require('node:http');
 const path = require('node:path');
-const {chromium} = require('playwright');
+const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const root = path.resolve(__dirname, '..');
 const backend = process.env.PWA_BASE_URL || 'http://127.0.0.1:8013';
@@ -114,7 +114,7 @@ async function main() {
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  const output = path.resolve(root, '../../output/playwright');
+  const output = path.resolve(root, 'output/playwright');
   await fs.mkdir(output, {recursive: true});
   const profile = await fs.mkdtemp(path.join(output, 'pwa-profile-'));
   const launchOptions = {headless: true, viewport: {width: 1440, height: 1000},
@@ -181,7 +181,7 @@ async function main() {
     await page.evaluate(() => { location.hash = '/knowledge'; });
     if (integrated) {
       await page.locator('#map-search').fill('K06');
-      await page.locator('#map-orbs button').filter({hasText: 'K06'}).first().click({force: true});
+      await page.locator('.scene-orb-label[data-id=K06]').click();
     } else await page.evaluate(() => window.pwaMap.select('K06'));
     await page.waitForFunction(() => document.querySelector('#detail-body').textContent.includes('is.na'));
     check(await page.locator('#map-detail').isVisible(), integrated ? 'merged UI opens offline map details' : 'contract adapter opens actual KnowledgeMap offline details');

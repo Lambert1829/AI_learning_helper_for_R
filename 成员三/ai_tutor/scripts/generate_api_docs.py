@@ -1,11 +1,12 @@
 """Generate handoff documentation from the running app's actual OpenAPI schema."""
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = 'http://127.0.0.1:8000'
+BASE = os.environ.get('BASE_URL', 'http://127.0.0.1:8000').rstrip('/')
 
 
 def read(path):
@@ -50,7 +51,7 @@ def main():
 
 ## 启动与接入
 
-运行 `ai_tutor/start.cmd`，通过浏览器访问 `http://127.0.0.1:8000/`。
+运行 `ai_tutor/start.cmd` 使用默认8000端口。本轮集成服务为 `{BASE}/`。
 交互文档为 `/docs`，完整字段约束为 `/openapi.json`。
 同域页面使用相对路径，JavaScript请求设置 `credentials: 'include'`。
 
@@ -60,6 +61,24 @@ def main():
 
 目录接口返回43个知识点和95条关系，详情接口返回成员一课程字段、来源定位和先修知识。
 健康接口报告应用能力与版本，读取健康状态无需模型调用。
+
+## 学习与PWA公共资源
+
+以下资源使用同源GET访问，返回200，两个根资源使用 `include_in_schema=False`。OpenAPI仍有10条路径与12个操作。
+
+| 路径 | 内容与访问方式 |
+|---|---|
+| `/sw.js` | JavaScript Service Worker，根作用域 `/`，响应头 `Service-Worker-Allowed: /` |
+| `/offline-course.json` | 原始 `data/course.json` 公共课程快照，含43个知识点 |
+| `/static/manifest.webmanifest` | PWA名称、启动入口、standalone显示模式与图标 |
+| `/static/review-bank.json` | 94道带来源的本地复习题 |
+| `/static/icons/icon-192.png`、`icon-512.png`、`apple-touch-icon.png` | 图标均位于 `/static/icons/` |
+
+`/sw.js` 和 `/offline-course.json` 使用 `Cache-Control: no-cache, no-store, must-revalidate`。离线缓存由用户点击保存建立完整26项公开资源包。配置、Key、所有API、模型POST和SSE通过实时网络请求。
+
+学习档案存于设备IndexedDB，通过页面导出JSON和合并导入。学习概览、收藏、小结和复习排程由浏览器模块处理。
+学习入口为 `/#/history`，复习为 `/#/history/review`，小结为 `/#/history/summary`，对话为 `/#/history/records`。
+跨设备安装PWA需受信任HTTPS。本机开发可使用localhost或127.0.0.1。
 
 ## 问答请求
 

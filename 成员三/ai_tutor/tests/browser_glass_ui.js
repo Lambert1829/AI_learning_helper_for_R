@@ -1,4 +1,4 @@
-async (page) => {
+async (page, baseUrl = 'http://127.0.0.1:8014') => {
   const checks = [], errors = [];
   const check = (value, name) => { if (!value) throw new Error(name); checks.push(name); };
   const route = async view => {
@@ -17,7 +17,7 @@ async (page) => {
   page.on('pageerror', onError);
   try {
     await page.setViewportSize({width:1440, height:1000});
-    await page.goto('http://127.0.0.1:8000/#/chat');
+    await page.goto(baseUrl+'/#/chat');
     await page.evaluate(() => localStorage.removeItem('r-tutor-mock-v1'));
     await page.reload();
     await page.waitForFunction(() => document.body.dataset.view === 'chat');
@@ -50,7 +50,7 @@ async (page) => {
     check(composerReadability.blur >= 48 && composerReadability.opacity >= .96,
       'chat composer strongly blurs and masks underlying answer text');
 
-    const response = await page.request.post('http://127.0.0.1:8000/api/chat', {data:{question:'mean中的na.rm怎么用？'}});
+    const response = await page.request.post(baseUrl+'/api/chat', {data:{question:'mean中的na.rm怎么用？'}});
     const answer = await response.json();
     answer.mode = 'ai';
     answer.provider = 'browser-fixture';
@@ -61,7 +61,7 @@ async (page) => {
     const record = {time:new Date().toISOString(),request:{question:'缺失值与均值',task_type:'auto'},response:answer};
     await page.evaluate(record => localStorage.setItem('r-tutor-mock-v1', JSON.stringify([record])), record);
     await page.reload();
-    await page.waitForFunction(() => document.body.dataset.view === 'chat' && !document.querySelector('#layout').hidden);
+    await page.waitForFunction(() => document.body.dataset.learningReady === 'true' && document.body.dataset.view === 'chat' && !document.querySelector('#layout').hidden);
     const answerGlass = await page.locator('.assistant-answer').evaluate(node => {
       const style = getComputedStyle(node);
       return {blur:style.backdropFilter,background:style.backgroundColor,radius:parseFloat(style.borderRadius)};
