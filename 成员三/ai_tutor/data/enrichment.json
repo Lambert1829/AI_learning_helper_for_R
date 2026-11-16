@@ -1,6 +1,6 @@
 {
  "version": "1.0.0",
- "count": 24,
+ "count": 30,
  "items": {
   "K01": {
    "id": "K01",
@@ -1857,6 +1857,478 @@
    ],
    "source_file": "知识库补充草稿/K24.md",
    "sha256": "2ed5f5e391866e1969a836896788a832d7f273001276cd1d73c42eb9390fb93a"
+  },
+  "K25": {
+   "id": "K25",
+   "title": "数据框创建与检查",
+   "unit": "数据框整理",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K04",
+    "K09",
+    "K19"
+   ],
+   "related": [
+    "K26",
+    "K27",
+    "K28",
+    "K30"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`data.frame()`创建数据框，说明“每列一个变量、每行一个观测”的组织方式。\n- 能够用`str()`、`summary()`、`dim()`、`names()`、`head()`快速检查数据的规模、类型和缺失情况。\n- 能够解释数据框转换为矩阵时类型会被统一，避免数值列意外变成字符。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `c(1, \"2\")`的类型是什么？预期回答为字符型。\n2. 矩阵中的元素能否同时有数值和字符？预期回答为不能，矩阵所有元素类型相同。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "数据框就像一张带表头的成绩单：每一列是一个变量，比如学号、专业、分数；每一行是一个人的一条记录。和矩阵不同，数据框的各列可以是不同类型，学号是字符，分数是数值。拿到一张新表，第一件事不是计算，而是检查：有几行几列、每列是什么类型、哪里有缺失。`str()`看结构，`summary()`看分布，`head()`看前几行。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么要显式写`stringsAsFactors = FALSE`？R 4.0以后默认就不会把字符转为因子，但旧版本和部分教材会转换，写明参数能让代码在不同版本中表现一致。\n2. 为什么数据框转成矩阵后分数变成了文字？矩阵只能有一种类型，只要有一列是字符，所有列都会被转为字符，计算时就会出错。\n3. 为什么各列长度必须相同？每一行代表一个观测，某一列少了值就无法对齐，R会直接报错，而不是自动补齐。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "创建包含整数、字符和缺失值的数据框，用`str()`和`summary()`检查，并把频数表转换为数据框。\n\n独立脚本见[K25_example_01.R](/content/code/K25_example_01.R)。\n\n```r\nd <- data.frame(id=1:3,name=c(\"A\",\"B\",\"C\"),score=c(80,NA,90),stringsAsFactors=FALSE)\nstr(d); print(summary(d)); print(as.data.frame(table(c(\"a\",\"a\",\"b\"))))\n```\n\n### 预期输出（待R实测）\n\n```text\n'data.frame':\t3 obs. of  3 variables:\n $ id   : int  1 2 3\n $ name : chr  \"A\" \"B\" \"C\"\n $ score: num  80 NA 90\n       id             name       score     \n Min.   :1.0   Length   :3   Min.   :80.0  \n 1st Qu.:1.5   N.unique :3   1st Qu.:82.5  \n Median :2.0   N.blank  :0   Median :85.0  \n Mean   :2.0   Min.nchar:1   Mean   :85.0  \n 3rd Qu.:2.5   Max.nchar:1   3rd Qu.:87.5  \n Max.   :3.0                 Max.   :90.0  \n                             NAs    :1     \n  Var1 Freq\n1    a    2\n2    b    1\n```\n\n### 逐步讲解\n\n1. `str()`第一行给出3个观测、3个变量，之后每行一个变量，依次是类型和前几个值。\n2. `id`是整数，`name`是字符，`score`是数值且含有1个缺失值。\n3. `summary()`对数值列给出最小值、四分位数、均值和最大值，并单独统计`NAs`。\n4. 字符列在R 4.6中显示长度、不同值个数、空串个数和字符长度范围，较早版本的显示方式不同。\n5. `as.data.frame(table(...))`把频数表转换为两列：取值`Var1`和频数`Freq`。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "四名学生的学号、专业和成绩组成一张表。需要报告表的规模、列名、前两行，并筛选出金融专业（FIN）的学生。\n\n独立脚本见[K25_example_02.R](/content/code/K25_example_02.R)。\n\n```r\nd <- data.frame(id = c(\"S01\", \"S02\", \"S03\", \"S04\"),\n                major = c(\"FIN\", \"ACC\", \"FIN\", \"ECO\"),\n                score = c(88, 92, 75, 81),\n                stringsAsFactors = FALSE)\nprint(dim(d))\nprint(names(d))\nprint(head(d, 2))\nprint(d[d$major == \"FIN\", ])\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 4 3\n[1] \"id\"    \"major\" \"score\"\n   id major score\n1 S01   FIN    88\n2 S02   ACC    92\n   id major score\n1 S01   FIN    88\n3 S03   FIN    75\n```\n\n### 逐步讲解\n\n1. `dim()`给出4行3列，即4名学生、3个变量。\n2. `names()`列出变量名，后续取列时要用到它们。\n3. `head(d, 2)`只显示前两行，大表格检查时常用。\n4. 筛选条件写在行的位置，列的位置留空表示保留所有列。\n5. 筛选结果保留了原始行号1和3，可以据此追溯到原表的哪一行。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“数据框：列是变量，行是观测”，采用表格示意图，以SVG手绘。表头三列分别标注字符、字符、数值类型，用竖向色带表示“同一列类型相同”，用横向高亮表示“一行是一个观测”，下方对比转为矩阵后全部变成字符。\n\n![一张3列4行的表，表头为id、major、score，分别标注chr、chr、num。竖向色带标出score整列为数值，横向高亮第一行S01、FIN、88为一个观测。下方箭头指向as.matrix后的结果，所有格子都带引号，表示被统一为字符。](/content/images/K25_visual_01.svg)\n\n图把数据框和矩阵的关键差异放在一起：数据框允许各列类型不同，矩阵会把类型统一。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "创建数据框时两列长度不同，R直接报错。\n\n```r\nd <- data.frame(id = 1:3, score = c(80, 90))\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\nError in data.frame(id = 1:3, score = c(80, 90)) : \n  arguments imply differing number of rows: 3, 2\n```\n\n参考修正为缺少的成绩明确写上`NA`，让每一列都有3个值。\n\n```r\nd <- data.frame(id = 1:3, score = c(80, 90, NA))\nprint(d)\n```\n\n### 预期输出（待R实测）\n\n```text\n  id score\n1  1    80\n2  2    90\n3  3    NA\n```\n\n用`NA`补齐的前提是清楚它对应哪个学生。如果原始数据的顺序已经无法核对，应回到数据来源，而不是随意把`NA`放在末尾。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "一张表包含姓名和成绩两列。要求检查成绩列的类型，把数据框转换为矩阵后再检查同一列的类型，打印矩阵，最后用数据框中的原始列计算平均分。\n\n提示`class()`可以查看类型，矩阵按列名取列也用`[, \"列名\"]`。\n\n独立脚本见[K25_exercise.R](/content/code/K25_exercise.R)。\n\n```r\nd <- data.frame(name = c(\"Ann\", \"Ben\"), score = c(80, 95), stringsAsFactors = FALSE)\nm <- as.matrix(d)\nprint(class(d$score))\nprint(class(m[, \"score\"]))\nprint(m)\nprint(mean(d$score))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] \"numeric\"\n[1] \"character\"\n     name  score\n[1,] \"Ann\" \"80\"\n[2,] \"Ben\" \"95\"\n[1] 87.5\n```\n\n评分共10分，两次类型检查各得2分，能说明转换后分数带引号的原因得3分，用原数据框正确计算均值得3分。常见错误是对矩阵调用`mean(m[, \"score\"])`，结果为`NA`并伴随警告，因为字符无法求平均。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面三行的输出。\n\n```r\nd <- data.frame(x = 1:3, y = c(\"a\", \"b\", \"c\"))\nprint(dim(d))\nprint(class(d$y))\nprint(ncol(as.matrix(d)))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 3 2\n[1] \"character\"\n[1] 2\n```\n\nR 4.0以后字符列默认保持字符型；转换为矩阵不改变列数，只改变类型。\n\n2. `str(d)`和`summary(d)`哪个更适合检查每列的类型？答案为`str(d)`，它逐列列出类型；`summary(d)`侧重分布和缺失统计。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 66–69。\n- 课程来源为S4《R数据科学_译本.pdf》第6章。\n- 补充来源为R官方帮助主题`help(\"data.frame\")`、`help(\"str\")`、`help(\"summary\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题与课程资料中R 4.6.1的实测输出一致；数据框打印排版用按R规则编写的辅助程序生成。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K25`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`read.csv()`读入一个文件后做同样的检查，衔接K38。",
+    "易错点请求解释`stringsAsFactors`在R 4.0前后的差异。",
+    "练习请求给表增加一列“是否及格”，衔接K26。",
+    "相关知识继续学习K26，按条件筛选行、选择列和新增列。"
+   ],
+   "assets": [
+    "code/K25_example_01.R",
+    "code/K25_example_02.R",
+    "code/K25_exercise.R",
+    "images/K25_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K25.md",
+   "sha256": "d6479efc5b8c365c38aed525b98950f690d5657d44a23ed6c934abbb2a679ece"
+  },
+  "K26": {
+   "id": "K26",
+   "title": "数据框取列、筛选与增列",
+   "unit": "数据框整理",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K05",
+    "K06",
+    "K10",
+    "K25"
+   ],
+   "related": [
+    "K10",
+    "K25",
+    "K27",
+    "K28"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够区分`d$col`、`d[[\"col\"]]`返回向量与`d[\"col\"]`返回数据框。\n- 能够用逻辑条件筛选行，并在条件中先排除缺失值，避免出现全为`NA`的行。\n- 能够用`d$new <- ...`新增列，确认新列长度与行数一致。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `c(80, NA, 90) > 85`的结果是什么？预期回答为`FALSE NA TRUE`。\n2. `which(c(FALSE, NA, TRUE))`返回什么？预期回答为3，`which()`会跳过缺失值。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "从数据框里取东西前，先想清楚要的是“一列数字”还是“一张小表”。`d$score`和`d[[\"score\"]]`把这一列的内容直接拿出来，得到向量，适合计算；`d[\"score\"]`保留表的外壳，得到只有一列的数据框，适合继续当作表来处理。筛选行时写`d[条件, 列]`，条件对每一行回答“要不要”。条件中出现缺失值时，R不知道该保留还是丢弃，就会多出一行全是`NA`的记录。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`d[d$score > 85, ]`会出现一行全是`NA`？比较遇到缺失值得到`NA`，逻辑索引中的`NA`会生成一个缺失行，而不是被跳过。\n2. 为什么筛选单列时要写`drop = FALSE`？只选一列时，`d[行, \"列\"]`默认降为向量，`drop = FALSE`保留数据框结构。\n3. 为什么新增列时结果可能出乎意料？给新列赋值时，长度为1的值会重复到每一行；长度不匹配时R会报错，长度能整除时则可能悄悄循环补齐。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "根据成绩新增“是否达标”列，筛选达标学生的编号和成绩，并比较两种取列方式的结果。\n\n独立脚本见[K26_example_01.R](/content/code/K26_example_01.R)。\n\n```r\nd <- data.frame(id=1:3,score=c(80,NA,90))\nd$pass <- !is.na(d$score) & d$score>=85\nprint(d[d$pass,c(\"id\",\"score\"),drop=FALSE])\nprint(d[\"score\"])\nprint(class(d$score))\nprint(class(d[\"score\"]))\n```\n\n### 预期输出（待R实测）\n\n```text\n  id score\n3  3    90\n  score\n1    80\n2    NA\n3    90\n[1] \"numeric\"\n[1] \"data.frame\"\n```\n\n### 逐步讲解\n\n1. `!is.na(d$score) &`先排除缺失，第2行的结果为`FALSE`而不是`NA`。\n2. 新列`pass`逐行保存逻辑值，长度与行数相同。\n3. 按`pass`筛选行、按名称选两列，只剩第3行。\n4. `d[\"score\"]`仍是数据框，带有行号和列名。\n5. `class()`确认`$`得到数值向量，单中括号加列名得到数据框。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "五名学生中S02缺考。需要筛选出成绩不低于80分的学生，给每人加5分作为附加分列，并统计达标人数。\n\n独立脚本见[K26_example_02.R](/content/code/K26_example_02.R)。\n\n```r\nd <- data.frame(id = c(\"S01\", \"S02\", \"S03\", \"S04\", \"S05\"),\n                score = c(92, NA, 78, 85, 60))\nok <- !is.na(d$score) & d$score >= 80\nprint(d[ok, ])\nd$bonus <- d$score + 5\nprint(d[c(\"id\", \"bonus\")])\nprint(sum(ok))\n```\n\n### 预期输出（待R实测）\n\n```text\n   id score\n1 S01    92\n4 S04    85\n   id bonus\n1 S01    97\n2 S02    NA\n3 S03    83\n4 S04    90\n5 S05    65\n[1] 2\n```\n\n### 逐步讲解\n\n1. 条件先排除缺失，再比较分数，结果中没有缺失行。\n2. 行号1和4保留了原始位置，便于回查。\n3. 新列`bonus`由成绩逐行加5得到，缺考学生仍为`NA`。\n4. 用列名向量取两列，结果是数据框。\n5. `sum(ok)`统计达标人数为2。\n\n加分列是派生数据，原始成绩列保持不变，以后规则调整时可以重新计算。缺考学生的附加分为`NA`，是否给予补考机会属于课程规则，代码不应自动替换为0。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“取列的三种写法”，采用对照图，以SVG手绘。左侧是一张3行2列的数据框，右侧三行分别展示`d$score`、`d[[\"score\"]]`得到的竖排数字向量，以及`d[\"score\"]`得到的带表头和行号的小表。\n\n![左侧数据框有id和score两列。右侧第一、二行显示用美元符号和双中括号取列都得到向量80、NA、90；第三行显示用单中括号加列名得到仍有表头score和行号1到3的数据框。](/content/images/K26_visual_01.svg)\n\n图让学生在取列前先判断需要哪种结果：要计算就取向量，要保留表结构就用单中括号。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "直接用比较条件筛选高分，结果多出一行全是`NA`的记录。\n\n```r\nd <- data.frame(id = 1:3, score = c(80, NA, 90))\nprint(d[d$score > 85, ])\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n   id score\nNA NA    NA\n3   3    90\n```\n\n参考修正用`which()`把条件转换为位置，缺失值会被跳过。\n\n```r\nd <- data.frame(id = 1:3, score = c(80, NA, 90))\nprint(d[which(d$score > 85), ])\n```\n\n### 预期输出（待R实测）\n\n```text\n  id score\n3  3    90\n```\n\n多出的那一行行名也是`NA`，很容易被误认为数据里真有这样一位学生。凡是筛选条件涉及可能缺失的列，都应先排除缺失，或者使用`which()`。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "四名学生的数学和英语成绩中各有一个缺失。要求新增总分列，筛选出总分有效且数学不低于80分的学生，只显示姓名和总分；再取出英语成绩向量，并列出所有列名。\n\n提示两科任一缺失时总分为`NA`，筛选条件要先排除它。\n\n独立脚本见[K26_exercise.R](/content/code/K26_exercise.R)。\n\n```r\nd <- data.frame(name = c(\"Ann\", \"Ben\", \"Cai\", \"Dan\"),\n                math = c(85, 72, NA, 90),\n                eng = c(78, 88, 91, NA))\nd$total <- d$math + d$eng\nboth <- !is.na(d$total) & d$math >= 80\nprint(d[both, c(\"name\", \"total\"), drop = FALSE])\nprint(d[[\"eng\"]])\nprint(colnames(d))\n```\n\n### 预期输出（待R实测）\n\n```text\n  name total\n1  Ann   163\n[1] 78 88 91 NA\n[1] \"name\"  \"math\"  \"eng\"   \"total\"\n```\n\n评分共10分，新增总分列得2分，筛选条件正确处理缺失得4分，取向量与列名各得2分。常见错误是条件写成`d$math >= 80`，Dan的数学90分会被选中，但他的总分是`NA`，不满足“总分有效”的要求。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面三行的输出。\n\n```r\nd <- data.frame(a = 1:3, b = c(10, 20, 30))\nprint(class(d$b))\nprint(class(d[\"b\"]))\nprint(d[2, \"b\"])\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] \"numeric\"\n[1] \"data.frame\"\n[1] 20\n```\n\n只取一行一列时，结果降为单个值。\n\n2. `d$new <- 1`能否运行？答案为能，长度为1的值会重复到每一行，新列每行都是1。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 70、72。\n- 补充来源为R官方帮助主题`help(\"[.data.frame\")`、`help(\"Extract\")`、`help(\"which\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题前两项输出与课程资料中已实测的输出一致；数据框打印排版用按R规则编写的辅助程序生成。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K26`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`subset()`改写筛选，并比较它对缺失值的处理方式。",
+    "易错点请求解释行名显示为`NA`时意味着什么。",
+    "练习请求按总分降序排列，衔接K27。",
+    "相关知识继续学习K28，系统处理数据框中的缺失值和异常值。"
+   ],
+   "assets": [
+    "code/K26_example_01.R",
+    "code/K26_example_02.R",
+    "code/K26_exercise.R",
+    "images/K26_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K26.md",
+   "sha256": "587f64cec1212a819f640145ccdc65c9a6e4bf46ff13254d96af890e70975cf7"
+  },
+  "K27": {
+   "id": "K27",
+   "title": "数据框排序与合并",
+   "unit": "数据框整理",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K14",
+    "K25",
+    "K26"
+   ],
+   "related": [
+    "K12",
+    "K14",
+    "K20",
+    "K29"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`d[order(...), ]`对整张表排序，保证同一行的各列始终在一起。\n- 能够用`merge()`按键合并两张表，说出内连接、左连接、全连接保留哪些行。\n- 能够在合并前检查重复键和未匹配的键，并解释合并后行数变化的原因。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `order(c(30, 10, 20))`的结果是什么？预期回答为`2 3 1`。\n2. `setdiff(c(\"a\", \"b\"), c(\"b\"))`的结果是什么？预期回答为`\"a\"`。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "排序时要把整行当作一个整体搬动：先用`order()`算出新的行顺序，再按这个顺序取出所有列。如果只把成绩列单独排好放回去，姓名和成绩就对不上了。合并像把两张名单按学号对齐：`merge()`默认只保留两边都有的学号，称为内连接；`all.x = TRUE`保留左表全部学号，右表缺的部分填`NA`。如果右表中同一个学号出现多次，左表的这一行会被复制多份。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么合并后行数可能比两张表都多？一个键在两边都重复时会两两配对，比如左表2行、右表3行同为一个学号，结果就有6行。\n2. 为什么合并前要先检查重复键？重复往往意味着数据有问题或者本来就是一对多关系，不检查就合并，后续统计会把同一个人算多次。\n3. 为什么合并后最好重置行名？`merge()`和排序会让行名变成原表编号的组合，重置后打印更清楚，也避免误把行名当作学号。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "按编号左连接两张表，再按成绩从高到低排列左表。\n\n独立脚本见[K27_example_01.R](/content/code/K27_example_01.R)。\n\n```r\nx <- data.frame(id=1:3,score=c(80,90,70)); y <- data.frame(id=c(2,3),group=c(\"A\",\"B\"))\nz <- merge(x,y,by=\"id\",all.x=TRUE)\nprint(z); print(x[order(x$score,decreasing=TRUE),])\n```\n\n### 预期输出（待R实测）\n\n```text\n  id score group\n1  1    80  <NA>\n2  2    90     A\n3  3    70     B\n  id score\n2  2    90\n1  1    80\n3  3    70\n```\n\n### 逐步讲解\n\n1. `by = \"id\"`指定连接键，`all.x = TRUE`保留左表的全部3个编号。\n2. 编号1在右表中没有分组，`group`显示为`<NA>`，尖括号表示字符型缺失值。\n3. `order()`给出成绩从高到低的行顺序，所有列一起按这个顺序重排。\n4. 行名2、1、3说明了每一行原来的位置。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "学生名单与选课成绩按学号合并。S01选了两门课，S02没有成绩，S04的成绩在名单中找不到人。需要检查重复键、合并、排序，并找出未匹配的学号。\n\n独立脚本见[K27_example_02.R](/content/code/K27_example_02.R)。\n\n```r\nstu <- data.frame(id = c(\"S01\", \"S02\", \"S03\"), name = c(\"Ann\", \"Ben\", \"Cai\"))\ngrade <- data.frame(id = c(\"S01\", \"S01\", \"S03\", \"S04\"),\n                    course = c(\"FIN\", \"ACC\", \"FIN\", \"ECO\"),\n                    score = c(88, 92, 75, 60))\nprint(anyDuplicated(stu$id))\nm <- merge(stu, grade, by = \"id\")\nm <- m[order(m$id, m$course), ]\nrownames(m) <- NULL\nprint(m)\nprint(setdiff(grade$id, stu$id))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 0\n   id name course score\n1 S01  Ann    ACC    92\n2 S01  Ann    FIN    88\n3 S03  Cai    FIN    75\n[1] \"S04\"\n```\n\n### 逐步讲解\n\n1. `anyDuplicated()`返回0，说明名单中没有重复学号，每个学号只对应一个学生。\n2. 默认的内连接只保留两边都有的学号：S02没有成绩被去掉，S04没有学生信息也被去掉。\n3. S01在成绩表中有两条记录，合并后Ann出现两行，这是正常的一对多关系。\n4. 按学号和课程排序后重置行名，结果更易阅读。\n5. `setdiff()`找出成绩表中多出的学号S04，需要回查是录入错误还是名单遗漏。\n\n合并后有3行，不能说成“3名学生”，实际只有2名学生。统计人数时应使用`length(unique(m$id))`。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“三种连接保留哪些行”，采用对照图，以SVG手绘。左表学号为1、2、3，右表学号为2、3、4，三行分别展示内连接、左连接和全连接的结果，缺少的值用`NA`格子标出。\n\n![左表学号1、2、3，右表学号2、3、4。内连接只保留2和3；左连接保留1、2、3，其中1的右表部分为NA；全连接保留1到4，1的右表部分和4的左表部分都是NA。](/content/images/K27_visual_01.svg)\n\n图用同一组学号比较三种连接，学生可以直接看出`all.x`、`all.y`和`all`分别多保留了哪些行。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "想把成绩从高到低排序，只对成绩列排序后放回原表，结果姓名和成绩错配。\n\n```r\nx <- data.frame(name = c(\"Ann\", \"Ben\", \"Cai\"), score = c(80, 95, 70))\nx$score <- sort(x$score, decreasing = TRUE)\nprint(x)\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n  name score\n1  Ann    95\n2  Ben    80\n3  Cai    70\n```\n\n参考修正用`order()`对整张表重排行。\n\n```r\nx <- data.frame(name = c(\"Ann\", \"Ben\", \"Cai\"), score = c(80, 95, 70))\nprint(x[order(x$score, decreasing = TRUE), ])\n```\n\n### 预期输出（待R实测）\n\n```text\n  name score\n2  Ben    95\n1  Ann    80\n3  Cai    70\n```\n\n错误版本没有任何提示，但Ann的80分变成了95分。排序后检查一两个人的成绩是否与原表一致，就能发现这类问题。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "学生名单有4人，成绩表只有3人的成绩。要求保留全部学生做左连接，统计缺少成绩的人数，再按成绩从高到低排列，缺失成绩的学生排在最后，只显示姓名和成绩。\n\n提示`order()`的`na.last = TRUE`会把缺失值放在最后。\n\n独立脚本见[K27_exercise.R](/content/code/K27_exercise.R)。\n\n```r\nstu <- data.frame(id = c(1, 2, 3, 4), name = c(\"Ann\", \"Ben\", \"Cai\", \"Dan\"))\nsc <- data.frame(id = c(2, 4, 1), score = c(88, 95, 70))\njoined <- merge(stu, sc, by = \"id\", all.x = TRUE)\nprint(nrow(joined))\nprint(sum(is.na(joined$score)))\nranked <- joined[order(joined$score, decreasing = TRUE, na.last = TRUE), c(\"name\", \"score\")]\nprint(ranked)\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 4\n[1] 1\n  name score\n4  Dan    95\n2  Ben    88\n1  Ann    70\n3  Cai    NA\n```\n\n评分共10分，左连接正确得3分，缺失人数得2分，排序与缺失位置得3分，选择两列得2分。常见错误是使用默认的内连接，Cai被直接去掉，结果看不出有人缺少成绩。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测两次合并的行数。\n\n```r\na <- data.frame(k = c(1, 2), v = c(\"x\", \"y\"))\nb <- data.frame(k = c(2, 2, 3), w = c(10, 20, 30))\nprint(nrow(merge(a, b, by = \"k\")))\nprint(nrow(merge(a, b, by = \"k\", all = TRUE)))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2\n[1] 4\n```\n\n内连接中键2在右表出现两次，得到2行；全连接再加上只在左表的键1和只在右表的键3，共4行。\n\n2. 合并后行数比左表多，一定是出错了吗？答案为不一定。一对多关系会使行数增加，但需要确认这种重复符合数据的含义。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 71、74。\n- 课程来源为S4《R数据科学_译本.pdf》第9章 PDF 143–159。\n- 补充来源为R官方帮助主题`help(\"merge\")`、`help(\"order\")`、`help(\"anyDuplicated\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题与课程资料中已实测的输出一致；应用例题合并后先排序并重置行名，避免依赖`merge()`内部的行顺序。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K27`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用`all.y = TRUE`改写，观察S04的记录。",
+    "易错点请求说明两张表的键列名称不同时，如何用`by.x`和`by.y`合并。",
+    "练习请求计算每位学生的平均成绩后再合并，衔接K30。",
+    "相关知识继续学习K29，了解长表与宽表的转换。"
+   ],
+   "assets": [
+    "code/K27_example_01.R",
+    "code/K27_example_02.R",
+    "code/K27_exercise.R",
+    "images/K27_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K27.md",
+   "sha256": "f6a3728882b1650731bf97e71cee38ccfec28a26b5f45516bc8b96ff43ebd8db"
+  },
+  "K28": {
+   "id": "K28",
+   "title": "缺失处理与异常值策略",
+   "unit": "数据框整理",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K06",
+    "K25",
+    "K26"
+   ],
+   "related": [
+    "K06",
+    "K13",
+    "K26",
+    "K30"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够比较整表删除缺失、只删除分析列缺失、填补缺失三种做法的代价。\n- 能够在填补前用标记列记录哪些值原本缺失，保证处理过程可追溯。\n- 能够按明确规则标记异常值，先查明原因再决定删除、修正或保留。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `mean(c(60, NA, 90))`的结果是什么？预期回答为`NA`。\n2. `d[!is.na(d$score), ]`保留哪些行？预期回答为`score`不缺失的行。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "缺失值和异常值都没有“万能”的处理方法，每种做法都在用一点信息换取方便。整表删除最简单，但可能因为一个无关列的空白就丢掉整行有效成绩；用均值填补让数据看起来完整，却会让波动变小、结论显得更确定。比较稳妥的做法是：先统计缺了多少、缺在哪里，处理前保存一个“原本缺失”的标记，并在报告中写明规则。异常值也一样，先按规则找出来，再回到原始记录判断它是录入错误还是真实的极端情况。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么`na.omit(d)`可能删掉过多的行？它删除任一列含缺失的行，分析成绩时备注列的空白也会让这一行被删掉。\n2. 为什么均值填补会低估波动？填进去的值都等于均值，不贡献任何离差，标准差会变小。\n3. 为什么不能直接删除超出范围的值？超出范围可能是单位错误或录入错误，修正后仍是有效数据；直接删除会丢失信息，也无法追溯。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "用均值填补缺失的成绩，并新增一列记录哪些值是填补的。\n\n独立脚本见[K28_example_01.R](/content/code/K28_example_01.R)。\n\n```r\nd <- data.frame(id=1:3,score=c(80,NA,100))\nd$was_missing <- is.na(d$score)\nd$score[d$was_missing] <- mean(d$score,na.rm=TRUE)\nprint(d)\n```\n\n### 预期输出（待R实测）\n\n```text\n  id score was_missing\n1  1    80       FALSE\n2  2    90        TRUE\n3  3   100       FALSE\n```\n\n### 逐步讲解\n\n1. 先生成标记列，记住第2行原本缺失。\n2. 用有效成绩80和100的平均值90填补缺失。\n3. 填补后成绩列完整，但标记列保留了处理痕迹，后续分析可以排除或单独检查这些行。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "五条成绩记录中，备注列有多处空白，成绩只缺一个。比较整表删除和只按成绩列删除，看各自保留多少有效成绩。\n\n独立脚本见[K28_example_02.R](/content/code/K28_example_02.R)。\n\n```r\nd <- data.frame(id = 1:5, score = c(80, NA, 95, 70, 88),\n                note = c(NA, \"late\", NA, NA, \"ok\"))\nprint(nrow(na.omit(d)))\nprint(sum(complete.cases(d)))\nkept <- d[!is.na(d$score), ]\nprint(nrow(kept))\nprint(round(mean(kept$score), 2))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 1\n[1] 1\n[1] 4\n[1] 83.25\n```\n\n### 逐步讲解\n\n1. `na.omit(d)`只剩1行，因为备注列的空白也会导致删行。\n2. `complete.cases(d)`判断每一行是否完整，结果同样只有1行。\n3. 只按成绩列筛选，保留了4条有效成绩。\n4. 基于这4条成绩计算平均分为83.25。\n\n分析成绩时应只检查与成绩有关的列。备注为空不影响成绩的有效性，整表删除会让样本从4条缩减到1条，结论也会随之改变。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“三种缺失处理的代价”，采用对比图，以SVG手绘。同一张5行表格分别经过整表删除、按分析列删除、均值填补三种处理，用划掉的行表示被删除的记录，用不同颜色标出填补值，下方注明保留的样本数和对波动的影响。\n\n![三列对比。整表删除只剩1行；按成绩列删除保留4行；均值填补保留5行，但填补值以橙色标出，并注明标准差会变小。](/content/images/K28_visual_01.svg)\n\n图把“保留了多少信息”和“引入了多少假设”放在一起，帮助学生在报告中说明选择的理由。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "为了让数据完整，用均值填补两个缺失值，却没有注意到波动被明显低估。\n\n```r\nx <- c(60, NA, NA, 90, 75)\nfilled <- x\nfilled[is.na(filled)] <- mean(x, na.rm = TRUE)\nprint(filled)\nprint(round(c(before = sd(x, na.rm = TRUE), after = sd(filled)), 2))\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n[1] 60 75 75 90 75\nbefore  after \n 15.00  10.61 \n```\n\n参考修正不急于填补，先如实报告样本数、缺失数和基于有效值的统计量。\n\n```r\nx <- c(60, NA, NA, 90, 75)\nprint(c(n = length(x), missing = sum(is.na(x)), mean = mean(x, na.rm = TRUE)))\n```\n\n### 预期输出（待R实测）\n\n```text\n      n missing    mean \n      5       2      75 \n```\n\n填补后标准差从15.00降到10.61，并不是因为数据变得更稳定，而是因为填入了两个“恰好等于均值”的数。如果确实需要填补，应在报告中说明方法，并用标记列区分原始值和填补值。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "六名学生的成绩中有一个缺失，另有102分和-5分两个超出0到100分范围的值。要求分别标记缺失和超出范围的记录，列出需要复核的行，并用剩余的有效成绩计算有效人数和平均分。\n\n提示判断超出范围时要先排除缺失，否则标记列也会出现`NA`。\n\n独立脚本见[K28_exercise.R](/content/code/K28_exercise.R)。\n\n```r\nd <- data.frame(id = 1:6, score = c(78, 85, 102, NA, 91, -5))\nd$missing <- is.na(d$score)\nd$out_of_range <- !d$missing & (d$score < 0 | d$score > 100)\nprint(d[d$missing | d$out_of_range, ])\nclean <- d$score[!d$missing & !d$out_of_range]\nprint(c(valid = length(clean), mean = round(mean(clean), 2)))\n```\n\n### 预期输出（待R实测）\n\n```text\n  id score missing out_of_range\n3  3   102   FALSE         TRUE\n4  4    NA    TRUE        FALSE\n6  6    -5   FALSE         TRUE\nvalid  mean \n 3.00 84.67 \n```\n\n评分共10分，缺失标记得2分，范围标记正确排除缺失得3分，复核清单得2分，有效统计得3分。常见错误是把范围条件写成`d$score < 0 | d$score > 100`，第4行的标记会变成`NA`，复核清单中多出一行全为`NA`的记录。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面两行的输出。\n\n```r\nd <- data.frame(a = c(1, NA, 3), b = c(\"x\", \"y\", NA))\nprint(nrow(na.omit(d)))\nprint(sum(is.na(d$a)))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 1\n[1] 1\n```\n\n第2行`a`缺失、第3行`b`缺失，整表删除后只剩第1行；`a`列本身只有1个缺失值。\n\n2. 发现一个成绩为102分，最合适的第一步是什么？答案为回查原始记录。可能是录入错误、加分规则或满分设置不同，查明原因后再决定修正、保留还是排除。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 73。\n- 补充来源为R官方帮助主题`help(\"na.omit\")`、`help(\"complete.cases\")`、`help(\"is.na\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题与课程资料中已实测的输出一致；标准差与平均分已用Python独立计算核对。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K28`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用中位数代替均值填补，并比较对标准差的影响。",
+    "易错点请求解释`complete.cases(d[\"score\"])`与`complete.cases(d)`的区别。",
+    "练习请求用四分位距规则标记异常值，并与固定范围规则比较。",
+    "相关知识继续学习K30，在分组汇总中说明缺失值的处理规则。"
+   ],
+   "assets": [
+    "code/K28_example_01.R",
+    "code/K28_example_02.R",
+    "code/K28_exercise.R",
+    "images/K28_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K28.md",
+   "sha256": "32a4ea0bbbf2033518cfad424a0323bf967a85271a17fad6d0ab170edf1242fb"
+  },
+  "K29": {
+   "id": "K29",
+   "title": "长宽表转换：基础R",
+   "unit": "数据框整理",
+   "difficulty": "扩展",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K25",
+    "K27"
+   ],
+   "related": [
+    "K27",
+    "K30"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够区分宽表（同一变量分散在多列）和长表（变量值集中在一列、另有一列标明时间或类别）。\n- 能够用`reshape()`在宽表和长表之间转换，说出`varying`、`v.names`、`timevar`、`times`、`idvar`各自的作用。\n- 能够在转换前检查“身份键 + 时间”是否唯一，避免重复记录被悄悄丢弃。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `order(c(\"B\", \"A\"), c(2, 1))`按什么排序？预期回答为先按第一个向量，再按第二个向量。\n2. 数据框中每一行代表什么？预期回答为一个观测。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "同样的成绩可以有两种摆法。宽表是一人一行，2025年和2026年的成绩各占一列，适合人眼对比；长表是一人一年一行，用`year`列写明年份、`score`列存成绩，适合分组汇总和画图。`reshape()`就是在这两种摆法之间切换：转为长表时，要告诉它哪些列是同一个变量（`varying`）、合并后叫什么（`v.names`）、新的时间列叫什么（`timevar`）以及取哪些值（`times`）、靠哪一列识别同一个人（`idvar`）。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么转长表后行数会增加？每人每个时间点一行，2人2年就变成4行，信息没有增减，只是换了摆法。\n2. 为什么长表的行名是`A.2025`这种形式？`reshape()`用“身份键.时间”作为行名，便于转回宽表时对应；打印前可以重置行名。\n3. 为什么转宽表前要检查重复？同一个人同一年如果有两条记录，宽表里只有一个格子可放，`reshape()`只取第一条并给出警告，另一条就丢失了。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "把两个人两年的成绩从宽表转为长表，排序后再转回宽表。\n\n独立脚本见[K29_example_01.R](/content/code/K29_example_01.R)。\n\n```r\nw <- data.frame(id=c(\"A\",\"B\"),y2025=c(80,70),y2026=c(90,85))\nl <- reshape(w,varying=c(\"y2025\",\"y2026\"),v.names=\"score\",timevar=\"year\",times=c(2025,2026),idvar=\"id\",direction=\"long\")\nprint(l[order(l$id,l$year),])\nback <- reshape(l,idvar=\"id\",timevar=\"year\",direction=\"wide\")\nprint(back)\n```\n\n### 预期输出（待R实测）\n\n```text\n       id year score\nA.2025  A 2025    80\nA.2026  A 2026    90\nB.2025  B 2025    70\nB.2026  B 2026    85\n       id score.2025 score.2026\nA.2025  A         80         90\nB.2025  B         70         85\n```\n\n### 逐步讲解\n\n1. `varying`列出要合并的两列，`v.names = \"score\"`给合并后的列命名。\n2. `timevar = \"year\"`和`times`指定新时间列的名称和取值，与`varying`一一对应。\n3. 长表有4行，行名是“编号.年份”。\n4. 转回宽表时，列名变为`score.2025`和`score.2026`，数值与原表一致。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "三名学生两次测验的成绩是宽表。需要转为长表，按学号和测验排序并重置行名，统计长表行数和第二次测验的平均分。\n\n独立脚本见[K29_example_02.R](/content/code/K29_example_02.R)。\n\n```r\nw <- data.frame(id = c(\"S01\", \"S02\", \"S03\"), q1 = c(80, 72, 90), q2 = c(85, 70, 95))\nl <- reshape(w, varying = c(\"q1\", \"q2\"), v.names = \"score\", timevar = \"quiz\",\n             times = c(\"q1\", \"q2\"), idvar = \"id\", direction = \"long\")\nl <- l[order(l$id, l$quiz), ]\nrownames(l) <- NULL\nprint(l)\nprint(nrow(l))\nprint(mean(l$score[l$quiz == \"q2\"]))\n```\n\n### 预期输出（待R实测）\n\n```text\n   id quiz score\n1 S01   q1    80\n2 S01   q2    85\n3 S02   q1    72\n4 S02   q2    70\n5 S03   q1    90\n6 S03   q2    95\n[1] 6\n[1] 83.33333\n```\n\n### 逐步讲解\n\n1. 时间列也可以是文字，这里`times`用测验名称`q1`和`q2`。\n2. 排序后每名学生的两次测验相邻，便于对比。\n3. 重置行名后，行号从1开始连续编号。\n4. 3名学生×2次测验，长表共6行。\n5. 长表中按条件取出第二次测验的成绩，平均分约83.33。\n\n长表便于下一步分组汇总，例如K30中按测验计算平均分。转换只改变数据的摆法，不应改变任何数值，可以抽查一两个人的成绩核对。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“宽表与长表”，采用双向转换图，以SVG手绘。左侧宽表一人一行，两个年份各占一列；右侧长表一人一年一行；中间两个箭头分别标注`direction = \"long\"`和`direction = \"wide\"`，并用颜色连线标出同一个成绩在两种表中的位置。\n\n![左侧宽表两行：A的2025、2026成绩为80、90，B为70、85。右侧长表四行，每行包含id、year、score。中间箭头表示reshape转长与转宽，一条连线把宽表中A的2026成绩90连到长表中A.2026这一行。](/content/images/K29_visual_01.svg)\n\n图让学生看到“同一个数在两种表中各在哪里”，理解转换不改变数据，只改变组织方式。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "长表中A在2025年有两条记录，转为宽表时只保留了第一条，并给出警告。\n\n```r\nl <- data.frame(id = c(\"A\", \"A\", \"B\"), year = c(2025, 2025, 2025), score = c(80, 85, 70))\nw <- reshape(l, idvar = \"id\", timevar = \"year\", direction = \"wide\")\nprint(w)\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n  id score.2025\n1  A         80\n3  B         70\nWarning message:\nIn reshapeWide(...) :\n  multiple rows match for year=2025: first taken\n```\n\n参考修正在转换前先检查“编号+年份”是否唯一，找出重复的位置。\n\n```r\nl <- data.frame(id = c(\"A\", \"A\", \"B\"), year = c(2025, 2025, 2025), score = c(80, 85, 70))\nprint(anyDuplicated(l[c(\"id\", \"year\")]))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 2\n```\n\n`anyDuplicated()`返回第一条重复记录的行号2。查明原因后，可能需要删除误录的那一条，也可能需要先按规则汇总，例如取平均或取最高分。这个选择应由数据含义决定，而不是由`reshape()`的“取第一条”决定。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "在基础例题的宽表中加入2027年的成绩，其中B在2027年缺失。要求转为长表，报告行数和缺失个数，并列出2027年两人的成绩。\n\n提示`times`可以写成`2025:2027`，与`varying`中的三列一一对应。\n\n独立脚本见[K29_exercise.R](/content/code/K29_exercise.R)。\n\n```r\nw <- data.frame(id = c(\"A\", \"B\"), y2025 = c(80, 70), y2026 = c(90, 85), y2027 = c(92, NA))\nl <- reshape(w, varying = c(\"y2025\", \"y2026\", \"y2027\"), v.names = \"score\", timevar = \"year\",\n             times = 2025:2027, idvar = \"id\", direction = \"long\")\nprint(nrow(l))\nprint(sum(is.na(l$score)))\nprint(l[l$year == 2027, c(\"id\", \"score\")])\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 6\n[1] 1\n       id score\nA.2027  A    92\nB.2027  B    NA\n```\n\n评分共10分，`varying`与`times`对应正确得4分，行数与缺失统计各得2分，按年份筛选得2分。常见错误是`times`只写了两年，与三列`varying`数量不一致，R会报错。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测转换后的维度。\n\n```r\nw <- data.frame(id = 1:4, a = 1:4, b = 5:8)\nl <- reshape(w, varying = c(\"a\", \"b\"), v.names = \"v\", timevar = \"t\",\n             times = c(\"a\", \"b\"), idvar = \"id\", direction = \"long\")\nprint(dim(l))\n```\n\n### 预期输出（待R实测）\n\n```text\n[1] 8 3\n```\n\n4个编号×2个时间点得到8行，列为`id`、`t`、`v`三列。\n\n2. 想画出每个人成绩随年份变化的折线图，更适合用宽表还是长表？答案为长表，年份和成绩各占一列，绘图函数可以直接使用。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 75–78。\n- 课程来源为S4《R数据科学_译本.pdf》第8章 PDF 125–142。\n- 补充来源为R官方帮助主题`help(\"reshape\")`、`help(\"anyDuplicated\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题与课程资料中已实测的输出一致；警告文字的换行方式可能随平台不同，核对脚本只比对文字内容。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K29`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求说明`reshape()`结果中的`reshapeLong`属性有什么作用。",
+    "易错点请求按“取平均”规则处理重复记录后再转宽表。",
+    "练习请求把长表按年份计算平均分，衔接K30。",
+    "相关知识可以了解tidyr包的`pivot_longer()`和`pivot_wider()`，它们是更现代的写法。"
+   ],
+   "assets": [
+    "code/K29_example_01.R",
+    "code/K29_example_02.R",
+    "code/K29_exercise.R",
+    "images/K29_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K29.md",
+   "sha256": "78de0694573fe1f9f9af2fd3d9b3a4ffb1ad5d8f7c9fb00f33f6a8a56e00671b"
+  },
+  "K30": {
+   "id": "K30",
+   "title": "分组汇总：基础R",
+   "unit": "数据框整理",
+   "difficulty": "核心",
+   "verification": "待R实测",
+   "prerequisites": [
+    "K13",
+    "K25",
+    "K28"
+   ],
+   "related": [
+    "K13",
+    "K24",
+    "K28",
+    "K32"
+   ],
+   "verified": false,
+   "sections": [
+    {
+     "title": "学习目标",
+     "markdown": "- 能够用`tapply()`和`aggregate()`按类别计算统计量，说明分组变量和被汇总变量的不同角色。\n- 能够通过`...`把`na.rm = TRUE`传给汇总函数，并单独统计每组的有效人数。\n- 能够把多个分组统计量组合成一张汇总表，用于报告。"
+    },
+    {
+     "title": "先备检查",
+     "markdown": "1. `mean(c(80, NA, 92), na.rm = TRUE)`等于多少？预期回答为86。\n2. `sum(!is.na(c(80, NA, 92)))`等于多少？预期回答为2，即有效值个数。"
+    },
+    {
+     "title": "直观理解",
+     "markdown": "分组汇总分三步：先按类别把数据拆成几组，再对每组分别计算，最后把各组结果拼回一起。`tapply(数值, 分组, 函数)`返回一个带组名的向量，适合快速查看；`aggregate(数值, list(组名 = 分组), 函数)`返回数据框，适合继续合并或导出。两者都把汇总函数后面的额外参数原样传过去，所以`na.rm = TRUE`可以直接写在最后。"
+    },
+    {
+     "title": "为什么",
+     "markdown": "1. 为什么某组的平均值是`NA`？组内只要有一个缺失值，`mean()`默认就返回`NA`，需要通过`na.rm = TRUE`去掉缺失。\n2. 为什么还要单独报告每组的有效人数？两组均值相同，有效人数可能相差很大，人数越少结论越不稳定。\n3. 为什么`aggregate()`的结果列名叫`x`？向量接口没有提供变量名，R默认命名为`x`，需要时可以用`names()`修改。"
+    },
+    {
+     "title": "基础例题",
+     "markdown": "按组计算平均分，比较`aggregate()`和`tapply()`的输出形式。\n\n独立脚本见[K30_example_01.R](/content/code/K30_example_01.R)。\n\n```r\nd <- data.frame(group=c(\"A\",\"A\",\"B\"),score=c(80,100,60))\nprint(aggregate(d$score,list(group=d$group),mean))\nprint(tapply(d$score,d$group,mean))\n```\n\n### 预期输出（待R实测）\n\n```text\n  group  x\n1     A 90\n2     B 60\n A  B \n90 60 \n```\n\n### 逐步讲解\n\n1. `aggregate()`的分组参数要放在`list()`中，`group = `成为结果的列名。\n2. A组(80 + 100) / 2 = 90，B组只有一人，平均分为60。\n3. `aggregate()`返回数据框，`tapply()`返回带组名的向量，数值相同。"
+    },
+    {
+     "title": "应用例题",
+     "markdown": "两个班级的成绩中有一个缺失。需要计算每班的平均分（去掉缺失）、每班的有效人数和最高分。\n\n独立脚本见[K30_example_02.R](/content/code/K30_example_02.R)。\n\n```r\nd <- data.frame(class = c(\"A\", \"A\", \"A\", \"B\", \"B\"), score = c(80, NA, 92, 75, 85))\nprint(tapply(d$score, d$class, mean, na.rm = TRUE))\nprint(tapply(!is.na(d$score), d$class, sum))\nprint(aggregate(d$score, list(class = d$class), max, na.rm = TRUE))\n```\n\n### 预期输出（待R实测）\n\n```text\n A  B \n86 80 \nA B \n2 2 \n  class  x\n1     A 92\n2     B 85\n```\n\n### 逐步讲解\n\n1. `na.rm = TRUE`写在最后，传给每组的`mean()`。A班为(80 + 92) / 2 = 86。\n2. `!is.na(d$score)`标出有效成绩，按班求和得到每班的有效人数，两班都是2人。\n3. `aggregate()`同样可以传入`na.rm = TRUE`，得到每班的最高分。\n\nA班名单有3人，但有效成绩只有2个。报告时应写“A班有效成绩2个，平均分86”，而不是“A班3人平均86分”。"
+    },
+    {
+     "title": "图解方案",
+     "markdown": "图名为“拆分、计算、组合”，采用流程图，以SVG手绘。左侧是混合在一起的五条成绩记录，中间按班级拆成A、B两组，每组旁边写出各自的计算过程，右侧把两个结果组合成一张汇总表，缺失值用虚线框标出并注明被`na.rm`去掉。\n\n![左侧五条记录按班级着色。中间拆为A组80、NA、92和B组75、85，A组的NA用虚线框标出。右侧组合结果为A班86、B班80，下方标注tapply返回向量、aggregate返回数据框。](/content/images/K30_visual_01.svg)\n\n图把分组汇总的三个步骤画成一条流水线，强调缺失值在“计算”这一步被处理，处理规则需要写进报告。"
+    },
+    {
+     "title": "易错案例",
+     "markdown": "按班计算平均分时没有处理缺失值，A班的结果变成了`NA`。\n\n```r\nd <- data.frame(class = c(\"A\", \"A\", \"B\"), score = c(80, NA, 70))\nprint(tapply(d$score, d$class, mean))\n```\n\n### 实际错误或异常结果（待R实测）\n\n```text\n A  B \nNA 70 \n```\n\n参考修正传入`na.rm = TRUE`，同时统计每组缺失了几个。\n\n```r\nd <- data.frame(class = c(\"A\", \"A\", \"B\"), score = c(80, NA, 70))\nprint(tapply(d$score, d$class, mean, na.rm = TRUE))\nprint(tapply(is.na(d$score), d$class, sum))\n```\n\n### 预期输出（待R实测）\n\n```text\n A  B \n80 70 \nA B \n1 0 \n```\n\nA班的80分只来自1个有效成绩。如果某组全部缺失，`na.rm = TRUE`后的平均值会是`NaN`，提醒这一组没有可用数据。"
+    },
+    {
+     "title": "完整练习",
+     "markdown": "五名学生分属金融（FIN）和会计（ACC）两个专业，其中一名会计学生缺少成绩。要求按专业计算有效人数、平均分（保留一位小数）和最高分，并组合成一张三行的汇总表。\n\n提示三个`tapply()`的结果都按专业名排列，可以用`rbind()`按行拼接，并为每行命名。\n\n独立脚本见[K30_exercise.R](/content/code/K30_exercise.R)。\n\n```r\nd <- data.frame(major = c(\"FIN\", \"ACC\", \"FIN\", \"ACC\", \"FIN\"),\n                score = c(88, 76, 92, NA, 81))\nn <- tapply(!is.na(d$score), d$major, sum)\navg <- round(tapply(d$score, d$major, mean, na.rm = TRUE), 1)\ntop <- tapply(d$score, d$major, max, na.rm = TRUE)\nprint(rbind(n = n, mean = avg, max = top))\n```\n\n### 预期输出（待R实测）\n\n```text\n     ACC FIN\nn      1   3\nmean  76  87\nmax   76  92\n```\n\n评分共10分，有效人数得3分，平均分与缺失处理得3分，最高分得2分，汇总表组合与命名得2分。常见错误是用`table(d$major)`当作人数，会计专业会显示2人，但其中1人没有成绩。"
+    },
+    {
+     "title": "自测题",
+     "markdown": "1. 预测下面两行的输出。\n\n```r\ng <- c(\"x\", \"y\", \"x\", \"y\")\nv <- c(1, 2, 3, 4)\nprint(tapply(v, g, sum))\nprint(length(tapply(v, g, sum)))\n```\n\n### 预期输出（待R实测）\n\n```text\nx y \n4 6 \n[1] 2\n```\n\nx组为1 + 3 = 4，y组为2 + 4 = 6；有两个组，结果长度为2。\n\n2. 想按“专业”和“年级”两个变量交叉分组，`tapply()`的分组参数怎么写？答案为`list(d$major, d$grade)`，结果是一个以两个分组变量为维度的矩阵。"
+    },
+    {
+     "title": "来源与验证",
+     "markdown": "- 课程来源为S3《CH2R语言数据操作课件.pdf》PDF 79–82。\n- 课程来源为S4《R数据科学_译本.pdf》第3章。\n- 补充来源为R官方帮助主题`help(\"tapply\")`、`help(\"aggregate\")`。\n- 本文代码尚未在R中运行，输出为编写者依据R规则推算的预期结果。基础例题与课程资料中已实测的输出一致；汇总表排版用按R规则编写的辅助程序生成。\n- 核对方法为在ai_tutor目录运行`python scripts/check_r_outputs.py K30`，全部通过后加`--write`标记为已实测。\n- 图解为SVG手绘，未附生成脚本。"
+    }
+   ],
+   "follow_ups": [
+    "例题请求用公式接口`aggregate(score ~ class, data = d, FUN = mean)`改写，并说明它对缺失值的处理。",
+    "易错点请求解释`NaN`和`NA`在分组结果中分别意味着什么。",
+    "练习请求增加一列中位数，并比较与平均分的差异。",
+    "相关知识继续学习K32，用`sapply()`对多列同时汇总。"
+   ],
+   "assets": [
+    "code/K30_example_01.R",
+    "code/K30_example_02.R",
+    "code/K30_exercise.R",
+    "images/K30_visual_01.svg"
+   ],
+   "source_file": "知识库补充草稿/K30.md",
+   "sha256": "8c5c2a922fa79f5721080d583f2e365f2d0a7626c4a2ceb2d85526e13f0c5387"
   }
  }
 }

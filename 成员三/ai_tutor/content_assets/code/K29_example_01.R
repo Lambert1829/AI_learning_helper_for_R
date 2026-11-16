@@ -1,0 +1,5 @@
+w <- data.frame(id=c("A","B"),y2025=c(80,70),y2026=c(90,85))
+l <- reshape(w,varying=c("y2025","y2026"),v.names="score",timevar="year",times=c(2025,2026),idvar="id",direction="long")
+print(l[order(l$id,l$year),])
+back <- reshape(l,idvar="id",timevar="year",direction="wide")
+print(back)

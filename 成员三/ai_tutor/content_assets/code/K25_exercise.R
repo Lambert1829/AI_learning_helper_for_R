@@ -1,0 +1,6 @@
+d <- data.frame(name = c("Ann", "Ben"), score = c(80, 95), stringsAsFactors = FALSE)
+m <- as.matrix(d)
+print(class(d$score))
+print(class(m[, "score"]))
+print(m)
+print(mean(d$score))

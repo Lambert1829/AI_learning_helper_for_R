@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="722" viewBox="0 0 720 722" role="img" aria-labelledby="title desc">
+<title id="title">K30 拆分、计算、组合</title>
+<desc id="desc">左侧五条记录按班级着色。中间拆为A组80、NA、92和B组75、85，A组的NA用虚线框标出。右侧组合结果为A班86、B班80，下方标注tapply返回向量、aggregate返回数据框。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#79bdf1" stroke-width="1.5"/></marker></defs>
+<rect width="720" height="722" rx="20" fill="#030813"/>
+<g font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif" fill="#b7c5d4">
+<text x="36" y="62" font-size="32" font-weight="700" fill="#f5f9ff">K30 拆分、计算、组合</text>
+<text x="36" y="112" font-size="24" fill="#79bdf1" font-weight="700">拆分</text>
+<rect x="36" y="130" width="150" height="48" rx="8" fill="#0c1522" stroke="#79bdf1" stroke-width="2"/>
+<text x="70" y="162" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">A</text>
+<text x="140" y="162" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">80</text>
+<rect x="36" y="188" width="150" height="48" rx="8" fill="#0c1522" stroke="#79bdf1" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="70" y="220" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">A</text>
+<text x="140" y="220" font-size="22" fill="#f2b56b" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">NA</text>
+<rect x="36" y="246" width="150" height="48" rx="8" fill="#0c1522" stroke="#79bdf1" stroke-width="2"/>
+<text x="70" y="278" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">A</text>
+<text x="140" y="278" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">92</text>
+<rect x="36" y="304" width="150" height="48" rx="8" fill="#0c1522" stroke="#7fd1b0" stroke-width="2"/>
+<text x="70" y="336" font-size="22" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">B</text>
+<text x="140" y="336" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">75</text>
+<rect x="36" y="362" width="150" height="48" rx="8" fill="#0c1522" stroke="#7fd1b0" stroke-width="2"/>
+<text x="70" y="394" font-size="22" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">B</text>
+<text x="140" y="394" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">85</text>
+<text x="250" y="112" font-size="24" fill="#79bdf1" font-weight="700">计算</text>
+<rect x="250" y="140" width="220" height="104" rx="12" fill="#123352" stroke="#79bdf1" stroke-width="2"/>
+<text x="360" y="182" font-size="21" fill="#f5f9ff" text-anchor="middle" font-family="Consolas, Menlo, monospace">A：(80 + 92) / 2</text>
+<text x="360" y="220" font-size="19" fill="#f2b56b" text-anchor="middle">NA 被 na.rm 去掉</text>
+<rect x="250" y="290" width="220" height="80" rx="12" fill="#123352" stroke="#7fd1b0" stroke-width="2"/>
+<text x="360" y="338" font-size="21" fill="#f5f9ff" text-anchor="middle" font-family="Consolas, Menlo, monospace">B：(75 + 85) / 2</text>
+<text x="530" y="112" font-size="24" fill="#79bdf1" font-weight="700">组合</text>
+<rect x="530" y="140" width="70" height="46" rx="10" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="565.0" y="172.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">A</text>
+<rect x="608" y="140" width="70" height="46" rx="10" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="643.0" y="172.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">B</text>
+<rect x="530" y="194" width="70" height="46" rx="10" fill="#123352" stroke="#79bdf1" stroke-width="2"/>
+<text x="565.0" y="226.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">86</text>
+<rect x="608" y="194" width="70" height="46" rx="10" fill="#123352" stroke="#79bdf1" stroke-width="2"/>
+<text x="643.0" y="226.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">80</text>
+<line x1="476" y1="192" x2="524" y2="192" stroke="#79bdf1" stroke-width="2.5" marker-end="url(#arrow)"/>
+<line x1="476" y1="330" x2="524" y2="220" stroke="#79bdf1" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="36" y="440" width="648" height="110" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="484" font-size="28" fill="#79bdf1" font-weight="700" font-family="Consolas, Menlo, monospace">tapply() → 带组名的向量</text>
+<text x="58" y="526" font-size="25" fill="#b7c5d4">aggregate() → 数据框；na.rm 写在最后</text>
+<rect x="36" y="566" width="648" height="110" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="610" font-size="28" fill="#79bdf1" font-weight="700">同时报告每组有效人数</text>
+<text x="58" y="652" font-size="25" fill="#b7c5d4">tapply(!is.na(x), g, sum)</text>
+</g>
+</svg>

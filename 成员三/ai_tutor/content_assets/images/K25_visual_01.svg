@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="776" viewBox="0 0 720 776" role="img" aria-labelledby="title desc">
+<title id="title">K25 数据框：列是变量，行是观测</title>
+<desc id="desc">一张3列4行的表，表头为id、major、score，分别标注chr、chr、num。竖向色带标出score整列为数值，横向高亮第一行S01、FIN、88为一个观测。下方箭头指向as.matrix后的结果，所有格子都带引号，表示被统一为字符。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#79bdf1" stroke-width="1.5"/></marker></defs>
+<rect width="720" height="776" rx="20" fill="#030813"/>
+<g font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif" fill="#b7c5d4">
+<text x="36" y="62" font-size="32" font-weight="700" fill="#f5f9ff">K25 数据框：列是变量，行是观测</text>
+<text x="111" y="112" font-size="20" fill="#9eafc2" text-anchor="middle" font-family="Consolas, Menlo, monospace">chr</text>
+<text x="267" y="112" font-size="20" fill="#9eafc2" text-anchor="middle" font-family="Consolas, Menlo, monospace">chr</text>
+<text x="423" y="112" font-size="20" fill="#9eafc2" text-anchor="middle" font-family="Consolas, Menlo, monospace">num</text>
+<rect x="36" y="124" width="150" height="48" rx="8" fill="#0f2236" stroke="#294158" stroke-width="2"/>
+<text x="111.0" y="156.0" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">id</text>
+<rect x="192" y="124" width="150" height="48" rx="8" fill="#0f2236" stroke="#294158" stroke-width="2"/>
+<text x="267.0" y="156.0" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">major</text>
+<rect x="348" y="124" width="150" height="48" rx="8" fill="#0f2236" stroke="#294158" stroke-width="2"/>
+<text x="423.0" y="156.0" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">score</text>
+<rect x="36" y="178" width="150" height="48" rx="8" fill="#123352" stroke="#79bdf1" stroke-width="2"/>
+<text x="111.0" y="210.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">S01</text>
+<rect x="192" y="178" width="150" height="48" rx="8" fill="#123352" stroke="#79bdf1" stroke-width="2"/>
+<text x="267.0" y="210.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">FIN</text>
+<rect x="348" y="178" width="150" height="48" rx="8" fill="#123352" stroke="#79bdf1" stroke-width="2"/>
+<text x="423.0" y="210.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">88</text>
+<rect x="36" y="232" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="111.0" y="264.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">S02</text>
+<rect x="192" y="232" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="267.0" y="264.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">ACC</text>
+<rect x="348" y="232" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="423.0" y="264.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">92</text>
+<rect x="36" y="286" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="111.0" y="318.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">S03</text>
+<rect x="192" y="286" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="267.0" y="318.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">FIN</text>
+<rect x="348" y="286" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="423.0" y="318.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">75</text>
+<text x="520" y="210" font-size="22" fill="#9eafc2">← 一行 = 一个观测</text>
+<text x="520" y="290" font-size="22" fill="#9eafc2">每列类型可以不同</text>
+<line x1="360" y1="400" x2="360" y2="450" stroke="#79bdf1" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="380" y="434" font-size="22" fill="#79bdf1" font-weight="700" font-family="Consolas, Menlo, monospace">as.matrix(d)</text>
+<rect x="36" y="470" width="150" height="48" rx="8" fill="#0f2236" stroke="#294158" stroke-width="2"/>
+<text x="111.0" y="502.0" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">id</text>
+<rect x="192" y="470" width="150" height="48" rx="8" fill="#0f2236" stroke="#294158" stroke-width="2"/>
+<text x="267.0" y="502.0" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">major</text>
+<rect x="348" y="470" width="150" height="48" rx="8" fill="#0f2236" stroke="#294158" stroke-width="2"/>
+<text x="423.0" y="502.0" font-size="22" fill="#79bdf1" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">score</text>
+<rect x="36" y="524" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="111.0" y="556.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">"S01"</text>
+<rect x="192" y="524" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="267.0" y="556.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">"FIN"</text>
+<rect x="348" y="524" width="150" height="48" rx="8" fill="#3a2610" stroke="#f2b56b" stroke-width="2"/>
+<text x="423.0" y="556.0" font-size="22" fill="#f5f9ff" font-weight="600" text-anchor="middle" font-family="Consolas, Menlo, monospace">"88"</text>
+<text x="520" y="560" font-size="22" fill="#f2b56b">← 统一成字符</text>
+<rect x="36" y="620" width="648" height="110" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="664" font-size="28" fill="#79bdf1" font-weight="700">先检查再计算</text>
+<text x="58" y="706" font-size="25" fill="#b7c5d4">str() 看类型 · summary() 看分布 · dim() 看规模</text>
+</g>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="766" viewBox="0 0 720 766" role="img" aria-labelledby="title desc">
+<title id="title">K27 三种连接保留哪些行</title>
+<desc id="desc">左表学号1、2、3，右表学号2、3、4。内连接只保留2和3；左连接保留1、2、3，其中1的右表部分为NA；全连接保留1到4，1的右表部分和4的左表部分都是NA。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#79bdf1" stroke-width="1.5"/></marker></defs>
+<rect width="720" height="766" rx="20" fill="#030813"/>
+<g font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif" fill="#b7c5d4">
+<text x="36" y="62" font-size="32" font-weight="700" fill="#f5f9ff">K27 三种连接保留哪些行</text>
+<text x="36" y="112" font-size="24" fill="#b7c5d4">左表 x：id 1 2 3　　右表 y：id 2 3 4</text>
+<text x="36" y="178" font-size="23" fill="#79bdf1" font-weight="700" font-family="Consolas, Menlo, monospace">merge(x, y)</text>
+<text x="280" y="178" font-size="22" fill="#9eafc2">内连接</text>
+<rect x="36" y="194" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="62" y="226" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">2</text>
+<text x="110" y="226" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="156" y="226" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<rect x="198" y="194" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="224" y="226" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">3</text>
+<text x="272" y="226" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="318" y="226" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<text x="36" y="328" font-size="23" fill="#79bdf1" font-weight="700" font-family="Consolas, Menlo, monospace">all.x = TRUE</text>
+<text x="280" y="328" font-size="22" fill="#9eafc2">左连接</text>
+<rect x="36" y="344" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="62" y="376" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">1</text>
+<text x="110" y="376" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="156" y="376" font-size="20" fill="#f2b56b" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">NA</text>
+<rect x="198" y="344" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="224" y="376" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">2</text>
+<text x="272" y="376" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="318" y="376" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<rect x="360" y="344" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="386" y="376" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">3</text>
+<text x="434" y="376" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="480" y="376" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<text x="36" y="478" font-size="23" fill="#79bdf1" font-weight="700" font-family="Consolas, Menlo, monospace">all = TRUE</text>
+<text x="280" y="478" font-size="22" fill="#9eafc2">全连接</text>
+<rect x="36" y="494" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="62" y="526" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">1</text>
+<text x="110" y="526" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="156" y="526" font-size="20" fill="#f2b56b" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">NA</text>
+<rect x="198" y="494" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="224" y="526" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">2</text>
+<text x="272" y="526" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="318" y="526" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<rect x="360" y="494" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="386" y="526" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">3</text>
+<text x="434" y="526" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">x</text>
+<text x="480" y="526" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<rect x="522" y="494" width="150" height="48" rx="8" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="548" y="526" font-size="22" fill="#f5f9ff" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">4</text>
+<text x="596" y="526" font-size="20" fill="#f2b56b" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">NA</text>
+<text x="642" y="526" font-size="20" fill="#7fd1b0" font-weight="700" text-anchor="middle" font-family="Consolas, Menlo, monospace">y</text>
+<rect x="36" y="610" width="648" height="110" rx="12" fill="#0c1522" stroke="#294158" stroke-width="2"/>
+<text x="58" y="654" font-size="28" fill="#79bdf1" font-weight="700">合并前查重复键</text>
+<text x="58" y="696" font-size="25" fill="#b7c5d4">anyDuplicated(x$id)；一对多会让行数增加</text>
+</g>
+</svg>
