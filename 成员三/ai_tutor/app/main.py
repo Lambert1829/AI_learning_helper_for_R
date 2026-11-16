@@ -191,7 +191,8 @@ async def ai_error(request, exc):
 @app.get('/api/health')
 def health():
     return {'status':'ok','mode':'mock','version':'1.2.1','available_modes':['mock','ai','search'],'knowledge_version':DATA['version'],
-            'counts':{k:len(DATA[k]) for k in ['knowledge','questions','errors','relations']}}
+            'counts':{**{k:len(DATA[k]) for k in ['knowledge','questions','errors','relations']},
+                      'supplements':len(ENRICHMENT)}}
 
 
 @app.get('/api/knowledge')

@@ -26,6 +26,8 @@ const ASSETS = [
   '/static/demo-mode.css',
   '/static/code-terminal.js',
   '/static/code-terminal.css',
+  '/static/hero-fx.js',
+  '/static/hero-fx.css',
   '/static/vendor/three/three.module.min.js',
   '/static/vendor/marked/marked.js',
   '/static/vendor/dompurify/purify.js',
