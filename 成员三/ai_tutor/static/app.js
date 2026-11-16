@@ -1,5 +1,5 @@
 'use strict';
-import {markdownFragment} from './answer-markdown.js?v=20261115.13';
+import {markdownFragment} from './answer-markdown.js?v=20261116.3';
 const $ = id => document.getElementById(id);
 function syncViewportWidth() {
   document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);

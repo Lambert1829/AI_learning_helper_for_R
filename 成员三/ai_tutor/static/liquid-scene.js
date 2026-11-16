@@ -44,8 +44,10 @@ const CONFIG = Object.freeze({
   clusterRing: {centerX:0,centerZ:-15,radiusX:18,radiusZ:12.2,startAngle:-Math.PI/2},
   revolution: {
     angularSpeed:0.025,
-    dragSensitivity:0.0045,
-    tiltLimit:0.025,
+    dragSensitivity:0.003,
+    tiltSensitivity:0.0017,
+    tiltLimit:Math.PI / 10,
+    oceanClearance:0.2,
     resumeDelayMs:1000,
   },
   unitColors: ['#8fc9ff','#9fdbca','#c0b7ef','#e4bf9a','#91d6df','#deb3c7','#abb9e8','#d4cf9d'],
@@ -412,8 +414,8 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
         if(Math.hypot(dx,dy)>threshold)down.dragged=true;
         if(down.dragged){
           event.preventDefault();
-          this.fieldYaw = down.yaw - dx * CONFIG.revolution.dragSensitivity;
-          this.fieldTilt = THREE.MathUtils.clamp(down.pitch + dy * .001, -CONFIG.revolution.tiltLimit, CONFIG.revolution.tiltLimit);
+          this.fieldYaw = down.yaw + dx * CONFIG.revolution.dragSensitivity;
+          this.fieldTilt = THREE.MathUtils.clamp(down.pitch + dy * CONFIG.revolution.tiltSensitivity, -CONFIG.revolution.tiltLimit, CONFIG.revolution.tiltLimit);
           canvas.style.cursor='grabbing';this.requestFrame();return;
         }
       }
@@ -641,6 +643,7 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
     const angle = this.orbitPhase + this.fieldYaw;
     const cosine = Math.cos(angle), sine = Math.sin(angle);
     const tiltCosine = Math.cos(this.fieldTilt), tiltSine = Math.sin(this.fieldTilt);
+    let lowestOrbBottom = Infinity;
     for (const slot of this.orbSlots) {
       const x = slot.base.x - this.fieldCenter.x;
       const y = slot.base.y - this.fieldCenter.y;
@@ -651,7 +654,14 @@ class LiquidKnowledgeScene extends StaticKnowledgeMap {
         this.fieldCenter.y + y * tiltCosine - rotatedZ * tiltSine,
         this.fieldCenter.z + y * tiltSine + rotatedZ * tiltCosine,
       );
+      // Reserve room for liquid deformation, hover enlargement and vertical floating.
+      const orbExtent = slot.baseScale * (1 + CONFIG.liquid.waveStrength) + 0.25;
+      lowestOrbBottom = Math.min(lowestOrbBottom, slot.orbitPosition.y - orbExtent);
     }
+    // These amplitudes match the ocean vertex shader's maximum wave crest.
+    const waveCrest = CONFIG.ocean.level + CONFIG.ocean.waveHeight * (0.46 + 0.34 + 0.24 + 0.12);
+    const fieldLift = Math.max(0, waveCrest + CONFIG.revolution.oceanClearance - lowestOrbBottom);
+    for (const slot of this.orbSlots) slot.orbitPosition.y += fieldLift;
     const focused=this.orbSlots.find(slot=>slot.item?.id===this.visualFocusId);
     this.orbSlots.forEach((slot,index)=>{
       if(!slot.item)return;

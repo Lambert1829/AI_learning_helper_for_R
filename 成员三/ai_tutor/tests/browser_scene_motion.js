@@ -86,24 +86,71 @@ async page => {
       const scene = window.__sceneForTest;
       return {camera:scene.camera.position.toArray(),ocean:scene.ocean.matrixWorld.toArray(),yaw:scene.fieldYaw,phase:scene.orbitPhase};
     });
-    check(Math.abs(drag.yaw - beforeDrag.yaw) > .3, 'drag rotates the knowledge field');
+    check(Math.abs(drag.yaw - beforeDrag.yaw - .48) < .000001, 'rightward drag follows the pointer with reduced sensitivity');
     check(JSON.stringify(drag.camera) === JSON.stringify(beforeDrag.camera), 'drag leaves the overview camera fixed');
     check(JSON.stringify(drag.ocean) === JSON.stringify(beforeDrag.ocean), 'drag leaves the particle ocean orientation fixed');
     await page.waitForTimeout(350);
     check(await page.evaluate(phase => window.__sceneForTest.orbitPhase === phase, drag.phase), 'drag release briefly holds the chosen angle');
     await page.waitForTimeout(850);
     check(await page.evaluate(phase => window.__sceneForTest.orbitPhase > phase, drag.phase), 'revolution resumes after interaction');
+
+    for (const direction of [1, -1]) {
+      await page.locator('#map-reset').click();
+      const startY = direction === 1 ? 320 : 540;
+      await page.mouse.move(680, startY);
+      await page.mouse.down();
+      await page.mouse.move(680, startY + direction * 40, {steps:4});
+      const firstTilt = await page.evaluate(() => window.__sceneForTest.fieldTilt);
+      await page.mouse.move(680, startY + direction * 80, {steps:4});
+      const secondTilt = await page.evaluate(() => window.__sceneForTest.fieldTilt);
+      check(Math.abs(firstTilt * direction - .068) < .000001 && Math.abs(secondTilt * direction - .136) < .000001,
+        `vertical drag uses reduced sensitivity and continues beyond the former limit in direction ${direction}`);
+      await page.mouse.move(680, startY + direction * 200, {steps:8});
+      await page.mouse.up();
+      const fullTilt = await page.evaluate(() => window.__sceneForTest.fieldTilt);
+      check(Math.abs(fullTilt - direction * Math.PI / 10) < .000001, `vertical drag reaches 18 degrees in direction ${direction}`);
+      await page.waitForTimeout(200);
+      check(await page.evaluate(tilt => window.__sceneForTest.fieldTilt === tilt, fullTilt), `vertical angle holds after release in direction ${direction}`);
+      check(await page.locator('#map-detail').isHidden(), `vertical drag does not open details in direction ${direction}`);
+      await page.screenshot({path:`output/playwright/vertical-tilt-${direction === 1 ? 'down' : 'up'}.png`});
+    }
+
+    const tiltGeometry = await page.evaluate(() => {
+      const scene = window.__sceneForTest;
+      scene.stop();
+      const config = window.LIQUID_KNOWLEDGE_CONFIG;
+      const waveCrest = config.ocean.level + config.ocean.waveHeight * (0.46 + 0.34 + 0.24 + 0.12);
+      let clearance = Infinity, spacingError = 0;
+      for (const tilt of [-config.revolution.tiltLimit, 0, config.revolution.tiltLimit]) {
+        scene.fieldTilt = tilt;
+        for (let step = 0; step < 16; step++) {
+          scene.fieldYaw = step * Math.PI / 8;
+          scene.updateOrbs(scene.elapsedSeconds, false);
+          for (const slot of scene.orbSlots) {
+            const maximumExtent = slot.baseScale * 1.035 * (1 + config.liquid.waveStrength * (1 + .18 * .32)) + .13;
+            clearance = Math.min(clearance, slot.orbitPosition.y - maximumExtent - waveCrest);
+            spacingError = Math.max(spacingError, Math.abs(slot.orbitPosition.distanceTo(scene.orbSlots[0].orbitPosition) -
+              slot.base.distanceTo(scene.orbSlots[0].base)));
+          }
+        }
+      }
+      scene.resetView();
+      return {clearance, spacingError};
+    });
+    check(tiltGeometry.clearance >= .19, 'orbs stay above the maximum wave crest throughout the expanded tilt and revolution range');
+    check(tiltGeometry.spacingError < .000001, 'expanded tilt preserves spacing between course orbs');
     await page.locator('#map-reset').click();
     const selected = await page.evaluate(() => {
       const scene = window.__sceneForTest;
       scene.fieldYaw = .65;
+      scene.fieldTilt = Math.PI / 12;
       scene.orbitPhase = .3;
       scene.updateOrbs(scene.elapsedSeconds, false);
       const slot = scene.orbSlots.find(slot => slot.item.id === 'K06');
       scene.select('K06');
       return {error:scene.transition.toTarget.distanceTo(slot.orbitPosition),phase:scene.orbitPhase};
     });
-    check(selected.error < .000001, 'focus camera targets the current revolved position');
+    check(selected.error < .000001, 'focus camera targets the current revolved and tilted position');
     await page.waitForFunction(() => document.querySelector('#detail-title')?.textContent.startsWith('K06'));
     await page.waitForTimeout(150);
     check(await page.evaluate(phase => window.__sceneForTest.orbitPhase === phase, selected.phase), 'details pause revolution for reading');
@@ -160,6 +207,13 @@ async page => {
     await route('knowledge');
     check(await page.locator('.scene-orb-label').count() === 43, 'mobile keeps all 43 revolved knowledge objects');
     check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'mobile revolution has no horizontal page overflow');
+    await page.locator('#map-reset').click();
+    await page.mouse.move(190, 370);
+    await page.mouse.down();
+    await page.mouse.move(190, 570, {steps:8});
+    await page.mouse.up();
+    check(await page.evaluate(() => Math.abs(window.__sceneForTest.fieldTilt - Math.PI / 10) < .000001), '390px viewport retains the full vertical tilt range');
+    check(await page.locator('#map-detail').isHidden(), 'mobile vertical drag keeps the map available');
     await page.screenshot({path:'output/playwright/orbit-independent-mobile.png'});
     check(errors.length === 0, 'no uncaught scene or navigation errors');
     return {passed:checks.length,checks,errors};

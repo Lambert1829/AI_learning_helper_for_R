@@ -4,6 +4,8 @@ async page => {
   page.on('pageerror',error=>errors.push(error.message));
   await page.goto('http://127.0.0.1:8000/#/knowledge');
   await page.waitForFunction(()=>document.querySelectorAll('.scene-orb-label').length===43);
+  await page.waitForFunction(()=>document.body.dataset.view==='knowledge'&&document.querySelector('#main-content').getAnimations().length===0);
+  await page.locator('#map-reset').click();
   check(await page.evaluate(()=>matchMedia('(pointer:coarse)').matches),'real coarse pointer context');
   const client=await page.context().newCDPSession(page);
   const touch=async(type,points)=>client.send('Input.dispatchTouchEvent',{type,touchPoints:points});
