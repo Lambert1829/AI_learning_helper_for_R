@@ -1,8 +1,8 @@
 /* Deterministic 2D knowledge navigation. No physics loop, random positions or HTML injection. */
 'use strict';
 class KnowledgeMap {
-  constructor({api, explain, exercise, codeBlock, units}) {
-    Object.assign(this, {api, explain, exercise, codeBlock, units});
+  constructor({api, explain, exercise, codeBlock, units, visit, enroll, bookmark}) {
+    Object.assign(this, {api, explain, exercise, codeBlock, units, visit, enroll, bookmark});
     this.items = []; this.edges = []; this.nodes = new Map(); this.cache = new Map();
     this.selected = null; this.sequence = 0; this.ready = false;
     this.$ = id => document.getElementById(id);
@@ -201,6 +201,7 @@ class KnowledgeMap {
     try {
       const k=this.cache.get(id) || await this.api('/api/knowledge/'+encodeURIComponent(id));
       this.cache.set(id,k);if(seq!==this.sequence)return;
+      this.visit?.(id);
       const root=this.$('detail-body');root.replaceChildren();
       root.append(this.node('p',n.k.chapter,'eyebrow'));const title=this.node('h2',k.id+' · '+k.title);title.id='detail-title';root.append(title);
       const fields=k.fields || {};
@@ -217,6 +218,8 @@ class KnowledgeMap {
       const explain=this.action('在AI问答中讲解',()=>{this.close(false);this.explain(id);},'primary');
       const practice=this.action('给我一道练习',()=>{this.close(false);this.exercise(id);});
       explain.dataset.request='true';practice.dataset.request='true';actions.append(explain,practice);root.append(actions);
+      actions.append(this.action('加入复习',async event=>{const target=event.currentTarget;if(await this.enroll?.(id))target.textContent='已加入复习';}),
+        this.action('收藏',async event=>{const target=event.currentTarget;if(await this.bookmark?.(id))target.textContent='已收藏';}));
       root.scrollTop=0;
     } catch(error) {
       if(seq!==this.sequence)return;

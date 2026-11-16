@@ -1,5 +1,5 @@
 'use strict';
-import {markdownFragment} from './answer-markdown.js?v=20261116.3';
+import {markdownFragment} from './answer-markdown.js?v=learning-v1';
 const $ = id => document.getElementById(id);
 function syncViewportWidth() {
   document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
@@ -17,6 +17,7 @@ let skipNextHashRoute = false, activeViewAnimation = null, routeSequence = 0;
 const FOLLOW_LABELS = {'举个例子':'例题','有什么易错点':'易错点','给我练习':'练习'};
 let codeOpen = false, freshContext = false;
 let requestController = null;
+let learningCenter = null;
 
 function pick(object, fields) {
   return Object.fromEntries(fields.filter(key => object?.[key] !== undefined).map(key => [key, object[key]]));
@@ -29,6 +30,7 @@ function safeRecord(record) {
     response: pick(response, ['request_id','status','mode','task_type','related_knowledge','matched_case_id',
       'prompt_version','knowledge_version','provider','model','used_web_search','search_status','duration_ms']),
   };
+  if (typeof record.id === 'string') result.id = record.id;
   result.response.answer = pick(response.answer, ['content_markdown','summary','steps','corrected_code','example_code','expected_output',
     'execution_status','code_kind','follow_ups','is_supplementary']);
   result.response.answer.issues = (response.answer.issues || []).map(issue => pick(issue, ['kind','line','reason']));
@@ -296,6 +298,12 @@ function renderRecords() {
       }, 'solution', true));
     }
     follow.append(button('继续提问', () => $('question').focus()));
+    if (learningCenter && record.id) follow.append(button('收藏回答', async event => {
+      const target = event.currentTarget;
+      const saved = await learningCenter.bookmark({conversationId:record.id, knowledgeId:r.related_knowledge?.[0] || null,
+        title:record.display_question || record.request.question || '代码纠错'});
+      if (saved) {target.textContent = '已收藏';status('已收藏，可在学习记录的复习页添加备注。');}
+    }));
     if (!a.content_markdown && a.expected_output) {
       const output = details('参考输出', 'reference-output');
       output.append(el('p', '预期输出 · 未经运行验证', 'muted'));
@@ -399,12 +407,20 @@ async function send(question, options = {}) {
       draft = liveAnswer(q, includeCode); scrollToLatest();
       response = await streamApi(path + '/stream', body, signal, (event,data) => draft.update(event,data));
     }
-    records.push(safeRecord({time:new Date().toISOString(), request:body, response,
-      ...(options.displayQuestion ? {display_question:options.displayQuestion} : {})}));
+    const record = safeRecord({time:new Date().toISOString(), request:body, response,
+      ...(options.displayQuestion ? {display_question:options.displayQuestion} : {})});
+    let storageError = null;
+    if (learningCenter) {
+      try { record.id = (await learningCenter.ingest(record)).conversationId; }
+      catch (error) { storageError = error; }
+    }
+    if (record.id) records = records.filter(item => item.id !== record.id);
+    records.push(record);
     records = records.slice(-100); freshContext = false;
     renderRecords(); renderHistory(); selectTopic(response.related_knowledge?.[0] || null);
     if (useComposer) $('question').value = '';
     if (save()) status(historyTrimmed ? '较早对话已裁剪，需要分析完整代码时请重新提交。' : '');
+    if (storageError) status('回答已生成，学习档案保存失败。' + storageError.message, true);
     scrollToLatest();
   } catch (e) {
     if (draft) { draft.remove(); renderRecords(); }
@@ -431,7 +447,7 @@ function navigate(view, recordIndex = null) {
   else { skipNextHashRoute = true; location.hash = '/' + view; route(); }
 }
 function route(focus = true) {
-  let view = location.hash.slice(2);
+  let view = location.hash.slice(2).split('/')[0];
   if (!['home','knowledge','chat','review','history'].includes(view)) {
     view = 'home'; history.replaceState(null, '', '#/home');
   }
@@ -458,6 +474,7 @@ function route(focus = true) {
     $('knowledge-view').hidden = view !== 'knowledge';
     $('history-view').hidden = view !== 'history';
     $('layout').hidden = !learning;
+    if (view === 'history') learningCenter?.route();
     $('workspace-title').textContent = view === 'review' ? '代码纠错' : 'AI问答';
     if (changed && learning) setCode(view === 'review');
     $('question').placeholder = view === 'review' ? '问题说明（可选）' : '输入问题，继续学习…';
@@ -501,6 +518,7 @@ function route(focus = true) {
   }
 }
 function renderHistory() {
+  if (learningCenter?.data) { learningCenter.renderConversationList(); return; }
   const root = $('history-list'); root.replaceChildren();
   if (!records.length) {
     const empty = el('div', '暂无学习记录', 'empty-state');
@@ -524,7 +542,19 @@ new ResizeObserver(() => {
     $('workspace').style.setProperty('--composer-height', `${composer.getBoundingClientRect().height}px`);
   }
 }).observe(composer);
-const mapUI = new window.KnowledgeMap({api, codeBlock, units:UNITS,
+async function courseApi(path) {
+  try { return await api(path); }
+  catch (error) {
+    const id = decodeURIComponent(path.split('/').at(-1));
+    const cached = (learningCenter?.course || learningCenter?.data?.course)?.knowledge?.find(item => item.id === id);
+    if (cached) return cached;
+    throw error;
+  }
+}
+const mapUI = new window.KnowledgeMap({api:courseApi, codeBlock, units:UNITS,
+  visit: id => learningCenter?.visit(id),
+  enroll: id => learningCenter?.enroll(id),
+  bookmark: id => learningCenter?.bookmark({knowledgeId:id,title:id+' · '+knowledge.find(item => item.id===id)?.title}),
   explain: id => explainKnowledge(id),
   exercise: id => { if(busy)return; navigate('chat');setCode(false);send('给我练习',{knowledgeId:id,useComposer:false,taskType:'exercise',displayQuestion:'练习'}); }
 });
@@ -562,16 +592,25 @@ mobile.addEventListener('change', () => setNav(false));
 $('version-open').onclick = () => { setMore(false); $('version-dialog').showModal(); };
 $('version-close').onclick = () => $('version-dialog').close();
 $('version-dialog').addEventListener('close', () => $('more-toggle').focus());
-$('clear').onclick = () => {
+$('clear').onclick = async () => {
   if (busy) return;
+  if (learningCenter) {
+    try { await learningCenter.clearConversations(); }
+    catch (error) { status(error.message, true); return; }
+  }
   records = []; setMore(false); setCode(false); selectTopic(null); renderRecords(); renderHistory();
   if (save()) status();
   if (currentView === 'chat' || currentView === 'review') $('question').focus();
   else if (currentView === 'history') $('history-title').focus();
   else $('more-toggle').focus();
 };
-$('export').onclick = () => {
+$('export').onclick = async () => {
   setMore(false);
+  if (learningCenter) {
+    try { await learningCenter.exportConversations(); }
+    catch (error) {status(error.message,true);}
+    return;
+  }
   const blob = new Blob([JSON.stringify({version:'1.2.1',records:records.map(safeRecord)},null,2)], {type:'application/json;charset=utf-8'});
   const url = URL.createObjectURL(blob), link = el('a');
   link.href = url; link.download = 'R语言学习记录.json'; link.click();
@@ -586,8 +625,48 @@ $('debug-example').onclick = () => {
   send('为什么不能用x == NA判断缺失？');
 };
 renderRecords(); renderHistory(); route(false);
-Promise.all([api('/api/health'),api('/api/knowledge')]).then(([health,data]) => {
-  knowledge = data.items; relations = data.relations || [];
-  $('version-number').textContent = '应用 ' + health.version + ' · 知识版本 ' + health.knowledge_version;
-  selectTopic(activeId); renderRecords(); mapUI.load(knowledge, relations);
-}).catch(() => status('无法连接本地服务，请启动服务后刷新。', true));
+async function startLearning() {
+  try {
+    const {LearningCenter} = await import('./learning-center.js?v=learning-v1');
+    learningCenter = new LearningCenter({units:UNITS, api:courseApi, codeBlock, notify:status,
+      openKnowledge:id => {navigate('knowledge');setTimeout(() => mapUI.select(id),120);},
+      openConversation:id => {
+        const all = learningCenter.data.conversations;
+        const item = all.find(item => item.id===id);
+        if (!item) {learningCenter.feedback('该对话已清除。',true);return;}
+        records = all.slice(-100).map(item => ({...safeRecord(item.record),id:item.id}));
+        if (!records.some(record => record.id===id)) records.unshift({...safeRecord(item.record),id});
+        renderRecords();
+        navigate(item.record.response.task_type==='debug'?'review':'chat',records.findIndex(record => record.id===id));
+      },
+      onSnapshot:data => {
+        if (busy) return;
+        const restored = data.conversations.slice(-100).map(item => ({...safeRecord(item.record),id:item.id}));
+        if (JSON.stringify(restored)!==JSON.stringify(records)) {
+          records=restored;renderRecords();renderHistory();
+        }
+      }
+    });
+    let legacy=[];
+    try {const saved=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(saved))legacy=saved.filter(item=>item?.request && typeof item?.response?.answer?.summary==='string').map(safeRecord);} catch {}
+    await learningCenter.start(legacy);
+    renderRecords();
+  } catch (error) {
+    learningCenter=null;
+    $('learning-content').textContent='学习模块尚未就绪。'+error.message;
+    $('learning-records').hidden=false;
+    status('学习模块加载失败，'+error.message,true);
+  }
+  const [healthResult,catalogResult] = await Promise.allSettled([api('/api/health'),api('/api/knowledge')]);
+  const cached = learningCenter?.course;
+  if (catalogResult.status==='fulfilled') {
+    knowledge=catalogResult.value.items;relations=catalogResult.value.relations||[];
+  } else if (cached?.knowledge?.length) {
+    knowledge=cached.knowledge;relations=cached.relations||[];
+    learningCenter.feedback('使用已保存课程资料。');
+  } else {status('课程资料读取失败，请连接服务或先保存离线资料。',true);return;}
+  if (healthResult.status==='fulfilled') $('version-number').textContent='应用 '+healthResult.value.version+' · 知识版本 '+healthResult.value.knowledge_version;
+  selectTopic(activeId);renderRecords();mapUI.load(knowledge,relations);
+  learningCenter?.setCatalog(knowledge,relations,cached);
+}
+startLearning();
