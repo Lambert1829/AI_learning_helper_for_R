@@ -11,6 +11,7 @@ const UNITS = ['环境与自助学习','类型与缺失','向量与字符串','�
 const mobile = matchMedia('(max-width:760px)');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let records = [], knowledge = [], relations = [], activeId = null, busy = false;
+let feedbackModule = null;
 let currentView = '', pendingRecord = null;
 let pendingLatestScroll = false;
 let skipNextHashRoute = false, activeViewAnimation = null, routeSequence = 0;
@@ -355,6 +356,7 @@ function renderRecords() {
       assistant.append(related);
     }
     assistant.append(follow);
+    feedbackModule?.mountFeedback(assistant, record);
     card.append(assistant); root.append(card);
   }
 }
@@ -594,6 +596,12 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
 $('ask-form').onsubmit = e => { e.preventDefault(); send(); };
 $('cancel-request').onclick = () => requestController?.abort();
 $('code-toggle').onclick = () => { setCode(!codeOpen); if (codeOpen) $('code').focus(); };
+// Answer feedback is optional: if the module fails to load, answers render without it.
+import('./answer-feedback.js?v=learning-v1').then(module => {
+  feedbackModule = module;
+  module.initFeedback({onOpen:() => setMore(false)});
+  if (records.length) renderRecords();
+}).catch(() => {});
 $('more-toggle').onclick = () => setMore($('more-panel').hidden);
 $('more-toggle').onkeydown = e => { if (e.key === 'ArrowDown') { e.preventDefault(); setMore(true,true); } };
 document.addEventListener('click', e => { if (!e.target.closest('.more-wrap')) setMore(false); });

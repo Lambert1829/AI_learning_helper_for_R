@@ -20,6 +20,8 @@ const ASSETS = [
   '/static/learning-store.js',
   '/static/review-scheduler.js',
   '/static/learning-center.js',
+  '/static/answer-feedback.js',
+  '/static/answer-feedback.css',
   '/static/vendor/three/three.module.min.js',
   '/static/vendor/marked/marked.js',
   '/static/vendor/dompurify/purify.js',
